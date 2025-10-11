@@ -77,8 +77,8 @@ export default function Home() {
             >
               <h4 className="font-medium mb-2">ValoTracker</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Founded and maintained Discord's #1 trending bot with 40,000+ servers. Valorant
-                statistics and insights.
+                Founded and maintained Discord's #1 trending bot with 40,000+
+                servers. Valorant statistics and insights.
               </p>
               <span className="text-xs text-blue-600 dark:text-blue-400">
                 Featured on discord.com/build
@@ -92,7 +92,8 @@ export default function Home() {
             >
               <h4 className="font-medium mb-2">Roblox</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming.
+                Amassed tens of millions of players across multiple games,
+                adopting various skill sets; not just programming.
               </p>
               <span className="text-xs text-blue-600 dark:text-blue-400">
                 Since 11 years old
@@ -124,8 +125,8 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                Won $1800 with team for "Catch N Go" - a gamified social mobile app built
-                in 48 hours
+                Won $1800 with team for "Catch N Go" - a gamified social mobile
+                app built in 48 hours
               </p>
             </div>
 
@@ -197,9 +198,8 @@ export default function Home() {
               servers.
             </p>
             <p className="leading-relaxed mb-4">
-              I love hackathons, competitive programming, gaming and building
-              things that scale. Probably working on a project right now while
-              studying Computer Science.
+              I love gaming and building things that scale. Probably working on
+              a project right now while studying Computer Science.
             </p>
             <a
               href="/contact"

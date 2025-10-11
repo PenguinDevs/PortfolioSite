@@ -1,4 +1,9 @@
-import { EmailIcon, DiscordIcon, LinkedInIcon, GitHubIcon } from '@/components/icons';
+import {
+  EmailIcon,
+  DiscordIcon,
+  LinkedInIcon,
+  GitHubIcon,
+} from '@/components/icons';
 
 export default function Contact() {
   return (
