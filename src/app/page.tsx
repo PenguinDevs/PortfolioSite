@@ -262,6 +262,7 @@ export default function Home() {
                   href="/projects"
                   className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex-1 sm:flex-none"
                 >
+                  View Projects
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -275,7 +276,6 @@ export default function Home() {
                       d="M19 11H5m14 0l-4-4m4 4l-4 4"
                     />
                   </svg>
-                  View Projects
                 </a>
               </div>
             </div>

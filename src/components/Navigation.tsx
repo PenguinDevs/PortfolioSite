@@ -8,14 +8,27 @@ export default function Navigation() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
 
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    // Initial check
+    handleResize();
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const isActive = (path: string) => {
@@ -30,12 +43,15 @@ export default function Navigation() {
     { href: '/contact', label: 'Contact' },
   ];
 
+  // Show background if scrolled OR if on mobile
+  const showBackground = scrolled || !isDesktop;
+
   return (
     <nav
       className={`
       fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ease-in-out
       ${
-        scrolled
+        showBackground
           ? 'bg-background/95 backdrop-blur-lg border-b border-white/10 shadow-lg shadow-black/5'
           : 'bg-transparent border-b border-transparent'
       }
