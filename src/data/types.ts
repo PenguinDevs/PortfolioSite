@@ -15,6 +15,7 @@ export interface TechStack {
   apis: TechItem[];
   os: TechItem[];
   datafiles: TechItem[];
+  protocols: TechItem[];
 }
 
 export interface Award {
@@ -43,16 +44,11 @@ export interface Project {
   tags: string[]; // general tags like "Winner", "Production", etc.
   techStack: string[]; // technical tags like "Next.js", "Python", etc.
   buttons: {
-    demo?: {
-      label: string;
-      href: string;
-    };
-    source?: {
-      label: string;
-      href: string;
-    };
-  };
-  link: {
+    label: string;
+    href: string;
+    type: 'external' | 'internal';
+  }[];
+  link?: {
     type: 'external' | 'internal';
     value: string; // external URL or internal route like "/projects/valotracker"
   };

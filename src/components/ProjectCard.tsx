@@ -52,27 +52,32 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) 
         )}
       </div>
 
-      <div className="flex gap-4 mt-auto">
-        {project.buttons.demo && (
-          <a
-            href={project.buttons.demo.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
-          >
-            {project.buttons.demo.label} →
-          </a>
-        )}
-        {project.buttons.source && (
-          <a
-            href={project.buttons.source.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
-          >
-            {project.buttons.source.label} →
-          </a>
-        )}
+      <div className="flex flex-wrap gap-4 mt-auto">
+        {project.buttons.map((button, index) => {
+          if (button.type === 'internal') {
+            return (
+              <Link
+                key={index}
+                href={button.href}
+                className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+              >
+                {button.label} →
+              </Link>
+            );
+          }
+
+          return (
+            <a
+              key={index}
+              href={button.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+            >
+              {button.label} →
+            </a>
+          );
+        })}
       </div>
 
       {isCompact && project.tags.length > 0 && (
@@ -85,7 +90,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) 
     </div>
   );
 
-  if (project.link.type === 'internal') {
+  if (project.link?.type === 'internal') {
     return (
       <Link href={project.link.value} className="block">
         <CardContent />
@@ -93,7 +98,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) 
     );
   }
 
-  if (project.link.type === 'external') {
+  if (project.link?.type === 'external') {
     return (
       <a
         href={project.link.value}

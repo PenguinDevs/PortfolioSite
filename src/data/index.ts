@@ -21,8 +21,8 @@ export const getTechStack = (): TechStack => {
 };
 
 export const getAllTechItems = (): TechItem[] => {
-  const { languages, frameworks, databases, tools, apis, os, datafiles } = data.techStack;
-  return [...languages, ...frameworks, ...databases, ...tools, ...apis, ...os, ...datafiles];
+  const { languages, frameworks, databases, tools, apis, os, datafiles, protocols } = data.techStack;
+  return [...languages, ...frameworks, ...databases, ...tools, ...apis, ...os, ...datafiles, ...protocols];
 };
 
 export const getTechItemById = (id: string): TechItem | undefined => {

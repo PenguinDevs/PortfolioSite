@@ -36,6 +36,10 @@ techStack:
       name: Golang
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg
       category: Language
+    - id: luau
+      name: Luau
+      imageUrl: /luau_logo.png
+      category: Language
 
   frameworks:
     - id: nextjs
@@ -49,6 +53,10 @@ techStack:
     - id: fastapi
       name: FastAPI
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg
+      category: Framework
+    - id: flask
+      name: Flask
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg
       category: Framework
     - id: discordpy
       name: Discord.py
@@ -110,6 +118,10 @@ techStack:
       name: Github
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg
       category: Tool
+    - id: docker
+      name: Docker
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg
+      category: Tool
 
   apis:
     - id: discordapi
@@ -161,11 +173,17 @@ techStack:
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/latex/latex-original.svg
       category: Data File
 
+  protocols:
+    - id: xmpp
+      name: XMPP
+      imageUrl: data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwcHgiIGhlaWdodD0iMjAwcHgiIHg9IjBweCIgeT0iMHB4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyMDAgMjAwIj4NCg0KPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF9yaWdodF8iIHkyPSIxLjI3OWUtMTMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4Mj0iLTEwNzMuMiIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMTk2LjYwNCwzNy4zNjg5NzcpIiB5MT0iMTI2Ljg1IiB4MT0iLTEwNzMuMiI+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzFiMzk2NyIgb2Zmc2V0PSIuMDExIi8+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzEzYjVlYSIgb2Zmc2V0PSIuNDY3Ii8+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzAwMmI1YyIgb2Zmc2V0PSIuOTk0NSIvPg0KPC9saW5lYXJHcmFkaWVudD4NCg0KPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF9sZWZ0XyIgeTI9IjEuMjc5ZS0xMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgyPSItMTA3My4yIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KC0xLDAsMCwxLC05OTQuNzg4MDEsMzcuMzY3OTc3KSIgeTE9IjEyNi44NSIgeDE9Ii0xMDczLjIiPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMxYjM5NjciIG9mZnNldD0iLjAxMSIvPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMxM2I1ZWEiIG9mZnNldD0iLjQ2NyIvPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMwMDJiNWMiIG9mZnNldD0iLjk5NDUiLz4NCjwvbGluZWFyR3JhZGllbnQ+DQoNCjxwYXRoIGQ9Im0gMTUxLjgwNTEyLDUxLjU1Nzk3OCBjIDAuMDc3LDEuMzEzIC0xLjc4NywwLjk2OCAtMS43ODcsMi4yOTMgMCwzOC41NTEwMDIgLTQ2LjU1OCw5Ny4zNjYwMTIgLTkxLjY4Nzk4NSwxMDguNzMwMDEyIHYgMS42MzkgQyAxMTguMjgzMTMsMTU4LjY5OTk5IDE4Ni44OTAxMiw5Ni40MTk5OCAxODguNDAwMTIsMzcuMzY5OTc3IGwgLTM2LjU5OSwxNC4xODkwMDEgeiIgc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF9yaWdodF8pIi8+DQo8cGF0aCBkPSJtIDEzMy42NzMxMiw1Ni4zMDA5NzggYyAwLjA3NiwxLjMxMyAwLjEyLDIuNjMgMC4xMiwzLjk1NyAwLDM4LjU1MTAwMiAtMzAuNjk4OTgsOTAuNDk3MDEyIC03NS44MjY5ODUsMTAxLjg2MDAxMiB2IDEuNjM5IGMgNTkuMDQ0MDA1LC0yLjc5IDEwNS44MDk5OTUsLTYzLjAyNDAxIDEwNS44MDk5OTUsLTEwOS4yMDAwMTIgMCwtMi4zNzUgLTAuMTI4LC00LjcyOSAtMC4zNzEsLTcuMDU2IGwgLTI5LjczLDguNzk4IHoiIHN0eWxlPSJmaWxsOiNlOTZkMWYiLz4NCjxwYXRoIGQ9Im0gMTYzLjY5MTEyLDQ2Ljk1MTk3OCAtNy42MTY5OSwyLjcyMiBjIDAuMDQxLDAuOTYyIDAuMDY2LDIuMjU0IDAuMDY2LDMuMjI1IDAsNDEuMjE5MDAyIC0zNy4yNzEsOTguMjA0MDEyIC04Ny4yNzE5OTUsMTA3LjEyMDAxMiAtMy4yNDUwMSwxLjA4OCAtNy41MzgwMSwyLjA3NyAtMTAuOTMyLDIuOTMxIHYgMS42MzggQyAxMjMuMTkwMTMsMTU5LjAyNzk5IDE2OS4wMzYxMyw5Mi43MjE5OCAxNjMuNjk2MTIsNDYuOTQ3OTc4IFoiIHN0eWxlPSJmaWxsOiNkOTU0MWUiLz4NCg0KPHBhdGggZD0ibSA1MC4wMTEsNTEuNTU2OTc4IGMgLTAuMDc3LDEuMzEzIDEuNzg3LDAuOTY4IDEuNzg3LDIuMjkzIDAsMzguNTUxMDAyIDQ2LjU1ODAwNyw5Ny4zNjYwMTIgOTEuNjg3OTksMTA4LjczMDAxMiB2IDEuNjM5IEMgODMuNTMzLDE1OC42OTg5OSAxNC45MjYsOTYuNDE4OTggMTMuNDE2LDM3LjM2ODk3NyBsIDM2LjU5OSwxNC4xODkwMDEgeiIgc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF9sZWZ0XykiLz4NCjxwYXRoIGQ9Im0gNjguMTQzLDU2LjI5OTk3OCBjIC0wLjA3NiwxLjMxMyAtMC4xMiwyLjYzIC0wLjEyLDMuOTU3IDAsMzguNTUxMDAyIDMwLjY5ODk5NSw5MC40OTcwMTIgNzUuODI2OTksMTAxLjg2MDAxMiB2IDEuNjM5IEMgODQuODA2LDE2MC45NjU5OSAzOC4wNCwxMDAuNzMxOTggMzguMDQsNTQuNTU1OTc4IGMgMCwtMi4zNzUgMC4xMjgsLTQuNzI5IDAuMzcxLC03LjA1NiBsIDI5LjczLDguNzk4IHoiIHN0eWxlPSJmaWxsOiNhMGNlNjciLz4NCjxwYXRoIGQ9Im0gMzguMTI1LDQ2Ljk1MDk3OCA3LjYxNywyLjcyMiBjIC0wLjA0MSwwLjk2MiAtMC4wNjYsMi4yNTQgLTAuMDY2LDMuMjI1IDAsNDEuMjE5MDAyIDM3LjI3MSw5OC4yMDQwMTIgODcuMjcxOTksMTA3LjEyMDAxMiAzLjI0NSwxLjA4OCA3LjUzOCwyLjA3NyAxMC45MzIsMi45MzEgdiAxLjYzOCBDIDc4LjYyNiwxNTkuMDI2OTkgMzIuNzgsOTIuNzIwOTggMzguMTIsNDYuOTQ2OTc4IFoiIHN0eWxlPSJmaWxsOiM0Mzk2MzkiLz4NCg0KPHN0eWxlIHhtbG5zPSIiIGNsYXNzPSJkYXJrcmVhZGVyIGRhcmtyZWFkZXItLWZhbGxiYWNrIj5odG1sLCBib2R5LCBib2R5IDpub3QoaWZyYW1lKSB7DQogICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tZGFya3JlYWRlci1iYWNrZ3JvdW5kLWZmZmZmZiwgIzE4MWExYikgIWltcG9ydGFudDsNCiAgICBib3JkZXItY29sb3I6IHZhcigtLWRhcmtyZWFkZXItYm9yZGVyLTQwNDA0MCwgIzc3NmU2MikgIWltcG9ydGFudDsNCiAgICBjb2xvcjogdmFyKC0tZGFya3JlYWRlci10ZXh0LTAwMDAwMCwgI2U4ZTZlMykgIWltcG9ydGFudDsNCn0NCmRpdltzdHlsZSo9ImJhY2tncm91bmQtY29sb3I6IHJnYigxMzUsIDEzNSwgMTM1KSJdIHsNCiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjODc4Nzg3ICFpbXBvcnRhbnQ7DQp9PC9zdHlsZT48L3N2Zz4=
+      category: Protocol
+
 awards:
   - id: macathon-2025
     title: MACATHON 2025 Winner
     secondaryText: First Place
-    description: Won $1800 with team for "Catch N Go" - a gamified social mobile app built in 48 hours
+    description: Won $1800 with team for "Catch N Go" - a gamified social mobile app built in 48 hours in a team of 4.
     icon:
       type: emoji
       value: 🥇
@@ -180,7 +198,7 @@ awards:
   - id: valotracker-trending
     title: "ValoTracker #1 Trending"
     secondaryText: July 2024
-    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers"
+    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly"
     icon:
       type: emoji
       value: 🏆
@@ -255,33 +273,39 @@ awards:
 projects:
   - id: valotracker
     title: ValoTracker
-    description: "Founded and maintained Discord's #1 trending bot with 40,000+ servers. Valorant statistics and insights."
+    description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly."
     tags:
-      - Featured
+      - Valorant
       - "Discord Trending #1"
     techStack:
       - Python
-      - JavaScript
+      - TypeScript
+      - Golang
+      - Flask
       - Next.js
       - MySQL
       - MongoDB
       - Redis
       - Discord API
-      - Riot API
+      - Riot Games API
+      - LingoHub
+      - Docker
+      - Postman
+      - XMPP
     buttons:
-      demo:
-        label: Visit Site
+      - label: Visit Site
         href: https://valotracker.com
-      source:
-        label: View Code
-        href: https://github.com/PenguinDevs/ValoTracker
+        type: external
+      - label: Add Bot
+        href: https://valotracker.com/invite
+        type: external
     link:
       type: external
       value: https://valotracker.com
 
   - id: catch-n-go
     title: Catch N Go
-    description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours.
+    description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
     tags:
       - 1st Place Winner
       - Hackathon
@@ -291,14 +315,18 @@ projects:
       - Python
       - FastAPI
       - MongoDB
+      - Docker
       - OpenAI API
     buttons:
-      demo:
-        label: View Project
+      - label: View Devpost
         href: https://devpost.com/software/catch-n-go
-      source:
-        label: Backend Code
+        type: external
+      - label: Frontend Code
+        href: https://github.com/Swofty-Developments/MacathonFrontend
+        type: external
+      - label: Backend Code
         href: https://github.com/Swofty-Developments/MacathonBackend
+        type: external
     link:
       type: external
       value: https://devpost.com/software/catch-n-go
@@ -307,63 +335,112 @@ projects:
     title: Ceebs - Food Ordering Platform
     description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
     tags:
-      - Production
+      - Ecommerce
       - Lead Developer
     techStack:
+      - Python
+      - TypeScript
       - Next.js
       - PostgreSQL
+      - FastAPI
       - Discord.py
-      - Python
     buttons:
-      demo:
-        label: Visit Site
-        href: https://merchant.ceebs.site
+      - label: Visit Site
+        href: https://ceebs.site/
+        type: external
+      - label: Visit Merchant
+        href: https://merchant.ceebs.site/
+        type: external
     link:
       type: external
-      value: https://merchant.ceebs.site
+      value: https://ceebs.site
+
+  - id: valorpc
+    title: ValoRPC
+    description: Discord rich presence for Valorant, leveraging screen reading and OCR to read live game state.
+    tags:
+      - 26 GH Stars
+      - OCR
+    techStack:
+      - Python
+    buttons:
+      - label: View Code
+        href: https://github.com/PenguinDevs/ValoRPC
+        type: external
+      - label: Download
+        href: https://github.com/PenguinDevs/ValoRPC/releases
+        type: external
+    link:
+      type: external
+      value: https://github.com/PenguinDevs/ValoRPC
+
+  - id: penguinengine
+    title: PenguinEngine
+    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works).
+    tags:
+      - Monorepo
+      - Library
+    techStack:
+      - Lua
+      - Luau
+      - TypeScript
+      - Github
+      - Roblox Studio
+    buttons:
+      - label: View Code
+        href: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
+        type: external
+      - label: Suspension Demo
+        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.mp4
+        type: external
+    link:
+      type: external
+      value: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
 
   - id: allocateus
     title: AllocateUs
     description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
     tags:
       - Hackathon Project
-      - AI-Powered
     techStack:
+      - Python
       - TypeScript
       - Next.js
-      - Python
       - FastAPI
-      - DataStax
       - OpenAI API
     buttons:
-      demo:
-        label: View Project
+      - label: View Devpost
         href: https://devpost.com/software/allocateus
-      source:
-        label: View Code
+        type: external
+      - label: View Backend
         href: https://github.com/BillyHri/unihack2025
+        type: external
+      - label: View Frontend
+        href: https://github.com/BillyHri/unihack2025-frontend
+        type: external
     link:
       type: external
       value: https://devpost.com/software/allocateus
 
   - id: roblox-games
     title: Roblox Games Portfolio
-    description: Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming.
+    description: Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming since the age of 11.
     tags:
       - 13M+ Plays
       - Game Development
     techStack:
       - Lua
+      - Luau
       - Blender
       - Roblox Studio
       - Photoshop
     buttons:
-      demo:
-        label: Play Game
+      - label: Play Game
         href: https://www.roblox.com/games/9278437733/Pet-Battles
-      source:
-        label: View Code
+        type: external
+      - label: View Code
         href: https://github.com/PenguinDevs/PetBattles
+        type: external
     link:
       type: external
       value: https://create.roblox.com/talent/creators/204152663
@@ -379,9 +456,9 @@ projects:
       - Adobe Substance 3D Painter
       - Photogrammetry
     buttons:
-      demo:
-        label: View Artwork
+      - label: View Artwork
         href: https://www.artstation.com/artwork/kNdArK
+        type: external
     link:
       type: external
       value: https://www.artstation.com/artwork/kNdArK
