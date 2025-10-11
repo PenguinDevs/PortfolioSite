@@ -9,10 +9,13 @@ interface ProjectCardProps {
   variant?: 'compact' | 'full'; // compact for homepage, full for projects page
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  variant = 'full',
+}) => {
   const isCompact = variant === 'compact';
   const techItems = getTechItemsByName(project.techStack);
-  
+
   const CardContent = () => (
     <div className="h-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex flex-col">
       <div className="flex items-center justify-between mb-3">
@@ -30,7 +33,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) 
           </div>
         )}
       </div>
-      
+
       <div className="flex-grow">
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
           {project.description}
@@ -40,7 +43,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, variant = 'full' }) 
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
               {techItems.map((tech, index) => (
-                <TechBadge 
+                <TechBadge
                   key={index}
                   tech={tech}
                   variant="compact"

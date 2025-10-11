@@ -16,9 +16,9 @@ export default function Template({ children }: { children: ReactNode }) {
         exit={{ opacity: 0, y: -10 }}
         transition={{
           duration: 0.2,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
-        style={{ 
+        style={{
           willChange: 'opacity, transform',
         }}
       >

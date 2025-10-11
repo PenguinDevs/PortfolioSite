@@ -94,10 +94,6 @@ const ELEMENT_SIZE_THRESHOLDS = {
   MIN_HEIGHT: 20,
 } as const;
 
-const UPDATE_INTERVALS = {
-  CONTENT_UPDATE: 2000,
-} as const;
-
 interface TechStackGraphProps {
   techItems?: TechItem[];
 }
@@ -112,7 +108,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
     name: item.name,
     category: item.category.toLowerCase(),
     imageUrl: item.imageUrl,
-  }))
+  }));
 
   // Helper functions
   const updateContentElements = () => {
@@ -311,7 +307,9 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
           // Right edge repulsion
           if (d.x > rightEdge) {
             const distance = d.x - rightEdge;
-            const force = (distance / BOUNDARY_CONFIG.EDGE_BUFFER) * BOUNDARY_CONFIG.STRONG_FORCE;
+            const force =
+              (distance / BOUNDARY_CONFIG.EDGE_BUFFER) *
+              BOUNDARY_CONFIG.STRONG_FORCE;
             d.vx = (d.vx || 0) - force;
           }
 
@@ -325,30 +323,39 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
           // Bottom edge repulsion
           if (d.y > bottomEdge) {
             const distance = d.y - bottomEdge;
-            const force = (distance / BOUNDARY_CONFIG.EDGE_BUFFER) * BOUNDARY_CONFIG.STRONG_FORCE;
+            const force =
+              (distance / BOUNDARY_CONFIG.EDGE_BUFFER) *
+              BOUNDARY_CONFIG.STRONG_FORCE;
             d.vy = (d.vy || 0) - force;
           }
 
           // Additional gradient force as nodes approach edges
           const edgeProximityForce = 0.4;
-          
+
           // Horizontal gradient forces
           if (d.x < leftEdge + BOUNDARY_CONFIG.BUFFER) {
-            const proximity = (leftEdge + BOUNDARY_CONFIG.BUFFER - d.x) / BOUNDARY_CONFIG.BUFFER;
+            const proximity =
+              (leftEdge + BOUNDARY_CONFIG.BUFFER - d.x) /
+              BOUNDARY_CONFIG.BUFFER;
             d.vx = (d.vx || 0) + proximity * edgeProximityForce;
           }
           if (d.x > rightEdge - BOUNDARY_CONFIG.BUFFER) {
-            const proximity = (d.x - (rightEdge - BOUNDARY_CONFIG.BUFFER)) / BOUNDARY_CONFIG.BUFFER;
+            const proximity =
+              (d.x - (rightEdge - BOUNDARY_CONFIG.BUFFER)) /
+              BOUNDARY_CONFIG.BUFFER;
             d.vx = (d.vx || 0) - proximity * edgeProximityForce;
           }
 
           // Vertical gradient forces
           if (d.y < topEdge + BOUNDARY_CONFIG.BUFFER) {
-            const proximity = (topEdge + BOUNDARY_CONFIG.BUFFER - d.y) / BOUNDARY_CONFIG.BUFFER;
+            const proximity =
+              (topEdge + BOUNDARY_CONFIG.BUFFER - d.y) / BOUNDARY_CONFIG.BUFFER;
             d.vy = (d.vy || 0) + proximity * edgeProximityForce;
           }
           if (d.y > bottomEdge - BOUNDARY_CONFIG.BUFFER) {
-            const proximity = (d.y - (bottomEdge - BOUNDARY_CONFIG.BUFFER)) / BOUNDARY_CONFIG.BUFFER;
+            const proximity =
+              (d.y - (bottomEdge - BOUNDARY_CONFIG.BUFFER)) /
+              BOUNDARY_CONFIG.BUFFER;
             d.vy = (d.vy || 0) - proximity * edgeProximityForce;
           }
         }
@@ -441,7 +448,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
 
     // Helper functions for tooltip positioning
     const updateTooltipPosition =
-      (tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>) =>
+      (tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, unknown>) =>
       (e: MouseEvent) => {
         tooltip
           .style('left', e.clientX + VISUAL_CONFIG.TOOLTIP_OFFSET_X + 'px')
@@ -449,7 +456,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
       };
 
     const createMouseEnterHandler = (
-      tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>
+      tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, unknown>
     ) =>
       function (this: SVGImageElement, event: MouseEvent, d: TechNode) {
         // Scale up icon
@@ -473,13 +480,15 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
         document.addEventListener('mousemove', handleMouseMove);
 
         // Store cleanup function
-        (this as any).__tooltipCleanup = () => {
+        (
+          this as SVGImageElement & { __tooltipCleanup?: () => void }
+        ).__tooltipCleanup = () => {
           document.removeEventListener('mousemove', handleMouseMove);
         };
       };
 
     const createMouseLeaveHandler = (
-      tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>
+      tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, unknown>
     ) =>
       function (this: SVGImageElement) {
         // Scale down icon
@@ -495,9 +504,12 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
         tooltip.style('opacity', 0);
 
         // Clean up global mouse listener
-        if ((this as any).__tooltipCleanup) {
-          (this as any).__tooltipCleanup();
-          delete (this as any).__tooltipCleanup;
+        const element = this as SVGImageElement & {
+          __tooltipCleanup?: () => void;
+        };
+        if (element.__tooltipCleanup) {
+          element.__tooltipCleanup();
+          delete element.__tooltipCleanup;
         }
       };
 
@@ -548,6 +560,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
       window.removeEventListener('resize', handleResize);
       clearInterval(contentUpdateInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

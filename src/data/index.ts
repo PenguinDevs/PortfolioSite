@@ -1,7 +1,14 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import yaml from 'js-yaml';
-import { PortfolioData, Award, Project, TechStack, TechItem, Friend } from './types';
+import {
+  PortfolioData,
+  Award,
+  Project,
+  TechStack,
+  TechItem,
+  Friend,
+} from './types';
 
 // Read and parse YAML file
 const yamlPath = join(process.cwd(), 'src', 'data', 'portfolio.yaml');
@@ -21,8 +28,26 @@ export const getTechStack = (): TechStack => {
 };
 
 export const getAllTechItems = (): TechItem[] => {
-  const { languages, frameworks, databases, tools, apis, os, datafiles, protocols } = data.techStack;
-  return [...languages, ...frameworks, ...databases, ...tools, ...apis, ...os, ...datafiles, ...protocols];
+  const {
+    languages,
+    frameworks,
+    databases,
+    tools,
+    apis,
+    os,
+    datafiles,
+    protocols,
+  } = data.techStack;
+  return [
+    ...languages,
+    ...frameworks,
+    ...databases,
+    ...tools,
+    ...apis,
+    ...os,
+    ...datafiles,
+    ...protocols,
+  ];
 };
 
 export const getTechItemById = (id: string): TechItem | undefined => {
@@ -30,19 +55,24 @@ export const getTechItemById = (id: string): TechItem | undefined => {
   return allTech.find(tech => tech.id === id);
 };
 
-export const getTechItemsByCategory = (category: TechItem['category']): TechItem[] => {
+export const getTechItemsByCategory = (
+  category: TechItem['category']
+): TechItem[] => {
   const allTech = getAllTechItems();
   return allTech.filter(tech => tech.category === category);
 };
 
 export const getTechItemsByName = (names: string[]): TechItem[] => {
   const allTech = getAllTechItems();
-  return names.map(name => 
-    allTech.find(tech => 
-      tech.name.toLowerCase() === name.toLowerCase() ||
-      tech.id.toLowerCase() === name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return names
+    .map(name =>
+      allTech.find(
+        tech =>
+          tech.name.toLowerCase() === name.toLowerCase() ||
+          tech.id.toLowerCase() === name.toLowerCase().replace(/[^a-z0-9]/g, '')
+      )
     )
-  ).filter(Boolean) as TechItem[];
+    .filter(Boolean) as TechItem[];
 };
 
 export const getProjectById = (id: string): Project | undefined => {

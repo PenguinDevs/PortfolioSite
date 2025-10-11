@@ -31,26 +31,30 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className={`
+    <nav
+      className={`
       fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ease-in-out
-      ${scrolled 
-        ? 'bg-background/95 backdrop-blur-lg border-b border-white/10 shadow-lg shadow-black/5' 
-        : 'bg-transparent border-b border-transparent'
+      ${
+        scrolled
+          ? 'bg-background/95 backdrop-blur-lg border-b border-white/10 shadow-lg shadow-black/5'
+          : 'bg-transparent border-b border-transparent'
       }
-    `}>
+    `}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`
                   relative px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ease-in-out
-                  ${isActive(link.href)
-                    ? 'text-white bg-white/10 shadow-md'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  ${
+                    isActive(link.href)
+                      ? 'text-white bg-white/10 shadow-md'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
                   }
                   group
                 `}
@@ -73,14 +77,38 @@ export default function Navigation() {
               aria-controls="mobile-menu"
               aria-expanded={mobileMenuOpen}
             >
-              <span className="sr-only">{mobileMenuOpen ? 'Close main menu' : 'Open main menu'}</span>
+              <span className="sr-only">
+                {mobileMenuOpen ? 'Close main menu' : 'Open main menu'}
+              </span>
               {mobileMenuOpen ? (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               ) : (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
                 </svg>
               )}
             </button>
@@ -91,16 +119,17 @@ export default function Navigation() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-white/10">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navLinks.map((link) => (
+              {navLinks.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`
                     block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200
-                    ${isActive(link.href)
-                      ? 'text-white bg-white/10 shadow-md'
-                      : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    ${
+                      isActive(link.href)
+                        ? 'text-white bg-white/10 shadow-md'
+                        : 'text-gray-300 hover:text-white hover:bg-white/5'
                     }
                   `}
                 >

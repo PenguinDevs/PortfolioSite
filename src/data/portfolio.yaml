@@ -160,7 +160,7 @@ techStack:
       name: XML
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xml/xml-original.svg
       category: Data File
-    - id: yaml 
+    - id: yaml
       name: YAML
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/yaml/yaml-original.svg
       category: Data File
@@ -196,7 +196,7 @@ awards:
       descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: valotracker-trending
-    title: "ValoTracker #1 Trending"
+    title: 'ValoTracker #1 Trending'
     secondaryText: July 2024
     description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly through pull-based workers."
     icon:
@@ -242,7 +242,7 @@ awards:
 
   - id: adf-2024
     title: Australian Defence Force Future Innovators Award
-    secondaryText: "2024"
+    secondaryText: '2024'
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     icon:
       type: emoji
@@ -257,7 +257,7 @@ awards:
 
   - id: adf-2022
     title: Australian Defence Force Future Innovators Award
-    secondaryText: "2022"
+    secondaryText: '2022'
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     icon:
       type: emoji
@@ -276,7 +276,7 @@ projects:
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly."
     tags:
       - Valorant
-      - "Discord Trending #1"
+      - 'Discord Trending #1'
     techStack:
       - Python
       - TypeScript

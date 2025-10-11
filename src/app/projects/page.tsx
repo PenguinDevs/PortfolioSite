@@ -12,7 +12,7 @@ export default function Projects() {
         </header>
 
         <div className="grid gap-8 md:grid-cols-2 items-stretch">
-          {projects.map((project) => (
+          {projects.map(project => (
             <ProjectCard key={project.id} project={project} variant="full" />
           ))}
         </div>
