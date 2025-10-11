@@ -13,6 +13,8 @@ export interface TechStack {
   databases: TechItem[];
   tools: TechItem[];
   apis: TechItem[];
+  os: TechItem[];
+  datafiles: TechItem[];
 }
 
 export interface Award {

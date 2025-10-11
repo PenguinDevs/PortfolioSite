@@ -32,6 +32,10 @@ techStack:
       name: C++
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg
       category: Language
+    - id: golang
+      name: Golang
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg
+      category: Language
 
   frameworks:
     - id: nextjs
@@ -48,7 +52,7 @@ techStack:
       category: Framework
     - id: discordpy
       name: Discord.py
-      imageUrl: https://discord.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg
+      imageUrl: /discord_py_logo.png
       category: Framework
 
   databases:
@@ -68,9 +72,9 @@ techStack:
       name: Redis
       imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg
       category: Database
-    - id: datastax
-      name: DataStax
-      imageUrl: https://www.datastax.com/sites/default/files/2021-07/datastax-logo-square--dark.svg
+    - id: supabase
+      name: Supabase
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg
       category: Database
 
   tools:
@@ -88,26 +92,74 @@ techStack:
       category: Tool
     - id: robloxstudio
       name: Roblox Studio
-      imageUrl: https://images.rbxcdn.com/c69b74f49c784052a5597ca35ca4eca9
+      imageUrl: data:image/svg+xml;base64,PHN2ZyBjbGFzcz0id2ViLWJsb3gtY3NzLXRzcy1udnB5emctbG9nbyIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiB2aWV3Qm94PSIwIDAgMzMgMzMiIGZpbGw9IndoaXRlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik02Ljc4ODE3IDAuOTc1MzQyTDMuMjE2MDYgMTQuMzAwNEwxMi4zMDY5IDE2LjczMzdMMTMuNDQyNCAxMi40OTk0TDI5LjU4ODEgMTYuODI2NEwzMi4wMjQ3IDcuNzM4ODRMNi43ODgxNyAwLjk3NTM0MloiIGZpbGw9ImN1cnJlbnRDb2xvciI+PC9wYXRoPjxwYXRoIGQ9Ik0xOC42MDY5IDIxLjQ0OEwyLjQ2MTI0IDE3LjEyMTFMMC4wMjQ2NTgyIDI2LjIxMTlMMjUuMjYxMSAzMi45NzU0TDI4LjgzMzIgMTkuNjUwNEwxOS43NDI0IDE3LjIxMzhMMTguNjA2OSAyMS40NDhaIiBmaWxsPSJjdXJyZW50Q29sb3IiPjwvcGF0aD48L3N2Zz4=
       category: Tool
     - id: photogrammetry
       name: Photogrammetry
       imageUrl: https://cdn-icons-png.flaticon.com/512/2103/2103633.png
       category: Tool
+    - id: postman
+      name: Postman
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-plain.svg
+      category: Tool
+    - id: git
+      name: Git
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg
+      category: Tool
+    - id: github
+      name: Github
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg
+      category: Tool
 
   apis:
     - id: discordapi
       name: Discord API
-      imageUrl: https://discord.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg
+      imageUrl: data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZGlzY29yZCIgdmlld0JveD0iMCAwIDE2IDE2Ij4NCiAgPHBhdGggZD0iTTEzLjU0NSAyLjkwN2ExMy4yIDEzLjIgMCAwIDAtMy4yNTctMS4wMTEuMDUuMDUgMCAwIDAtLjA1Mi4wMjVjLS4xNDEuMjUtLjI5Ny41NzctLjQwNi44MzNhMTIuMiAxMi4yIDAgMCAwLTMuNjU4IDAgOCA4IDAgMCAwLS40MTItLjgzMy4wNS4wNSAwIDAgMC0uMDUyLS4wMjVjLTEuMTI1LjE5NC0yLjIyLjUzNC0zLjI1NyAxLjAxMWEuMDQuMDQgMCAwIDAtLjAyMS4wMThDLjM1NiA2LjAyNC0uMjEzIDkuMDQ3LjA2NiAxMi4wMzJxLjAwMy4wMjIuMDIxLjAzN2ExMy4zIDEzLjMgMCAwIDAgMy45OTUgMi4wMi4wNS4wNSAwIDAgMCAuMDU2LS4wMTlxLjQ2My0uNjMuODE4LTEuMzI5YS4wNS4wNSAwIDAgMC0uMDEtLjA1OWwtLjAxOC0uMDExYTkgOSAwIDAgMS0xLjI0OC0uNTk1LjA1LjA1IDAgMCAxLS4wMi0uMDY2bC4wMTUtLjAxOXEuMTI3LS4wOTUuMjQ4LS4xOTVhLjA1LjA1IDAgMCAxIC4wNTEtLjAwN2MyLjYxOSAxLjE5NiA1LjQ1NCAxLjE5NiA4LjA0MSAwYS4wNS4wNSAwIDAgMSAuMDUzLjAwN3EuMTIxLjEuMjQ4LjE5NWEuMDUuMDUgMCAwIDEtLjAwNC4wODUgOCA4IDAgMCAxLTEuMjQ5LjU5NC4wNS4wNSAwIDAgMC0uMDMuMDMuMDUuMDUgMCAwIDAgLjAwMy4wNDFjLjI0LjQ2NS41MTUuOTA5LjgxNyAxLjMyOWEuMDUuMDUgMCAwIDAgLjA1Ni4wMTkgMTMuMiAxMy4yIDAgMCAwIDQuMDAxLTIuMDIuMDUuMDUgMCAwIDAgLjAyMS0uMDM3Yy4zMzQtMy40NTEtLjU1OS02LjQ0OS0yLjM2Ni05LjEwNmEuMDMuMDMgMCAwIDAtLjAyLS4wMTltLTguMTk4IDcuMzA3Yy0uNzg5IDAtMS40MzgtLjcyNC0xLjQzOC0xLjYxMnMuNjM3LTEuNjEzIDEuNDM4LTEuNjEzYy44MDcgMCAxLjQ1LjczIDEuNDM4IDEuNjEzIDAgLjg4OC0uNjM3IDEuNjEyLTEuNDM4IDEuNjEybTUuMzE2IDBjLS43ODggMC0xLjQzOC0uNzI0LTEuNDM4LTEuNjEycy42MzctMS42MTMgMS40MzgtMS42MTNjLjgwNyAwIDEuNDUxLjczIDEuNDM4IDEuNjEzIDAgLjg4OC0uNjMxIDEuNjEyLTEuNDM4IDEuNjEyIi8+DQo8L3N2Zz4=
       category: API
-    - id: riotapi
-      name: Riot API
-      imageUrl: https://www.riotgames.com/darkroom/1440/d0807e131a84f2491c24ace457265346:fb40a81b0c08d2db68bcf40057a99dcd/riot-games-logo-2019.png
+    - id: riotgamesapi
+      name: Riot Games API
+      imageUrl: /riot_games_logo.png
       category: API
     - id: openaiapi
       name: OpenAI API
       imageUrl: https://openai.com/favicon.ico
       category: API
+    - id: lingohub
+      name: LingoHub
+      imageUrl: /lingohub_logo.png
+      category: API
+
+  os:
+    - id: arch
+      name: Arch Linux
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/archlinux/archlinux-original.svg
+      category: OS
+    - id: windows
+      name: Windows
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg
+      category: OS
+
+  datafiles:
+    - id: json
+      name: JSON
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/json/json-original.svg
+      category: Data File
+    - id: xml
+      name: XML
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xml/xml-original.svg
+      category: Data File
+    - id: yaml 
+      name: YAML
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/yaml/yaml-original.svg
+      category: Data File
+    - id: toml
+      name: TOML
+      imageUrl: /toml_logo.png
+      category: Data File
+    - id: latex
+      name: LaTeX
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/latex/latex-original.svg
+      category: Data File
 
 awards:
   - id: macathon-2025

@@ -2,12 +2,13 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { TechItem } from '@/data/types';
 
 interface TechNode {
   id: string;
   name: string;
   category: string;
-  icon: string;
+  imageUrl: string;
   x?: number;
   y?: number;
   fx?: number | null;
@@ -96,116 +97,21 @@ const UPDATE_INTERVALS = {
   CONTENT_UPDATE: 2000,
 } as const;
 
-const TechStackGraph: React.FC = () => {
+interface TechStackGraphProps {
+  techItems?: TechItem[];
+}
+
+const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentElements = useRef<DOMRect[]>([]);
 
-  const techData: TechNode[] = [
-    // Programming Languages
-    {
-      id: 'python',
-      name: 'Python',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg',
-    },
-    {
-      id: 'javascript',
-      name: 'JavaScript',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg',
-    },
-    {
-      id: 'typescript',
-      name: 'TypeScript',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg',
-    },
-    {
-      id: 'kotlin',
-      name: 'Kotlin',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg',
-    },
-    {
-      id: 'java',
-      name: 'Java',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg',
-    },
-    {
-      id: 'lua',
-      name: 'Lua',
-      category: 'language',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/lua/lua-original.svg',
-    },
-
-    // Frameworks & Libraries
-    {
-      id: 'nextjs',
-      name: 'Next.js',
-      category: 'framework',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg',
-    },
-    {
-      id: 'react',
-      name: 'React',
-      category: 'framework',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg',
-    },
-    {
-      id: 'fastapi',
-      name: 'FastAPI',
-      category: 'framework',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg',
-    },
-
-    // Databases
-    {
-      id: 'mongodb',
-      name: 'MongoDB',
-      category: 'database',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg',
-    },
-    {
-      id: 'postgresql',
-      name: 'PostgreSQL',
-      category: 'database',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg',
-    },
-    {
-      id: 'mysql',
-      name: 'MySQL',
-      category: 'database',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg',
-    },
-    {
-      id: 'redis',
-      name: 'Redis',
-      category: 'database',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg',
-    },
-
-    // Tools & Platforms
-    {
-      id: 'docker',
-      name: 'Docker',
-      category: 'tool',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg',
-    },
-    {
-      id: 'git',
-      name: 'Git',
-      category: 'tool',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg',
-    },
-    {
-      id: 'blender',
-      name: 'Blender',
-      category: 'tool',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/blender/blender-original.svg',
-    },
-  ];
+  const techData: TechNode[] = techItems.map(item => ({
+    id: item.id,
+    name: item.name,
+    category: item.category.toLowerCase(),
+    imageUrl: item.imageUrl,
+  }))
 
   // Helper functions
   const updateContentElements = () => {
@@ -582,7 +488,7 @@ const TechStackGraph: React.FC = () => {
     // Add icons to nodes with hover effects
     node
       .append('image')
-      .attr('href', d => d.icon)
+      .attr('href', d => d.imageUrl)
       .attr('width', VISUAL_CONFIG.ICON_SIZE)
       .attr('height', VISUAL_CONFIG.ICON_SIZE)
       .attr('x', -VISUAL_CONFIG.ICON_HALF_SIZE)

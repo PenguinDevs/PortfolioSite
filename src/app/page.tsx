@@ -4,14 +4,15 @@ import ValorantIcon from '@/components/icons/ValorantIcon';
 import RobloxIcon from '@/components/icons/RobloxIcon';
 import DiscordIcon from '@/components/icons/DiscordIcon';
 import AwardCard from '@/components/AwardCard';
-import { getAwards } from '@/data';
+import { getAwards, getAllTechItems } from '@/data';
 
 export default function Home() {
   const awards = getAwards();
+  const techItems = getAllTechItems();
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      <TechStackGraph />
+      <TechStackGraph techItems={techItems} />
       <div className="max-w-2xl mx-auto px-6 py-8 relative z-0">
         {/* Header */}
         <header className="mb-4">
