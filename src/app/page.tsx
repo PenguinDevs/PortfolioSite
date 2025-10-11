@@ -170,19 +170,6 @@ export default function Home() {
                 href="/projects"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11H5m14 0l-4-4m4 4l-4 4"
-                  />
-                </svg>
                 View All Projects
                 <svg
                   className="w-4 h-4"
