@@ -2,6 +2,7 @@ import TechStackGraph from '@/components/TechStackGraph';
 import LottieAnimation from '@/components/LottieAnimation';
 import ValorantIcon from '@/components/icons/ValorantIcon';
 import RobloxIcon from '@/components/icons/RobloxIcon';
+import DiscordIcon from '@/components/icons/DiscordIcon';
 
 export default function Home() {
   return (
@@ -64,6 +65,15 @@ export default function Home() {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
               <span className="font-medium">X</span>
+            </a>
+            <a
+              href="https://discord.com/invite/xq25Exwf3X"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <DiscordIcon className="w-4 h-4" />
+              <span className="font-medium">Discord</span>
             </a>
           </div>
         </section>
@@ -231,7 +241,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="pt-8 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-            Kimchi
+            nothing more than that really
           </p>
         </footer>
       </div>
