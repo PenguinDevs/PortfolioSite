@@ -1,3 +1,5 @@
+import { EmailIcon, DiscordIcon, LinkedInIcon, GitHubIcon } from '@/components/icons';
+
 export default function Contact() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -14,9 +16,9 @@ export default function Contact() {
           <div className="space-y-4">
             <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                <span className="text-blue-600 dark:text-blue-400 text-xl">
-                  ✉️
-                </span>
+                <div className="text-blue-600 dark:text-blue-400">
+                  <EmailIcon />
+                </div>
               </div>
               <div>
                 <h3 className="font-medium">Email</h3>
@@ -30,10 +32,29 @@ export default function Contact() {
             </div>
 
             <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <span className="text-gray-600 dark:text-gray-400 text-xl">
-                  💼
-                </span>
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                <div className="text-indigo-600 dark:text-indigo-400">
+                  <DiscordIcon />
+                </div>
+              </div>
+              <div>
+                <h3 className="font-medium">Discord</h3>
+                <a
+                  href="https://discord.com/invite/xq25Exwf3X"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  @penguindevs
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <div className="text-blue-600 dark:text-blue-400">
+                  <LinkedInIcon />
+                </div>
               </div>
               <div>
                 <h3 className="font-medium">LinkedIn</h3>
@@ -50,9 +71,9 @@ export default function Contact() {
 
             <div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <span className="text-gray-600 dark:text-gray-400 text-xl">
-                  🐱
-                </span>
+                <div className="text-gray-600 dark:text-gray-400">
+                  <GitHubIcon />
+                </div>
               </div>
               <div>
                 <h3 className="font-medium">GitHub</h3>
