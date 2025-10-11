@@ -32,10 +32,10 @@ export default function Navigation() {
 
   return (
     <nav className={`
-      fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
+      fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ease-in-out
       ${scrolled 
         ? 'bg-background/95 backdrop-blur-lg border-b border-white/10 shadow-lg shadow-black/5' 
-        : 'bg-background/80 backdrop-blur-md border-b border-transparent'
+        : 'bg-transparent border-b border-transparent'
       }
     `}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +47,7 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={`
-                  relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out
+                  relative px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ease-in-out
                   ${isActive(link.href)
                     ? 'text-white bg-white/10 shadow-md'
                     : 'text-gray-300 hover:text-white hover:bg-white/5'

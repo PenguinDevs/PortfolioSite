@@ -57,6 +57,25 @@ body {
   }
 }
 
+/* Page transitions */
+html {
+  overflow-x: hidden;
+}
+
+/* Only add transitions to specific interactive elements to avoid performance issues */
+button, a, .hover-transition {
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+/* Optimize for animations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
 /* Custom utilities for shiny button */
 .bg-size-200 {
   background-size: 200%;
