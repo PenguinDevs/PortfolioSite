@@ -43,7 +43,7 @@ const PHYSICS_CONFIG = {
   REPULSION_DISTANCE_MULTIPLIER: 0.1,
   LINK_DISTANCE: 150,
   LINK_STRENGTH: 0.2,
-  CHARGE_STRENGTH: -25,
+  CHARGE_STRENGTH: -50,
   CENTER_STRENGTH: 0.1,
   COLLISION_RADIUS: 40,
   ALPHA_DECAY: 0.005,
@@ -52,10 +52,11 @@ const PHYSICS_CONFIG = {
 } as const;
 
 const BOUNDARY_CONFIG = {
-  BUFFER: 300,
+  BUFFER: 150,
+  EDGE_BUFFER: 120,
   ICON_HALF_SIZE: 28,
-  STRONG_FORCE: 0.6,
-  WEAK_FORCE: 0.3,
+  STRONG_FORCE: 1.2,
+  WEAK_FORCE: 0.8,
 } as const;
 
 const INTERACTION_CONFIG = {
@@ -290,51 +291,66 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
       });
     };
 
-    // Create stronger boundary force to keep nodes mostly on screen
+    // Create stronger boundary force to keep nodes away from screen edges
     const boundaryForce = () => {
-      const applyBoundaryForce = (
-        position: number,
-        bound: number,
-        buffer: number,
-        isNegative = false
-      ) => {
-        const outsideBuffer = isNegative
-          ? position < bound - buffer
-          : position > bound + buffer;
-        const insideBound = isNegative ? position < bound : position > bound;
-
-        if (outsideBuffer) {
-          return isNegative
-            ? (bound - buffer - position) * BOUNDARY_CONFIG.STRONG_FORCE
-            : -(position - (bound + buffer)) * BOUNDARY_CONFIG.STRONG_FORCE;
-        } else if (insideBound) {
-          return isNegative
-            ? (bound - position) * BOUNDARY_CONFIG.WEAK_FORCE
-            : -(position - bound) * BOUNDARY_CONFIG.WEAK_FORCE;
-        }
-        return 0;
-      };
-
       techData.forEach(d => {
         if (d.x !== undefined && d.y !== undefined) {
-          const leftBound = BOUNDARY_CONFIG.ICON_HALF_SIZE;
-          const rightBound = width - BOUNDARY_CONFIG.ICON_HALF_SIZE;
-          const topBound = BOUNDARY_CONFIG.ICON_HALF_SIZE;
-          const bottomBound = height - BOUNDARY_CONFIG.ICON_HALF_SIZE;
+          // Define edge boundaries with buffer zones
+          const leftEdge = BOUNDARY_CONFIG.EDGE_BUFFER;
+          const rightEdge = width - BOUNDARY_CONFIG.EDGE_BUFFER;
+          const topEdge = BOUNDARY_CONFIG.EDGE_BUFFER;
+          const bottomEdge = height - BOUNDARY_CONFIG.EDGE_BUFFER;
 
-          // Apply boundary forces
-          d.vx =
-            (d.vx || 0) +
-            applyBoundaryForce(d.x, leftBound, BOUNDARY_CONFIG.BUFFER, true);
-          d.vx =
-            (d.vx || 0) +
-            applyBoundaryForce(d.x, rightBound, BOUNDARY_CONFIG.BUFFER, false);
-          d.vy =
-            (d.vy || 0) +
-            applyBoundaryForce(d.y, topBound, BOUNDARY_CONFIG.BUFFER, true);
-          d.vy =
-            (d.vy || 0) +
-            applyBoundaryForce(d.y, bottomBound, BOUNDARY_CONFIG.BUFFER, false);
+          // Left edge repulsion
+          if (d.x < leftEdge) {
+            const distance = leftEdge - d.x;
+            const force = (distance / leftEdge) * BOUNDARY_CONFIG.STRONG_FORCE;
+            d.vx = (d.vx || 0) + force;
+          }
+
+          // Right edge repulsion
+          if (d.x > rightEdge) {
+            const distance = d.x - rightEdge;
+            const force = (distance / BOUNDARY_CONFIG.EDGE_BUFFER) * BOUNDARY_CONFIG.STRONG_FORCE;
+            d.vx = (d.vx || 0) - force;
+          }
+
+          // Top edge repulsion
+          if (d.y < topEdge) {
+            const distance = topEdge - d.y;
+            const force = (distance / topEdge) * BOUNDARY_CONFIG.STRONG_FORCE;
+            d.vy = (d.vy || 0) + force;
+          }
+
+          // Bottom edge repulsion
+          if (d.y > bottomEdge) {
+            const distance = d.y - bottomEdge;
+            const force = (distance / BOUNDARY_CONFIG.EDGE_BUFFER) * BOUNDARY_CONFIG.STRONG_FORCE;
+            d.vy = (d.vy || 0) - force;
+          }
+
+          // Additional gradient force as nodes approach edges
+          const edgeProximityForce = 0.4;
+          
+          // Horizontal gradient forces
+          if (d.x < leftEdge + BOUNDARY_CONFIG.BUFFER) {
+            const proximity = (leftEdge + BOUNDARY_CONFIG.BUFFER - d.x) / BOUNDARY_CONFIG.BUFFER;
+            d.vx = (d.vx || 0) + proximity * edgeProximityForce;
+          }
+          if (d.x > rightEdge - BOUNDARY_CONFIG.BUFFER) {
+            const proximity = (d.x - (rightEdge - BOUNDARY_CONFIG.BUFFER)) / BOUNDARY_CONFIG.BUFFER;
+            d.vx = (d.vx || 0) - proximity * edgeProximityForce;
+          }
+
+          // Vertical gradient forces
+          if (d.y < topEdge + BOUNDARY_CONFIG.BUFFER) {
+            const proximity = (topEdge + BOUNDARY_CONFIG.BUFFER - d.y) / BOUNDARY_CONFIG.BUFFER;
+            d.vy = (d.vy || 0) + proximity * edgeProximityForce;
+          }
+          if (d.y > bottomEdge - BOUNDARY_CONFIG.BUFFER) {
+            const proximity = (d.y - (bottomEdge - BOUNDARY_CONFIG.BUFFER)) / BOUNDARY_CONFIG.BUFFER;
+            d.vy = (d.vy || 0) - proximity * edgeProximityForce;
+          }
         }
       });
     };
