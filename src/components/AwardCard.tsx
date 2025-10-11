@@ -56,7 +56,7 @@ const AwardCard: React.FC<AwardCardProps> = ({ award, onClick }) => {
         href={award.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="block hover:scale-105 transition-transform cursor-pointer"
+        className="block cursor-pointer award-card-hover"
         onClick={onClick}
       >
         <CardContent />
@@ -66,7 +66,7 @@ const AwardCard: React.FC<AwardCardProps> = ({ award, onClick }) => {
 
   return (
     <div 
-      className={onClick ? "cursor-pointer hover:scale-105 transition-transform" : ""}
+      className={onClick ? "cursor-pointer award-card-hover" : ""}
       onClick={onClick}
     >
       <CardContent />

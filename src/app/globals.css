@@ -88,3 +88,13 @@ button, a, .hover-transition {
 .bg-pos-100 {
   background-position: 100%;
 }
+
+/* Custom award card hover effect */
+.award-card-hover {
+  transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  transform: scale(1);
+}
+
+.award-card-hover:hover {
+  transform: scale(1.05) !important;
+}
