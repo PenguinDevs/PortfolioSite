@@ -75,9 +75,9 @@ export default function Home() {
               rel="noopener noreferrer"
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <h4 className="font-medium mb-2">ValoTracker 🏆</h4>
+              <h4 className="font-medium mb-2">ValoTracker</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Discord's #1 trending bot with 40,000+ servers. Valorant
+                Founded and maintained Discord's #1 trending bot with 40,000+ servers. Valorant
                 statistics and insights.
               </p>
               <span className="text-xs text-blue-600 dark:text-blue-400">
@@ -85,16 +85,17 @@ export default function Home() {
               </span>
             </a>
             <a
-              href="/projects"
+              href="https://create.roblox.com/talent/creators/204152663"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <h4 className="font-medium mb-2">Catch N Go 🥇</h4>
+              <h4 className="font-medium mb-2">Roblox</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                MACATHON 2025 first place winner. Social mobile app inspired by
-                Pokémon Go.
+                Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming.
               </p>
               <span className="text-xs text-blue-600 dark:text-blue-400">
-                $1800 prize winner
+                Since 11 years old
               </span>
             </a>
           </div>
@@ -123,7 +124,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                Won $1800 with team for "Catch N Go" - a social mobile app built
+                Won $1800 with team for "Catch N Go" - a gamified social mobile app built
                 in 48 hours
               </p>
             </div>

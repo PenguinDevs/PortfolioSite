@@ -77,11 +77,6 @@ export default function Projects() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         <header className="mb-16">
           <h1 className="text-4xl font-bold mb-4">My Projects</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-            From Discord bots with 40,000+ servers to hackathon winners and 13M+
-            play Roblox games. Each project taught me something new and pushed
-            my limits!
-          </p>
         </header>
 
         <div className="grid gap-8 md:grid-cols-2">
