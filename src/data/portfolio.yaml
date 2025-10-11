@@ -189,11 +189,11 @@ awards:
       value: 🥇
     href: https://devpost.com/software/catch-n-go
     theme:
-      borderColor: border-yellow-200 dark:border-yellow-800
-      bgColor: bg-yellow-50 dark:bg-yellow-950
-      textColor: text-yellow-800 dark:text-yellow-200
-      secondaryTextColor: text-yellow-600 dark:text-yellow-400
-      descriptionColor: text-yellow-700 dark:text-yellow-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: valotracker-trending
     title: "ValoTracker #1 Trending"
@@ -204,11 +204,11 @@ awards:
       value: 🏆
     href: https://valotracker.com
     theme:
-      borderColor: border-purple-200 dark:border-purple-800
-      bgColor: bg-purple-50 dark:bg-purple-950
-      textColor: text-purple-800 dark:text-purple-200
-      secondaryTextColor: text-purple-600 dark:text-purple-400
-      descriptionColor: text-purple-700 dark:text-purple-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: maps-advanced
     title: Competitive Programming
@@ -219,11 +219,11 @@ awards:
       value: 🥈
     href: https://www.linkedin.com/posts/monashaps_thats-a-wrap-on-mcpc-2025-this-year-ugcPost-7381497433828012032-ZEoE
     theme:
-      borderColor: border-gray-300 dark:border-gray-600
-      bgColor: bg-gray-50 dark:bg-gray-900
-      textColor: text-gray-800 dark:text-gray-200
-      secondaryTextColor: text-gray-600 dark:text-gray-400
-      descriptionColor: text-gray-700 dark:text-gray-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: maps-beginner
     title: Competitive Programming
@@ -234,11 +234,11 @@ awards:
       value: 🥈
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
     theme:
-      borderColor: border-gray-300 dark:border-gray-600
-      bgColor: bg-gray-50 dark:bg-gray-900
-      textColor: text-gray-800 dark:text-gray-200
-      secondaryTextColor: text-gray-600 dark:text-gray-400
-      descriptionColor: text-gray-700 dark:text-gray-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: adf-2024
     title: Australian Defence Force Future Innovators Award
@@ -249,11 +249,11 @@ awards:
       value: 🚀
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
     theme:
-      borderColor: border-emerald-200 dark:border-emerald-800
-      bgColor: bg-emerald-50 dark:bg-emerald-950
-      textColor: text-emerald-800 dark:text-emerald-200
-      secondaryTextColor: text-emerald-600 dark:text-emerald-400
-      descriptionColor: text-emerald-700 dark:text-emerald-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
   - id: adf-2022
     title: Australian Defence Force Future Innovators Award
@@ -264,11 +264,11 @@ awards:
       value: 🚀
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
     theme:
-      borderColor: border-emerald-200 dark:border-emerald-800
-      bgColor: bg-emerald-50 dark:bg-emerald-950
-      textColor: text-emerald-800 dark:text-emerald-200
-      secondaryTextColor: text-emerald-600 dark:text-emerald-400
-      descriptionColor: text-emerald-700 dark:text-emerald-300
+      borderColor: border-blue-200 dark:border-blue-800
+      bgColor: bg-blue-50 dark:bg-blue-950
+      textColor: text-blue-800 dark:text-blue-200
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-blue-700 dark:text-blue-300
 
 projects:
   - id: valotracker
