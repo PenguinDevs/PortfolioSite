@@ -33,6 +33,7 @@ export default function Friends({ friends }: FriendsProps) {
                       width={56}
                       height={56}
                       className="w-full h-full rounded-full object-cover bg-gray-800"
+                      unoptimized={friend.profileImage.includes('api.shiroko.me')}
                     />
                   </div>
                 </div>
@@ -47,6 +48,7 @@ export default function Friends({ friends }: FriendsProps) {
                       width={56}
                       height={56}
                       className="w-full h-full rounded-full object-cover bg-gray-800"
+                      unoptimized={friend.profileImage.includes('api.shiroko.me')}
                     />
                   </div>
                 </div>
