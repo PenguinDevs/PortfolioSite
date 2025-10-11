@@ -12,7 +12,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      <TechStackGraph techItems={techItems} />
+      <div className="hidden md:block">
+        <TechStackGraph techItems={techItems} />
+      </div>
       <div className="max-w-2xl mx-auto px-6 py-8 relative z-0">
         {/* Header */}
         <header className="mb-4">
@@ -166,6 +168,28 @@ export default function Home() {
                 />
               </svg>
             </a>
+          </div>
+        </section>
+
+        {/* Tech Stack - Mobile Only */}
+        <section className="mb-12 md:hidden">
+          <h3 className="text-xl font-semibold mb-6">Tech Stack</h3>
+          <div className="grid grid-cols-4 gap-4 sm:grid-cols-6">
+            {techItems.map((tech) => (
+              <div
+                key={tech.id}
+                className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <img
+                  src={tech.imageUrl}
+                  alt={tech.name}
+                  className="w-8 h-8 object-contain mb-2"
+                />
+                <span className="text-xs text-center text-gray-600 dark:text-gray-300 font-medium break-all word-break-break-all overflow-hidden leading-tight max-w-full">
+                  {tech.name}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
 
