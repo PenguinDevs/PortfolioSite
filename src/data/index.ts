@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import yaml from 'js-yaml';
-import { PortfolioData, Award, Project, TechStack, TechItem } from './types';
+import { PortfolioData, Award, Project, TechStack, TechItem, Friend } from './types';
 
 // Read and parse YAML file
 const yamlPath = join(process.cwd(), 'src', 'data', 'portfolio.yaml');
@@ -56,6 +56,10 @@ export const getAwardById = (id: string): Award | undefined => {
 export const getFeaturedProjects = (limit: number = 2): Project[] => {
   // You can customize this logic to determine which projects are "featured"
   return data.projects.slice(0, limit);
+};
+
+export const getFriends = (): Friend[] => {
+  return data.friends || [];
 };
 
 export default data;

@@ -54,8 +54,16 @@ export interface Project {
   };
 }
 
+export interface Friend {
+  id: string;
+  name: string;
+  profileImage: string;
+  link?: string; // optional link to their profile/website
+}
+
 export interface PortfolioData {
   techStack: TechStack;
   awards: Award[];
   projects: Project[];
+  friends: Friend[];
 }

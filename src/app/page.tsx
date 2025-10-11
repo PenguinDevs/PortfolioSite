@@ -4,18 +4,22 @@ import ValorantIcon from '@/components/icons/ValorantIcon';
 import RobloxIcon from '@/components/icons/RobloxIcon';
 import DiscordIcon from '@/components/icons/DiscordIcon';
 import AwardCard from '@/components/AwardCard';
-import { getAwards, getAllTechItems } from '@/data';
+import Friends from '@/components/Friends';
+import { getAwards, getAllTechItems, getFriends } from '@/data';
 
 export default function Home() {
   const awards = getAwards();
   const techItems = getAllTechItems();
+  const friends = getFriends();
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       <div className="hidden md:block">
         <TechStackGraph techItems={techItems} />
       </div>
-      <div className="max-w-2xl mx-auto px-6 py-8 relative z-0">
+      <div className="relative">
+        {/* Main Content - Centered and Narrow */}
+        <div className="max-w-2xl mx-auto px-6 py-8 relative z-0">
         {/* Header */}
         <header className="mb-4">
           <div className="flex items-start gap-6 mb-4">
@@ -33,7 +37,7 @@ export default function Home() {
                 or PenguinDevs
               </p>
               <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
-                full-stack developer • studying somputer science w/ maths minor •
+                developer of all sorts • studying somputer science w/ maths minor •
                 gamer
               </p>
             </div>
@@ -273,12 +277,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="pt-8 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-            nothing more than that really
-          </p>
-        </footer>
+          {/* Footer */}
+          <footer className="pt-8 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+              nothing more than that really
+            </p>
+          </footer>
+        </div>
+
+        {/* Right Sidebar - Friends (Scrolls with content) */}
+        <div className="hidden xl:block absolute top-8 right-[12%] w-70">
+          <Friends friends={friends} />
+        </div>
       </div>
     </div>
   );
