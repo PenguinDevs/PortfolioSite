@@ -18,15 +18,26 @@ export default function Home() {
       <div className="max-w-2xl mx-auto px-6 py-8 relative z-0">
         {/* Header */}
         <header className="mb-4">
-          <h1 className="text-4xl font-bold mb-4">hi!</h1>
-          <h2 className="text-2xl font-medium mb-2">I'm Jason :)</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-            or PenguinDevs
-          </p>
-          <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
-            full-stack developer • studying somputer science w/ maths minor •
-            gamer
-          </p>
+          <div className="flex items-start gap-6 mb-4">
+            <div className="flex-shrink-0">
+              <img
+                src="/profile_picture.gif"
+                alt="Jason (PenguinDevs)"
+                className="w-24 h-24 sm:w-42 sm:h-42 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700 shadow-lg"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-4xl font-bold mb-2">hi!</h1>
+              <h2 className="text-2xl font-medium mb-2">I'm Jason :)</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                or PenguinDevs
+              </p>
+              <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
+                full-stack developer • studying somputer science w/ maths minor •
+                gamer
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* Social Links */}
