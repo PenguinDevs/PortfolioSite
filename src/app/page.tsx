@@ -3,8 +3,12 @@ import LottieAnimation from '@/components/LottieAnimation';
 import ValorantIcon from '@/components/icons/ValorantIcon';
 import RobloxIcon from '@/components/icons/RobloxIcon';
 import DiscordIcon from '@/components/icons/DiscordIcon';
+import AwardCard from '@/components/AwardCard';
+import { getAwards } from '@/data';
 
 export default function Home() {
+  const awards = getAwards();
+
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       <TechStackGraph />
@@ -139,78 +143,10 @@ export default function Home() {
         {/* Achievements */}
         <section className="mb-12">
           <h3 className="text-xl font-semibold mb-6">Recent Achievements</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="p-4 border-2 border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🥇</span>
-                <div>
-                  <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">
-                    MACATHON 2025 Winner
-                  </h4>
-                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                    First Place
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                Won $1800 with team for "Catch N Go" - a gamified social mobile
-                app built in 48 hours
-              </p>
-            </div>
-
-            <div className="p-4 border-2 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950 rounded-lg">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🏆</span>
-                <div>
-                  <h4 className="font-semibold text-purple-800 dark:text-purple-200">
-                    ValoTracker #1 Trending
-                  </h4>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">
-                    July 2024
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-purple-700 dark:text-purple-300">
-                ValoTracker reached #1 on Discord's trending bots with 40,000+
-                servers
-              </p>
-            </div>
-
-            <div className="p-4 border-2 border-silver-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 rounded-lg">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🥈</span>
-                <div>
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200">
-                    Competitive Programming
-                  </h4>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">
-                    MAPS Advanced Division
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                2nd Place in Monash University's collegiate competitive
-                programming competition
-              </p>
-            </div>
-
-            <div className="p-4 border-2 border-silver-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 rounded-lg">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">🥈</span>
-                <div>
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200">
-                    Competitive Programming
-                  </h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    MAPS Beginner Competition
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                2nd Place in Monash University's beginner competitive
-                programming competition
-              </p>
-            </div>
+          <div className="grid gap-4 md:grid-cols-2 items-stretch">
+            {awards.map((award) => (
+              <AwardCard key={award.id} award={award} />
+            ))}
           </div>
         </section>
 

@@ -1,0 +1,335 @@
+techStack:
+  languages:
+    - id: python
+      name: Python
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg
+      category: Language
+    - id: javascript
+      name: JavaScript
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg
+      category: Language
+    - id: typescript
+      name: TypeScript
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg
+      category: Language
+    - id: java
+      name: Java
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg
+      category: Language
+    - id: kotlin
+      name: Kotlin
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg
+      category: Language
+    - id: lua
+      name: Lua
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg
+      category: Language
+    - id: haskell
+      name: Haskell
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/haskell/haskell-original.svg
+      category: Language
+    - id: cpp
+      name: C++
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg
+      category: Language
+
+  frameworks:
+    - id: nextjs
+      name: Next.js
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg
+      category: Framework
+    - id: react
+      name: React
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg
+      category: Framework
+    - id: fastapi
+      name: FastAPI
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg
+      category: Framework
+    - id: discordpy
+      name: Discord.py
+      imageUrl: https://discord.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg
+      category: Framework
+
+  databases:
+    - id: mysql
+      name: MySQL
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg
+      category: Database
+    - id: mongodb
+      name: MongoDB
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg
+      category: Database
+    - id: postgresql
+      name: PostgreSQL
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg
+      category: Database
+    - id: redis
+      name: Redis
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg
+      category: Database
+    - id: datastax
+      name: DataStax
+      imageUrl: https://www.datastax.com/sites/default/files/2021-07/datastax-logo-square--dark.svg
+      category: Database
+
+  tools:
+    - id: blender
+      name: Blender
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/blender/blender-original.svg
+      category: Tool
+    - id: photoshop
+      name: Photoshop
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg
+      category: Tool
+    - id: substance3d
+      name: Adobe Substance 3D Painter
+      imageUrl: https://www.adobe.com/content/dam/shared/images/product-icons/svg/substance-3d-painter.svg
+      category: Tool
+    - id: robloxstudio
+      name: Roblox Studio
+      imageUrl: https://images.rbxcdn.com/c69b74f49c784052a5597ca35ca4eca9
+      category: Tool
+    - id: photogrammetry
+      name: Photogrammetry
+      imageUrl: https://cdn-icons-png.flaticon.com/512/2103/2103633.png
+      category: Tool
+
+  apis:
+    - id: discordapi
+      name: Discord API
+      imageUrl: https://discord.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg
+      category: API
+    - id: riotapi
+      name: Riot API
+      imageUrl: https://www.riotgames.com/darkroom/1440/d0807e131a84f2491c24ace457265346:fb40a81b0c08d2db68bcf40057a99dcd/riot-games-logo-2019.png
+      category: API
+    - id: openaiapi
+      name: OpenAI API
+      imageUrl: https://openai.com/favicon.ico
+      category: API
+
+awards:
+  - id: macathon-2025
+    title: MACATHON 2025 Winner
+    secondaryText: First Place
+    description: Won $1800 with team for "Catch N Go" - a gamified social mobile app built in 48 hours
+    icon:
+      type: emoji
+      value: 🥇
+    href: https://devpost.com/software/catch-n-go
+    theme:
+      borderColor: border-yellow-200 dark:border-yellow-800
+      bgColor: bg-yellow-50 dark:bg-yellow-950
+      textColor: text-yellow-800 dark:text-yellow-200
+      secondaryTextColor: text-yellow-600 dark:text-yellow-400
+      descriptionColor: text-yellow-700 dark:text-yellow-300
+
+  - id: valotracker-trending
+    title: "ValoTracker #1 Trending"
+    secondaryText: July 2024
+    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers"
+    icon:
+      type: emoji
+      value: 🏆
+    href: https://valotracker.com
+    theme:
+      borderColor: border-purple-200 dark:border-purple-800
+      bgColor: bg-purple-50 dark:bg-purple-950
+      textColor: text-purple-800 dark:text-purple-200
+      secondaryTextColor: text-purple-600 dark:text-purple-400
+      descriptionColor: text-purple-700 dark:text-purple-300
+
+  - id: maps-advanced
+    title: Competitive Programming
+    secondaryText: 2025 MAPS Advanced Division
+    description: 2nd Place in Monash University's collegiate competitive programming competition
+    icon:
+      type: emoji
+      value: 🥈
+    href: https://www.linkedin.com/posts/monashaps_thats-a-wrap-on-mcpc-2025-this-year-ugcPost-7381497433828012032-ZEoE
+    theme:
+      borderColor: border-gray-300 dark:border-gray-600
+      bgColor: bg-gray-50 dark:bg-gray-900
+      textColor: text-gray-800 dark:text-gray-200
+      secondaryTextColor: text-gray-600 dark:text-gray-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+
+  - id: maps-beginner
+    title: Competitive Programming
+    secondaryText: 2025 MAPS Beginner Competition
+    description: 2nd Place in Monash University's beginner competitive programming competition
+    icon:
+      type: emoji
+      value: 🥈
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    theme:
+      borderColor: border-gray-300 dark:border-gray-600
+      bgColor: bg-gray-50 dark:bg-gray-900
+      textColor: text-gray-800 dark:text-gray-200
+      secondaryTextColor: text-gray-600 dark:text-gray-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+
+  - id: adf-2024
+    title: Australian Defence Force Future Innovators Award
+    secondaryText: "2024"
+    description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
+    icon:
+      type: emoji
+      value: 🚀
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    theme:
+      borderColor: border-emerald-200 dark:border-emerald-800
+      bgColor: bg-emerald-50 dark:bg-emerald-950
+      textColor: text-emerald-800 dark:text-emerald-200
+      secondaryTextColor: text-emerald-600 dark:text-emerald-400
+      descriptionColor: text-emerald-700 dark:text-emerald-300
+
+  - id: adf-2022
+    title: Australian Defence Force Future Innovators Award
+    secondaryText: "2022"
+    description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
+    icon:
+      type: emoji
+      value: 🚀
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    theme:
+      borderColor: border-emerald-200 dark:border-emerald-800
+      bgColor: bg-emerald-50 dark:bg-emerald-950
+      textColor: text-emerald-800 dark:text-emerald-200
+      secondaryTextColor: text-emerald-600 dark:text-emerald-400
+      descriptionColor: text-emerald-700 dark:text-emerald-300
+
+projects:
+  - id: valotracker
+    title: ValoTracker
+    description: "Founded and maintained Discord's #1 trending bot with 40,000+ servers. Valorant statistics and insights."
+    tags:
+      - Featured
+      - "Discord Trending #1"
+    techStack:
+      - Python
+      - JavaScript
+      - Next.js
+      - MySQL
+      - MongoDB
+      - Redis
+      - Discord API
+      - Riot API
+    buttons:
+      demo:
+        label: Visit Site
+        href: https://valotracker.com
+      source:
+        label: View Code
+        href: https://github.com/PenguinDevs/ValoTracker
+    link:
+      type: external
+      value: https://valotracker.com
+
+  - id: catch-n-go
+    title: Catch N Go
+    description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours.
+    tags:
+      - 1st Place Winner
+      - Hackathon
+    techStack:
+      - Kotlin
+      - Java
+      - Python
+      - FastAPI
+      - MongoDB
+      - OpenAI API
+    buttons:
+      demo:
+        label: View Project
+        href: https://devpost.com/software/catch-n-go
+      source:
+        label: Backend Code
+        href: https://github.com/Swofty-Developments/MacathonBackend
+    link:
+      type: external
+      value: https://devpost.com/software/catch-n-go
+
+  - id: ceebs
+    title: Ceebs - Food Ordering Platform
+    description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
+    tags:
+      - Production
+      - Lead Developer
+    techStack:
+      - Next.js
+      - PostgreSQL
+      - Discord.py
+      - Python
+    buttons:
+      demo:
+        label: Visit Site
+        href: https://merchant.ceebs.site
+    link:
+      type: external
+      value: https://merchant.ceebs.site
+
+  - id: allocateus
+    title: AllocateUs
+    description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
+    tags:
+      - Hackathon Project
+      - AI-Powered
+    techStack:
+      - TypeScript
+      - Next.js
+      - Python
+      - FastAPI
+      - DataStax
+      - OpenAI API
+    buttons:
+      demo:
+        label: View Project
+        href: https://devpost.com/software/allocateus
+      source:
+        label: View Code
+        href: https://github.com/BillyHri/unihack2025
+    link:
+      type: external
+      value: https://devpost.com/software/allocateus
+
+  - id: roblox-games
+    title: Roblox Games Portfolio
+    description: Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming.
+    tags:
+      - 13M+ Plays
+      - Game Development
+    techStack:
+      - Lua
+      - Blender
+      - Roblox Studio
+      - Photoshop
+    buttons:
+      demo:
+        label: Play Game
+        href: https://www.roblox.com/games/9278437733/Pet-Battles
+      source:
+        label: View Code
+        href: https://github.com/PenguinDevs/PetBattles
+    link:
+      type: external
+      value: https://create.roblox.com/talent/creators/204152663
+
+  - id: nissan-silvia
+    title: Nissan Silvia S15 3D Model
+    description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling.
+    tags:
+      - 3D Art
+      - Modeling
+    techStack:
+      - Blender
+      - Adobe Substance 3D Painter
+      - Photogrammetry
+    buttons:
+      demo:
+        label: View Artwork
+        href: https://www.artstation.com/artwork/kNdArK
+    link:
+      type: external
+      value: https://www.artstation.com/artwork/kNdArK
