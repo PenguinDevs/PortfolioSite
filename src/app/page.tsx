@@ -89,7 +89,7 @@ export default function Home() {
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 relative">
+                <div className="flex-shrink-0 relative mr-4 ml-4">
                   <ValorantIcon className="w-24 h-24 text-red-500 opacity-70 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   <LottieAnimation width={60} height="100%" />
                 </div>
@@ -112,7 +112,7 @@ export default function Home() {
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 relative">
+                <div className="flex-shrink-0 relative mr-4 ml-4">
                   <RobloxIcon className="w-16 h-16 text-gray-300" />
                 </div>
                 <div className="flex-1">
