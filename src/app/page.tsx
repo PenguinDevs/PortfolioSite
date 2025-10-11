@@ -133,12 +133,40 @@ export default function Home() {
               </div>
             </a>
           </div>
-          <a
-            href="/projects"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            See all projects →
-          </a>
+          <div className="flex justify-center mt-8">
+            <a
+              href="/projects"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0l-4-4m4 4l-4 4"
+                />
+              </svg>
+              View All Projects
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0l-4-4m4 4l-4 4"
+                />
+              </svg>
+            </a>
+          </div>
         </section>
 
         {/* Achievements */}
@@ -163,15 +191,50 @@ export default function Home() {
               servers.
             </p>
             <p className="leading-relaxed mb-4">
-              I love gaming and building things that scale. Probably working on
+              I love games and building things that scale. Probably working on
               a project right now while studying Computer Science.
             </p>
-            <a
-              href="/contact"
-              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Get in touch
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex-1 sm:flex-none"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                Get in touch
+              </a>
+              
+              <a
+                href="/projects"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex-1 sm:flex-none"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0l-4-4m4 4l-4 4"
+                  />
+                </svg>
+                View Projects
+              </a>
+            </div>
           </div>
         </section>
 

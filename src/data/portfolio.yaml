@@ -198,7 +198,7 @@ awards:
   - id: valotracker-trending
     title: "ValoTracker #1 Trending"
     secondaryText: July 2024
-    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly"
+    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly through pull-based workers."
     icon:
       type: emoji
       value: 🏆
@@ -359,7 +359,7 @@ projects:
     title: ValoRPC
     description: Discord rich presence for Valorant, leveraging screen reading and OCR to read live game state.
     tags:
-      - 26 GH Stars
+      - ★ 26
       - OCR
     techStack:
       - Python
@@ -424,7 +424,7 @@ projects:
 
   - id: roblox-games
     title: Roblox Games Portfolio
-    description: Amassed tens of millions of players across multiple games, adopting various skill sets; not just programming since the age of 11.
+    description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
     tags:
       - 13M+ Plays
       - Game Development
@@ -435,10 +435,13 @@ projects:
       - Roblox Studio
       - Photoshop
     buttons:
-      - label: Play Game
+      - label: View Portfolio
+        href: https://create.roblox.com/talent/creators/204152663
+        type: external
+      - label: Play PetBattles
         href: https://www.roblox.com/games/9278437733/Pet-Battles
         type: external
-      - label: View Code
+      - label: View PetBattles Source
         href: https://github.com/PenguinDevs/PetBattles
         type: external
     link:

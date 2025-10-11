@@ -19,10 +19,10 @@ export default function Projects() {
 
         <div className="mt-16 text-center">
           <a
-            href="mailto:contact@penguindevs.me"
+            href="https://github.com/penguindevs"
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Get in touch
+            View all projects
           </a>
         </div>
       </div>
