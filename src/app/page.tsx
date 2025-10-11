@@ -1,4 +1,7 @@
 import TechStackGraph from '@/components/TechStackGraph';
+import LottieAnimation from '@/components/LottieAnimation';
+import ValorantIcon from '@/components/icons/ValorantIcon';
+import RobloxIcon from '@/components/icons/RobloxIcon';
 
 export default function Home() {
   return (
@@ -75,14 +78,22 @@ export default function Home() {
               rel="noopener noreferrer"
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <h4 className="font-medium mb-2">ValoTracker</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Founded and maintained Discord's #1 trending bot with 40,000+
-                servers. Valorant statistics and insights.
-              </p>
-              <span className="text-xs text-blue-600 dark:text-blue-400">
-                Featured on discord.com/build
-              </span>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 relative">
+                  <ValorantIcon className="w-24 h-24 text-red-500 opacity-70 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                  <LottieAnimation width={60} height="100%" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium mb-2">ValoTracker</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Founded and maintained Discord's #1 trending bot with 40,000+
+                    servers. Valorant statistics and insights.
+                  </p>
+                  <span className="text-xs text-blue-600 dark:text-blue-400">
+                    Featured on discord.com/build
+                  </span>
+                </div>
+              </div>
             </a>
             <a
               href="https://create.roblox.com/talent/creators/204152663"
@@ -90,14 +101,21 @@ export default function Home() {
               rel="noopener noreferrer"
               className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <h4 className="font-medium mb-2">Roblox</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Amassed tens of millions of players across multiple games,
-                adopting various skill sets; not just programming.
-              </p>
-              <span className="text-xs text-blue-600 dark:text-blue-400">
-                Since 11 years old
-              </span>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 relative">
+                  <RobloxIcon className="w-16 h-16 text-gray-300" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium mb-2">Roblox</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Amassed tens of millions of players across multiple games,
+                    adopting various skill sets; not just programming.
+                  </p>
+                  <span className="text-xs text-blue-600 dark:text-blue-400">
+                    Since 11 years old
+                  </span>
+                </div>
+              </div>
             </a>
           </div>
           <a
