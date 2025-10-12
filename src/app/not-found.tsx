@@ -2,23 +2,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function NotFound() {
-  const statusCode = 404;
   const colorScheme = {
     gradient: 'from-blue-400 via-purple-400 to-pink-400',
     border: 'border-blue-500/20 group-hover:border-blue-500/50',
-    button: 'from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-blue-500/25',
-    dots: 'bg-blue-400'
+    button:
+      'from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-blue-500/25',
+    dots: 'bg-blue-400',
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className={`absolute top-20 left-10 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}></div>
-        <div className={`absolute top-32 right-20 w-1 h-1 ${colorScheme.dots} rounded-full animate-ping`}></div>
-        <div className={`absolute bottom-40 left-20 w-3 h-3 ${colorScheme.dots} rounded-full animate-bounce`}></div>
-        <div className={`absolute bottom-20 right-32 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}></div>
-        
+        <div
+          className={`absolute top-20 left-10 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}
+        ></div>
+        <div
+          className={`absolute top-32 right-20 w-1 h-1 ${colorScheme.dots} rounded-full animate-ping`}
+        ></div>
+        <div
+          className={`absolute bottom-40 left-20 w-3 h-3 ${colorScheme.dots} rounded-full animate-bounce`}
+        ></div>
+        <div
+          className={`absolute bottom-20 right-32 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}
+        ></div>
+
         {/* Floating Code Snippets */}
         <div className="absolute top-16 right-16 text-xs text-gray-500 font-mono opacity-30 rotate-12">
           {'{ error: 404 }'}
@@ -54,10 +62,14 @@ export default function NotFound() {
               <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </div>
-          <h1 className={`text-6xl md:text-7xl font-bold bg-gradient-to-r ${colorScheme.gradient} bg-clip-text text-transparent mb-4 animate-pulse`}>
+          <h1
+            className={`text-6xl md:text-7xl font-bold bg-gradient-to-r ${colorScheme.gradient} bg-clip-text text-transparent mb-4 animate-pulse`}
+          >
             404
           </h1>
-          <div className={`w-32 h-1 bg-gradient-to-r ${colorScheme.gradient} mx-auto mb-6 rounded-full`}></div>
+          <div
+            className={`w-32 h-1 bg-gradient-to-r ${colorScheme.gradient} mx-auto mb-6 rounded-full`}
+          ></div>
         </div>
 
         {/* Error Message */}
@@ -66,11 +78,10 @@ export default function NotFound() {
             Page Not Found
           </h2>
           <p className="text-gray-400 text-lg mb-2">
-            Oops! The page you're looking for seems to have wandered off into the digital void.
+            Oops! The page you&apos;re looking for seems to have wandered off
+            into the digital void.
           </p>
-          <p className="text-gray-500 text-sm">
-            silly goober
-          </p>
+          <p className="text-gray-500 text-sm">silly goober</p>
         </div>
 
         {/* Action Buttons */}
@@ -81,7 +92,7 @@ export default function NotFound() {
           >
             ← Back to Home
           </Link>
-          
+
           <Link
             href="/projects"
             className="px-8 py-3 border border-gray-600 text-gray-300 font-semibold rounded-lg hover:border-gray-400 hover:text-white transition-all duration-200 transform hover:scale-105"
@@ -97,9 +108,9 @@ export default function NotFound() {
           </p>
           <div className="flex items-center justify-center space-x-2">
             <span className="text-xs text-gray-500">Cat image provided by</span>
-            <a 
-              href="https://http.cat" 
-              target="_blank" 
+            <a
+              href="https://http.cat"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-1 text-blue-300 hover:text-blue-200 underline text-sm font-medium transition-colors"
             >

@@ -27,9 +27,9 @@ export default function ErrorIndex() {
           </p>
           <p className="text-gray-500 text-sm">
             Powered by{' '}
-            <a 
-              href="https://http.cat" 
-              target="_blank" 
+            <a
+              href="https://http.cat"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-300 hover:text-blue-200 underline"
             >
@@ -40,7 +40,7 @@ export default function ErrorIndex() {
 
         {/* Common Status Codes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {COMMON_HTTP_CODES.map((status) => (
+          {COMMON_HTTP_CODES.map(status => (
             <Link
               key={status.code}
               href={`/error/${status.code}`}
@@ -53,9 +53,7 @@ export default function ErrorIndex() {
                 <h3 className="text-lg font-semibold text-foreground mb-2">
                   {status.name}
                 </h3>
-                <p className="text-gray-400 text-sm">
-                  {status.description}
-                </p>
+                <p className="text-gray-400 text-sm">{status.description}</p>
               </div>
             </Link>
           ))}
@@ -77,10 +75,14 @@ export default function ErrorIndex() {
                 max="599"
                 placeholder="404"
                 className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                onKeyPress={(e) => {
+                onKeyPress={e => {
                   if (e.key === 'Enter') {
                     const code = (e.target as HTMLInputElement).value;
-                    if (code && parseInt(code) >= 100 && parseInt(code) <= 599) {
+                    if (
+                      code &&
+                      parseInt(code) >= 100 &&
+                      parseInt(code) <= 599
+                    ) {
                       window.location.href = `/error/${code}`;
                     }
                   }
@@ -88,7 +90,9 @@ export default function ErrorIndex() {
               />
               <button
                 onClick={() => {
-                  const input = document.querySelector('input[type="number"]') as HTMLInputElement;
+                  const input = document.querySelector(
+                    'input[type="number"]'
+                  ) as HTMLInputElement;
                   const code = input.value;
                   if (code && parseInt(code) >= 100 && parseInt(code) <= 599) {
                     window.location.href = `/error/${code}`;

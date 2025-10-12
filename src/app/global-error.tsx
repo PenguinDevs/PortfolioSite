@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 
 export default function GlobalError({
   error,
@@ -23,11 +24,11 @@ export default function GlobalError({
           <div className="absolute top-32 right-20 w-3 h-3 bg-red-600 rounded-full animate-ping"></div>
           <div className="absolute bottom-40 left-24 w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
           <div className="absolute bottom-24 right-32 w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
-          
+
           {/* Critical error lines */}
           <div className="absolute top-1/4 left-0 w-full h-1 bg-red-500 opacity-20 animate-pulse"></div>
           <div className="absolute bottom-1/4 left-0 w-full h-0.5 bg-red-600 opacity-30 animate-ping"></div>
-          
+
           {/* Error code snippets */}
           <div className="absolute top-16 right-24 text-xs text-red-400 font-mono opacity-40 rotate-12">
             {'CRITICAL ERROR'}
@@ -45,11 +46,11 @@ export default function GlobalError({
           <div className="mb-8">
             <div className="mb-6 flex justify-center">
               <div className="relative group">
-                <img
+                <Image
                   src="https://http.cat/500"
                   alt="500 - Critical Error Cat"
-                  width="300"
-                  height="225"
+                  width={300}
+                  height={225}
                   className="rounded-lg shadow-2xl border-2 border-red-500/20"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-red-500/30 to-transparent rounded-lg opacity-0"></div>
@@ -63,17 +64,18 @@ export default function GlobalError({
 
           {/* Error Message */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">
-              Application Error
-            </h2>
+            <h2 className="text-2xl font-semibold mb-4">Application Error</h2>
             <p className="text-gray-400 text-lg mb-4">
-              A critical error has occurred that prevented the application from loading properly.
+              A critical error has occurred that prevented the application from
+              loading properly.
             </p>
-            
+
             {/* Show error in development */}
             {process.env.NODE_ENV === 'development' && (
               <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg text-left">
-                <p className="text-red-300 text-sm font-bold mb-2">Error Details:</p>
+                <p className="text-red-300 text-sm font-bold mb-2">
+                  Error Details:
+                </p>
                 <p className="text-red-200 text-xs font-mono break-all mb-2">
                   {error.message}
                 </p>
@@ -94,9 +96,9 @@ export default function GlobalError({
             >
               Reload
             </button>
-            
+
             <button
-              onClick={() => window.location.href = '/'}
+              onClick={() => (window.location.href = '/')}
               className="px-8 py-3 border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
             >
               Go Home
@@ -109,10 +111,12 @@ export default function GlobalError({
               <span className="text-red-400 font-mono">critical_error()</span>
             </p>
             <div className="flex items-center justify-center space-x-2">
-              <span className="text-xs text-gray-500">Emergency cat provided by</span>
-              <a 
-                href="https://http.cat" 
-                target="_blank" 
+              <span className="text-xs text-gray-500">
+                Emergency cat provided by
+              </span>
+              <a
+                href="https://http.cat"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-red-300 hover:text-red-200 underline font-medium"
               >

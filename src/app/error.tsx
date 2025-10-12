@@ -18,12 +18,12 @@ export default function Error({
     console.error(error);
   }, [error]);
 
-  const statusCode = 500;
   const colorScheme = {
     gradient: 'from-red-400 via-orange-400 to-yellow-400',
     border: 'border-red-500/20 group-hover:border-red-500/50',
-    button: 'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 shadow-red-500/25',
-    dots: 'bg-red-400'
+    button:
+      'from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 shadow-red-500/25',
+    dots: 'bg-red-400',
   };
 
   return (
@@ -33,13 +33,21 @@ export default function Error({
         {/* Glitch Effect Lines */}
         <div className="absolute top-1/4 left-0 w-full h-0.5 bg-red-500 opacity-30 animate-pulse"></div>
         <div className="absolute top-2/3 left-0 w-full h-0.5 bg-red-400 opacity-20 animate-ping"></div>
-        
+
         {/* Floating Error Indicators */}
-        <div className={`absolute top-20 left-16 w-3 h-3 ${colorScheme.dots} rounded-full animate-bounce`}></div>
-        <div className={`absolute top-40 right-20 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}></div>
-        <div className={`absolute bottom-32 left-32 w-4 h-4 ${colorScheme.dots} rounded-full animate-ping`}></div>
-        <div className={`absolute bottom-20 right-16 w-2 h-2 ${colorScheme.dots} rounded-full animate-bounce`}></div>
-        
+        <div
+          className={`absolute top-20 left-16 w-3 h-3 ${colorScheme.dots} rounded-full animate-bounce`}
+        ></div>
+        <div
+          className={`absolute top-40 right-20 w-2 h-2 ${colorScheme.dots} rounded-full animate-pulse`}
+        ></div>
+        <div
+          className={`absolute bottom-32 left-32 w-4 h-4 ${colorScheme.dots} rounded-full animate-ping`}
+        ></div>
+        <div
+          className={`absolute bottom-20 right-16 w-2 h-2 ${colorScheme.dots} rounded-full animate-bounce`}
+        ></div>
+
         {/* Error Code Snippets */}
         <div className="absolute top-24 right-24 text-xs text-red-400 font-mono opacity-40 rotate-6">
           {'try { ... } catch(e)'}
@@ -65,7 +73,9 @@ export default function Error({
           <div className="mb-6 flex justify-center">
             <div className="relative group">
               <Image
-                src={imageError ? 'https://http.cat/500' : 'https://http.cat/500'}
+                src={
+                  imageError ? 'https://http.cat/500' : 'https://http.cat/500'
+                }
                 alt="500 - Internal Server Error Cat"
                 width={400}
                 height={300}
@@ -76,11 +86,15 @@ export default function Error({
               <div className="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent rounded-lg opacity-0"></div>
             </div>
           </div>
-          
-          <h1 className={`text-6xl md:text-7xl font-bold bg-gradient-to-r ${colorScheme.gradient} bg-clip-text text-transparent mb-4 animate-pulse`}>
+
+          <h1
+            className={`text-6xl md:text-7xl font-bold bg-gradient-to-r ${colorScheme.gradient} bg-clip-text text-transparent mb-4 animate-pulse`}
+          >
             500
           </h1>
-          <div className={`w-32 h-1 bg-gradient-to-r ${colorScheme.gradient} mx-auto mb-6 rounded-full`}></div>
+          <div
+            className={`w-32 h-1 bg-gradient-to-r ${colorScheme.gradient} mx-auto mb-6 rounded-full`}
+          ></div>
         </div>
 
         {/* Error Message */}
@@ -89,13 +103,16 @@ export default function Error({
             Something went wrong
           </h2>
           <p className="text-gray-400 text-lg mb-4">
-            It looks like we've encountered an unexpected error. This shouldn't have happened!
+            It looks like we&apos;ve encountered an unexpected error. This
+            shouldn&apos;t have happened!
           </p>
-          
+
           {/* Error Details (in development) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="mb-6 p-4 bg-red-900/20 border border-red-700 rounded-lg text-left">
-              <p className="text-red-300 text-sm font-mono mb-2">Error Details:</p>
+              <p className="text-red-300 text-sm font-mono mb-2">
+                Error Details:
+              </p>
               <p className="text-red-200 text-xs font-mono break-all">
                 {error.message}
               </p>
@@ -106,10 +123,8 @@ export default function Error({
               )}
             </div>
           )}
-          
-          <p className="text-gray-500 text-sm">
-            silly goober
-          </p>
+
+          <p className="text-gray-500 text-sm">silly goober</p>
         </div>
 
         {/* Action Buttons */}
@@ -120,7 +135,7 @@ export default function Error({
           >
             Try Again
           </button>
-          
+
           <Link
             href="/"
             className="px-8 py-3 border border-gray-600 text-gray-300 font-semibold rounded-lg"
@@ -136,9 +151,9 @@ export default function Error({
           </p>
           <div className="flex items-center justify-center space-x-2">
             <span className="text-xs text-gray-500">Cat image provided by</span>
-            <a 
-              href="https://http.cat" 
-              target="_blank" 
+            <a
+              href="https://http.cat"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-1 text-red-300 hover:text-red-200 underline text-sm font-medium transition-colors"
             >

@@ -9,14 +9,14 @@ export default function Loading() {
           <LottieAnimation />
         </div>
       </div>
-      
+
       {/* Decorative Loading Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-20 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
         <div className="absolute top-32 right-24 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
         <div className="absolute bottom-40 left-32 w-3 h-3 bg-green-400 rounded-full animate-bounce"></div>
         <div className="absolute bottom-32 right-20 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-        
+
         {/* Loading Code Snippets */}
         <div className="absolute top-16 right-16 text-xs text-gray-500 font-mono opacity-30 animate-pulse">
           {'await fetch()...'}
@@ -36,15 +36,15 @@ export default function Loading() {
             {/* Inner pulsing dot */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
           </div>
-          
+
           {/* Animated dots */}
           <div className="flex justify-center space-x-2 mb-6">
             <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-            <div 
+            <div
               className="w-3 h-3 bg-purple-500 rounded-full animate-bounce"
               style={{ animationDelay: '0.1s' }}
             ></div>
-            <div 
+            <div
               className="w-3 h-3 bg-pink-500 rounded-full animate-bounce"
               style={{ animationDelay: '0.2s' }}
             ></div>
