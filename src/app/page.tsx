@@ -214,7 +214,7 @@ export default function Home() {
 
           {/* Achievements */}
           <section className="mb-12">
-            <h3 className="text-xl font-semibold mb-6">Recent Achievements</h3>
+            <h3 className="text-xl font-semibold mb-6">Achievements</h3>
             <div className="grid gap-4 md:grid-cols-2 items-stretch">
               {awards.map(award => (
                 <AwardCard key={award.id} award={award} />

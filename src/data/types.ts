@@ -23,7 +23,7 @@ export interface Award {
   title: string;
   secondaryText: string;
   description: string;
-  icon: {
+  icon?: {
     type: 'emoji' | 'svg' | 'url';
     value: string; // emoji character, svg string, or image URL
   };
