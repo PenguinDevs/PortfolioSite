@@ -1,39 +1,10 @@
 import React from 'react';
-import Image from 'next/image';
 import { Award } from '@/data/types';
 
 interface AwardCardProps {
   award: Award;
   onClick?: () => void;
 }
-
-const IconRenderer: React.FC<{ icon?: Award['icon'] }> = ({ icon }) => {
-  if (!icon) return null;
-  
-  switch (icon.type) {
-    case 'emoji':
-      return <span className="text-2xl">{icon.value}</span>;
-    case 'svg':
-      return (
-        <div
-          className="w-7 h-7"
-          dangerouslySetInnerHTML={{ __html: icon.value }}
-        />
-      );
-    case 'url':
-      return (
-        <Image
-          src={icon.value}
-          alt="Award icon"
-          width={28}
-          height={28}
-          className="w-7 h-7 object-contain"
-        />
-      );
-    default:
-      return null;
-  }
-};
 
 const AwardCard: React.FC<AwardCardProps> = ({ award, onClick }) => {
   const CardContent = () => (

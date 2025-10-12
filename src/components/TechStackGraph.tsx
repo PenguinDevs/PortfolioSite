@@ -199,9 +199,12 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
     // Clear previous content
     svg.selectAll('*').remove();
 
-    // Use full viewport dimensions
+    // Use full page dimensions including scroll height
     const width = window.innerWidth;
-    const height = window.innerHeight;
+    const height = Math.max(
+      window.innerHeight,
+      document.documentElement.scrollHeight
+    );
 
     svg.attr('width', width).attr('height', height);
 
@@ -287,7 +290,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
       });
     };
 
-    // Create stronger boundary force to keep nodes away from screen edges
+    // Create boundary force to keep nodes away from screen edges (bottom boundary much lower)
     const boundaryForce = () => {
       techData.forEach(d => {
         if (d.x !== undefined && d.y !== undefined) {
@@ -295,6 +298,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
           const leftEdge = BOUNDARY_CONFIG.EDGE_BUFFER;
           const rightEdge = width - BOUNDARY_CONFIG.EDGE_BUFFER;
           const topEdge = BOUNDARY_CONFIG.EDGE_BUFFER;
+          // Set bottom boundary much lower - near the actual bottom of the full page
           const bottomEdge = height - BOUNDARY_CONFIG.EDGE_BUFFER;
 
           // Left edge repulsion
@@ -320,7 +324,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
             d.vy = (d.vy || 0) + force;
           }
 
-          // Bottom edge repulsion
+          // Bottom edge repulsion (now at the actual bottom of the page)
           if (d.y > bottomEdge) {
             const distance = d.y - bottomEdge;
             const force =
@@ -536,7 +540,10 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
     // Handle window resize
     const handleResize = () => {
       const newWidth = window.innerWidth;
-      const newHeight = window.innerHeight;
+      const newHeight = Math.max(
+        window.innerHeight,
+        document.documentElement.scrollHeight
+      );
       svg.attr('width', newWidth).attr('height', newHeight);
 
       // Update center force
