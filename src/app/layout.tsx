@@ -14,9 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Jason Yi (@penguindevs) - Full Stack Developer',
-  description:
-    "Full-stack developer, computer science student, and hackathon winner. Creator of ValoTracker (Discord's #1 trending bot) and MACATHON 2025 winner. Programming since age 11.",
+  title: 'Jason Yi (@penguindevs)',
   keywords: [
     'Jason Yi',
     'PenguinDevs',
