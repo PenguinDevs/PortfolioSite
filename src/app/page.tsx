@@ -6,6 +6,7 @@ import RobloxIcon from '@/components/icons/RobloxIcon';
 import DiscordIcon from '@/components/icons/DiscordIcon';
 import AwardCard from '@/components/AwardCard';
 import Friends from '@/components/Friends';
+import BlackjackCard from '@/components/BlackjackCard';
 import { getAwards, getAllTechItems, getFriends } from '@/data';
 
 export default function Home() {
@@ -294,6 +295,9 @@ export default function Home() {
           <Friends friends={friends} />
         </div>
       </div>
+
+      {/* Hidden Blackjack Easter Egg Card */}
+      <BlackjackCard className="fixed bottom-8 right-8 z-40 hidden md:block" />
     </div>
   );
 }
