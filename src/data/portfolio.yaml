@@ -255,7 +255,7 @@ awards:
 projects:
   - id: valotracker
     title: ValoTracker
-    description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly."
+    description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
     tags:
       - Valorant
       - 'Discord Trending #1'
@@ -339,7 +339,7 @@ projects:
 
   - id: valorpc
     title: ValoRPC
-    description: Discord rich presence for Valorant, leveraging screen reading and OCR to read live game state.
+    description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
     tags:
       - ★ 26
       - OCR
@@ -358,7 +358,7 @@ projects:
 
   - id: penguinengine
     title: PenguinEngine
-    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works).
+    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
     tags:
       - Monorepo
       - Library
@@ -432,7 +432,7 @@ projects:
 
   - id: nissan-silvia
     title: Nissan Silvia S15 3D Model
-    description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling.
+    description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
     tags:
       - 3D Art
       - Modeling
