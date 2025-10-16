@@ -134,7 +134,7 @@ const TechStackGraph: React.FC<TechStackGraphProps> = ({ techItems = [] }) => {
     const centerY = height / 2;
 
     techData.forEach((node, index) => {
-      const angle = (index / techData.length) * 2 * Math.PI;
+      const angle = (index / techData.length) * 2 * Math.PI + (4 * Math.PI) / 5;
       const radius =
         Math.max(LAYOUT_CONFIG.CONTENT_WIDTH, LAYOUT_CONFIG.CONTENT_HEIGHT) *
         LAYOUT_CONFIG.RADIUS_MULTIPLIER;
