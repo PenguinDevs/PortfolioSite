@@ -35,13 +35,13 @@ export default function Home() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-4xl font-bold mb-2">hi!</h1>
+                <h1 className="text-4xl font-bold mb-2">Hi!</h1>
                 <h2 className="text-2xl font-medium mb-2">I&apos;m Jason :)</h2>
                 <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
                   or PenguinDevs
                 </p>
                 <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
-                  developer of all sorts • studying somputer science w/ maths
+                  developer of all sorts • studying computer science w/ maths
                   minor • gamer
                 </p>
               </div>
