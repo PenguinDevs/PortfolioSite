@@ -181,76 +181,140 @@ techStack:
 
 awards:
   - id: macathon-2025
-    title: MACATHON 2025 Winner
-    secondaryText: First Place
+    title: MACATHON 2025
+    secondaryText: Hackathon Winner
     description: Won $1800 with team for "Catch N Go" - a gamified social mobile app built in 48 hours in a team of 4.
     href: https://www.linkedin.com/posts/jason-yi-penguindevs_first-place-macathon-2025-was-an-amazing-activity-7330566985598009347-pUfV
+    year: '25'
+    badge:
+      text: '1ST PLACE'
+      bgColor: bg-amber-500/20 dark:bg-amber-500/30
+      textColor: text-amber-700 dark:text-amber-300
+      icon: '▲'
+    stats:
+      - value: '$1.8K'
+        label: PRIZE
+      - value: '48H'
+        label: BUILD
     theme:
-      borderColor: border-yellow-200 dark:border-yellow-600
-      bgColor: bg-yellow-50 dark:bg-yellow-800
-      textColor: text-yellow-700 dark:text-yellow-100
-      secondaryTextColor: text-yellow-600 dark:text-yellow-300
-      descriptionColor: text-yellow-600 dark:text-yellow-200
+      borderColor: border-amber-200/50 dark:border-amber-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-amber-600 dark:text-amber-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-amber-400 to-orange-500
+      accentBar: bg-gradient-to-b from-amber-400 to-orange-500
 
   - id: valotracker-trending
-    title: 'ValoTracker #1 Trending'
-    secondaryText: July 2024
-    description: "ValoTracker reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly through pull-based workers."
+    title: 'ValoTracker'
+    secondaryText: Discord Trending Bot
+    description: "Reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly through pull-based workers."
     href: https://valotracker.com
+    year: '24'
+    badge:
+      text: '#1 TRENDING'
+      bgColor: bg-purple-500/20 dark:bg-purple-500/30
+      textColor: text-purple-700 dark:text-purple-300
+      icon: '●'
+    stats:
+      - value: '40K+'
+        label: SERVERS
+      - value: '9M'
+        label: WEEKLY
     theme:
-      borderColor: border-purple-200 dark:border-purple-600
-      bgColor: bg-purple-50 dark:bg-purple-800
-      textColor: text-purple-700 dark:text-purple-100
-      secondaryTextColor: text-purple-600 dark:text-purple-300
-      descriptionColor: text-purple-600 dark:text-purple-200
+      borderColor: border-purple-200/50 dark:border-purple-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-purple-600 dark:text-purple-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-purple-400 to-pink-500
+      accentBar: bg-gradient-to-b from-purple-500 to-pink-500
 
   - id: maps-advanced
-    title: Competitive Programming
-    secondaryText: 2025 MAPS Advanced Division
+    title: MAPS Advanced
+    secondaryText: Competitive Programming
     description: 2nd Place in Monash University's collegiate competitive programming competition
     href: https://www.linkedin.com/posts/monashaps_thats-a-wrap-on-mcpc-2025-this-year-ugcPost-7381497433828012032-ZEoE
+    year: '25'
+    badge:
+      text: '2ND PLACE'
+      bgColor: bg-slate-500/20 dark:bg-slate-500/30
+      textColor: text-slate-700 dark:text-slate-300
+      icon: '■'
     theme:
-      borderColor: border-slate-200 dark:border-slate-600
-      bgColor: bg-slate-50 dark:bg-slate-700
-      textColor: text-slate-700 dark:text-slate-100
-      secondaryTextColor: text-slate-600 dark:text-slate-300
-      descriptionColor: text-slate-600 dark:text-slate-200
+      borderColor: border-slate-200/50 dark:border-slate-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-slate-600 dark:text-slate-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-slate-400 to-gray-500
+      accentBar: bg-gradient-to-b from-slate-500 to-gray-500
 
   - id: maps-beginner
-    title: Competitive Programming
-    secondaryText: 2025 MAPS Beginner Competition
+    title: MAPS Beginner
+    secondaryText: Competitive Programming
     description: 2nd Place in Monash University's beginner competitive programming competition
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '25'
+    badge:
+      text: '2ND PLACE'
+      bgColor: bg-emerald-500/20 dark:bg-emerald-500/30
+      textColor: text-emerald-700 dark:text-emerald-300
+      icon: '◆'
     theme:
-      borderColor: border-slate-200 dark:border-slate-600
-      bgColor: bg-slate-50 dark:bg-slate-700
-      textColor: text-slate-700 dark:text-slate-100
-      secondaryTextColor: text-slate-600 dark:text-slate-300
-      descriptionColor: text-slate-600 dark:text-slate-200
+      borderColor: border-emerald-200/50 dark:border-emerald-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-emerald-600 dark:text-emerald-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-emerald-400 to-teal-500
+      accentBar: bg-gradient-to-b from-emerald-500 to-teal-500
 
   - id: adf-2024
-    title: Australian Defence Force Future Innovators Award
-    secondaryText: '2024'
+    title: ADF Future Innovators
+    secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '24'
+    badge:
+      text: 'STEM'
+      bgColor: bg-blue-500/20 dark:bg-blue-500/30
+      textColor: text-blue-700 dark:text-blue-300
+      icon: '★'
+    stats:
+      - value: '1/5K'
+        label: SELECTED
     theme:
-      borderColor: border-blue-200 dark:border-blue-600
-      bgColor: bg-blue-50 dark:bg-blue-800
-      textColor: text-blue-700 dark:text-blue-100
-      secondaryTextColor: text-blue-600 dark:text-blue-300
-      descriptionColor: text-blue-600 dark:text-blue-200
+      borderColor: border-blue-200/50 dark:border-blue-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-blue-400 to-cyan-500
+      accentBar: bg-gradient-to-b from-blue-500 to-cyan-500
 
   - id: adf-2022
-    title: Australian Defence Force Future Innovators Award
-    secondaryText: '2022'
+    title: ADF Future Innovators
+    secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '22'
+    badge:
+      text: 'STEM'
+      bgColor: bg-indigo-500/20 dark:bg-indigo-500/30
+      textColor: text-indigo-700 dark:text-indigo-300
+      icon: '✦'
+    stats:
+      - value: '1/5K'
+        label: SELECTED
     theme:
-      borderColor: border-blue-200 dark:border-blue-600
-      bgColor: bg-blue-50 dark:bg-blue-800
-      textColor: text-blue-700 dark:text-blue-100
-      secondaryTextColor: text-blue-600 dark:text-blue-300
-      descriptionColor: text-blue-600 dark:text-blue-200
+      borderColor: border-indigo-200/50 dark:border-indigo-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-indigo-600 dark:text-indigo-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-indigo-400 to-violet-500
+      accentBar: bg-gradient-to-b from-indigo-500 to-violet-500
 
 projects:
   - id: valotracker

@@ -23,10 +23,17 @@ export interface Award {
   title: string;
   secondaryText: string;
   description: string;
-  icon?: {
-    type: 'emoji' | 'svg' | 'url';
-    value: string; // emoji character, svg string, or image URL
+  badge?: {
+    text: string;
+    bgColor: string;
+    textColor: string;
+    icon?: string;
   };
+  year?: string;
+  stats?: {
+    value: string;
+    label: string;
+  }[];
   href?: string; // optional link when clicked
   theme?: {
     borderColor: string;
@@ -34,6 +41,8 @@ export interface Award {
     textColor: string;
     secondaryTextColor: string;
     descriptionColor: string;
+    gradientOverlay?: string;
+    accentBar?: string;
   };
 }
 
