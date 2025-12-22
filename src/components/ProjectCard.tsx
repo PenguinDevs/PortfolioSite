@@ -16,7 +16,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const isCompact = variant === 'compact';
   const techItems = getTechItemsByName(project.techStack);
 
-  const CardContent = () => (
+  const cardContent = (
     <div className="h-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-medium text-lg">{project.title}</h4>
@@ -96,7 +96,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   if (project.link?.type === 'internal') {
     return (
       <Link href={project.link.value} className="block">
-        <CardContent />
+        {cardContent}
       </Link>
     );
   }
@@ -109,12 +109,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         rel="noopener noreferrer"
         className="block"
       >
-        <CardContent />
+        {cardContent}
       </a>
     );
   }
 
-  return <CardContent />;
+  return cardContent;
 };
 
 export default ProjectCard;

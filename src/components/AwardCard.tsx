@@ -7,7 +7,7 @@ interface AwardCardProps {
 }
 
 const AwardCard: React.FC<AwardCardProps> = ({ award, onClick }) => {
-  const CardContent = () => (
+  const cardContent = (
     <div
       className={`group relative h-full p-6 rounded-lg flex flex-col transition-all duration-300 border overflow-hidden ${award.theme?.borderColor || 'border-gray-200 dark:border-gray-700'} ${award.theme?.bgColor || 'bg-white dark:bg-gray-900'}`}
     >
@@ -142,14 +142,14 @@ const AwardCard: React.FC<AwardCardProps> = ({ award, onClick }) => {
         className="block cursor-pointer"
         onClick={onClick}
       >
-        <CardContent />
+        {cardContent}
       </a>
     );
   }
 
   return (
     <div className={onClick ? 'cursor-pointer' : ''} onClick={onClick}>
-      <CardContent />
+      {cardContent}
     </div>
   );
 };

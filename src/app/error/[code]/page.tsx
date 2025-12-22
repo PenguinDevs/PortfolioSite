@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import LottieAnimation from '@/components/LottieAnimation';
@@ -123,21 +123,12 @@ const getColorScheme = (statusCode: number) => {
 export default function GenericErrorPage() {
   const params = useParams();
   const router = useRouter();
-  const [statusCode, setStatusCode] = useState<number>(500);
   const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    // Extract status code from URL or default to 500
-    const code = Array.isArray(params?.code) ? params.code[0] : params?.code;
-    const parsedCode = code ? parseInt(code, 10) : 500;
-
-    // Validate it's a reasonable HTTP status code
-    if (parsedCode >= 100 && parsedCode < 600) {
-      setStatusCode(parsedCode);
-    } else {
-      setStatusCode(500);
-    }
-  }, [params]);
+  // Extract and validate status code from URL params
+  const code = Array.isArray(params?.code) ? params.code[0] : params?.code;
+  const parsedCode = code ? parseInt(code, 10) : 500;
+  const statusCode = parsedCode >= 100 && parsedCode < 600 ? parsedCode : 500;
 
   const statusInfo = HTTP_STATUS_MESSAGES[statusCode] || {
     title: 'HTTP Error',
