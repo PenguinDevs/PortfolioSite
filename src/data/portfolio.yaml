@@ -517,14 +517,18 @@ friends:
     name: Swofty
     profileImage: https://api.shiroko.me/discord/avatar/873815509097918504
     link: https://swofty.net/
-  - id: bobbedbob
-    name: BobbedBob
-    profileImage: https://api.shiroko.me/discord/avatar/411004916430143508
-    link: https://bobbedbob.io/
+  - id: tans
+    name: Swofty
+    profileImage: https://api.shiroko.me/discord/avatar/782492200587362315
+    link: https://portfolio.tyzren.com/
   - id: sexnine
     name: sexnine
     profileImage: https://api.shiroko.me/discord/avatar/807958370887270400
     link: https://sexnine.xyz/
+  - id: bobbedbob
+    name: BobbedBob
+    profileImage: https://api.shiroko.me/discord/avatar/411004916430143508
+    link: https://bobbedbob.io/
   - id: haruka
     name: Haruka
     profileImage: https://api.shiroko.me/discord/avatar/222069018507345921
