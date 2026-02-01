@@ -11,16 +11,16 @@ export interface PerspectiveCameraConfig {
   fov: number;
   near: number;
   far: number;
-  position: [number, number, number];
-  offset: [number, number];
+  offset: [number, number, number];
+  lookatOffset: [number, number, number];
 }
 
 export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
-  fov: 25,
+  fov: 30,
   near: 0.1,
   far: 1000,
-  position: [0, 0, 10],
-  offset: [0, 0],
+  offset: [0, 2.5, 15],
+  lookatOffset: [0, 1, 0],
 };
 
 interface PerspectiveCameraServiceProps {
@@ -33,7 +33,7 @@ export function PerspectiveCameraService({
   config,
 }: PerspectiveCameraServiceProps) {
   const cameraRef = useRef<PerspectiveCameraType>(null);
-  const { fov, near, far, position, offset } = {
+  const { fov, near, far, offset, lookatOffset } = {
     ...DEFAULT_PERSPECTIVE_CONFIG,
     ...config,
   };
@@ -45,6 +45,8 @@ export function PerspectiveCameraService({
 
     camera.position.x = target.position.x + offset[0];
     camera.position.y = target.position.y + offset[1];
+    camera.position.z = target.position.z + offset[2];
+    camera.lookAt(target.position.x + lookatOffset[0], target.position.y + lookatOffset[1], target.position.z + lookatOffset[2]);
   });
 
   return (
@@ -54,7 +56,6 @@ export function PerspectiveCameraService({
       fov={fov}
       near={near}
       far={far}
-      position={position}
     />
   );
 }
