@@ -6,5 +6,3 @@
     </a>
   </p>
 </div>
-
-My personal portfolio website built with Next.js 15, TypeScript, and Tailwind CSS, featuring an interactive D3.js tech stack visualization, project showcase, and a responsive design.

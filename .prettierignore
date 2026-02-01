@@ -48,3 +48,6 @@ yarn.lock
 # Build outputs
 dist/
 build/
+
+# Claude
+.claude/
