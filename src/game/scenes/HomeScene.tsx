@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import type { Group } from 'three';
 import { Player } from '../entities';
 import { useInput } from '../inputs';
-import { MovementService, CameraService } from '../services';
+import { MovementService, OrthographicCameraService, PerspectiveCameraService } from '../services';
 import { HomeEnvironment } from './HomeEnvironment';
 
 export function HomeScene() {
@@ -18,7 +18,7 @@ export function HomeScene() {
       <HomeEnvironment />
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />
-      <CameraService targetRef={playerRef} />
+      <PerspectiveCameraService targetRef={playerRef} />
     </>
   );
 }

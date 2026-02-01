@@ -8,7 +8,7 @@ import type { Group } from 'three';
 import type { RefObject } from 'react';
 import { pickDefined } from '../../utils';
 
-export interface CameraConfig {
+export interface OrthographicCameraConfig {
   left?: number;
   right?: number;
   top?: number;
@@ -20,23 +20,23 @@ export interface CameraConfig {
   offset: [number, number];
 }
 
-export const DEFAULT_CAMERA_CONFIG: CameraConfig = {
+export const DEFAULT_ORTHOGRAPHIC_CONFIG: OrthographicCameraConfig = {
   near: 0.1,
-  far: 100,
-  zoom: 80,
+  far: 1000,
+  zoom: 100,
   position: [0, 0, 10],
   offset: [0, 0],
 };
 
-interface CameraServiceProps {
+interface OrthographicCameraServiceProps {
   targetRef: RefObject<Group | null>;
-  config?: Partial<CameraConfig>;
+  config?: Partial<OrthographicCameraConfig>;
 }
 
-export function CameraService({ targetRef, config }: CameraServiceProps) {
+export function OrthographicCameraService({ targetRef, config }: OrthographicCameraServiceProps) {
   const cameraRef = useRef<OrthographicCameraType>(null);
   const { left, right, top, bottom, near, far, zoom, position, offset } = {
-    ...DEFAULT_CAMERA_CONFIG,
+    ...DEFAULT_ORTHOGRAPHIC_CONFIG,
     ...config,
   };
 

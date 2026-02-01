@@ -1,2 +1,2 @@
 export { MovementService } from './player';
-export { CameraService } from './camera';
+export { OrthographicCameraService, PerspectiveCameraService } from './camera';
