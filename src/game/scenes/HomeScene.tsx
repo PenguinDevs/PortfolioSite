@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import type { Group } from 'three';
 import { Player } from '../entities';
 import { useInput } from '../inputs';
-import { MovementService } from '../services';
+import { MovementService, CameraService } from '../services';
 
 export function HomeScene() {
   const inputRef = useInput();
@@ -16,6 +16,7 @@ export function HomeScene() {
       <directionalLight position={[5, 10, 5]} intensity={1} />
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />
+      <CameraService targetRef={playerRef} />
     </>
   );
 }
