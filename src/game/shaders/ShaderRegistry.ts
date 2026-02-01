@@ -2,6 +2,8 @@ import type * as THREE from 'three';
 
 type MaterialFactory = () => THREE.Material;
 
+import { createToonMaterial } from './toonShader';
+
 export const ShaderRegistry: Record<string, MaterialFactory> = {
-  // basicGrid: () => new THREE.MeshStandardMaterial({ color: '#cccccc' }),
+  toon: createToonMaterial,
 };
