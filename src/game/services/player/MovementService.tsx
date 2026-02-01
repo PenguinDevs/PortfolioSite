@@ -3,7 +3,7 @@
 import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import type { RefObject } from 'react';
-import { InputAction, type InputState } from '../types';
+import { InputAction, type InputState } from '../../types';
 
 const MOVE_SPEED = 5;
 

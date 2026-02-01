@@ -1,7 +1,7 @@
 import { InputAction, createInputState } from '../types';
 import type { InputState } from '../types';
 
-const KEY_MAP: Record<string, InputAction> = {
+const KEY_MAP = {
   KeyA: InputAction.Left,
   ArrowLeft: InputAction.Left,
   KeyD: InputAction.Right,
@@ -10,13 +10,13 @@ const KEY_MAP: Record<string, InputAction> = {
   ArrowUp: InputAction.Forward,
   KeyS: InputAction.Backward,
   ArrowDown: InputAction.Backward,
-} as const satisfies Partial<Record<KeyboardEvent["code"], InputAction>>;
+} as const satisfies Partial<Record<KeyboardEvent['code'], InputAction>>;
 
 export class KeyboardController {
   readonly state: InputState = createInputState();
 
   private handleKeyDown = (e: KeyboardEvent) => {
-    const action = KEY_MAP[e.code];
+    const action = KEY_MAP[e.code as keyof typeof KEY_MAP];
     if (action) {
       e.preventDefault();
       this.state[action] = true;
@@ -24,7 +24,7 @@ export class KeyboardController {
   };
 
   private handleKeyUp = (e: KeyboardEvent) => {
-    const action = KEY_MAP[e.code];
+    const action = KEY_MAP[e.code as keyof typeof KEY_MAP];
     if (action) {
       this.state[action] = false;
     }
