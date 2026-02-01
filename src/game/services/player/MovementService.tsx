@@ -7,12 +7,12 @@ import { InputAction, type InputState } from '../../types';
 
 const MOVE_SPEED = 5;
 
-interface MovementSystemProps {
+interface MovementServiceProps {
   inputRef: RefObject<InputState>;
   playerRef: RefObject<Group | null>;
 }
 
-export function MovementSystem({ inputRef, playerRef }: MovementSystemProps) {
+export function MovementService({ inputRef, playerRef }: MovementServiceProps) {
   useFrame((_, delta) => {
     const input = inputRef.current;
     const player = playerRef.current;

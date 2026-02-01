@@ -1,1 +1,1 @@
-export { MovementSystem } from './player';
+export { MovementService } from './player';
