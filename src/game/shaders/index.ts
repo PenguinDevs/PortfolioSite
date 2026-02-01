@@ -1,0 +1,1 @@
+export { ShaderRegistry } from './ShaderRegistry';
