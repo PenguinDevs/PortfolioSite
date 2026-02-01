@@ -1,3 +1,3 @@
 export const ModelRegistry: Record<string, string> = {
-  // penguin: '/assets/models/penguin.glb',
+  pedestal: '/assets/geometries/home/pedestal.glb',
 };
