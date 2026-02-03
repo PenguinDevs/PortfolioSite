@@ -2,13 +2,23 @@
 
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Group, MathUtils, Mesh, TextureLoader } from 'three';
+import {
+  Bone,
+  CircleGeometry,
+  Color,
+  DoubleSide,
+  Group,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  TextureLoader,
+} from 'three';
 import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { createToonMaterial } from '../shaders/toonShader';
 
-const ANIMATION_SPEED = 4;
+const ANIMATION_SPEED = 6;
 const TURN_SPEED = 12;
 const BASE_Y_ROT = -Math.PI / 2;
 
@@ -20,6 +30,7 @@ export interface PlayerHandle {
 export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const localRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
+  const blinkTimer = useRef(0);
   const targetYRot = useRef(BASE_Y_ROT);
   const { scene, animations } = useModel('penguin');
 
@@ -41,6 +52,34 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
         (child as Mesh).material = material;
       }
     });
+
+    // Attach eyes to the Head bone
+    let headBone: Bone | null = null;
+    clone.traverse((child) => {
+      if ((child as Bone).isBone && child.name === 'Head') {
+        headBone = child as Bone;
+      }
+    });
+
+    if (headBone) {
+      const whiteMat = new MeshBasicMaterial({ color: new Color('#ffffff'), side: DoubleSide });
+      const blackMat = new MeshBasicMaterial({ color: new Color('#000000'), side: DoubleSide });
+      const eyeWhiteGeo = new CircleGeometry(0.25, 24);
+      const pupilGeo = new CircleGeometry(0.12, 20);
+
+      for (const side of [-1, 1] as const) {
+        const eyeGroup = new Group();
+        eyeGroup.name = '__eye__';
+        const white = new Mesh(eyeWhiteGeo, whiteMat);
+        const pupil = new Mesh(pupilGeo, blackMat);
+        pupil.position.z = 0.01;
+        eyeGroup.add(white, pupil);
+        eyeGroup.rotation.y = side * Math.PI / 2;
+        eyeGroup.position.set(side * 0.7, 0.6, -0.2);
+        (headBone as Bone).add(eyeGroup);
+      }
+    }
+
     return clone;
   }, [scene, texture, material]);
 
@@ -50,6 +89,18 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     const model = modelRef.current;
     if (!model) return;
     model.rotation.y = MathUtils.lerp(model.rotation.y, targetYRot.current, TURN_SPEED * delta);
+
+    // Blink animation
+    blinkTimer.current += delta;
+    const BLINK_INTERVAL = 3;
+    const BLINK_DURATION = 0.15;
+    const t = blinkTimer.current % BLINK_INTERVAL;
+    const scaleY = t < BLINK_DURATION ? 1 - Math.sin((t / BLINK_DURATION) * Math.PI) : 1;
+    cloned.traverse((child) => {
+      if (child.name === '__eye__') {
+        child.scale.y = scaleY;
+      }
+    });
   });
 
   useImperativeHandle(ref, () => ({
