@@ -7,6 +7,8 @@ import { useModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { createToonMaterial } from '../shaders/toonShader';
 
+const ANIMATION_SPEED = 4;
+
 export interface PlayerHandle {
   group: Group;
   setMoving: (moving: boolean) => void;
@@ -37,7 +39,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     return clone;
   }, [scene, texture, material]);
 
-  const animator = useAnimator(cloned, animations, { initialClip: 'penguin_idle' });
+  const animator = useAnimator(cloned, animations, { initialClip: 'penguin_idle', timeScale: ANIMATION_SPEED });
 
   useImperativeHandle(ref, () => ({
     get group() {

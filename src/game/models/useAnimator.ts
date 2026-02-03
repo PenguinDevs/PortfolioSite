@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 interface UseAnimatorOptions {
   initialClip?: string;
   fadeSpeed?: number;
+  timeScale?: number;
 }
 
 export function useAnimator(
@@ -12,7 +13,7 @@ export function useAnimator(
   clips: AnimationClip[],
   options: UseAnimatorOptions = {},
 ) {
-  const { initialClip, fadeSpeed = 8 } = options;
+  const { initialClip, fadeSpeed = 8, timeScale = 1 } = options;
 
   const mixerRef = useRef<AnimationMixer | null>(null);
   const actionsRef = useRef<Map<string, AnimationAction>>(new Map());
@@ -22,6 +23,7 @@ export function useAnimator(
 
   useEffect(() => {
     const mixer = new AnimationMixer(root);
+    mixer.timeScale = timeScale;
     mixerRef.current = mixer;
 
     const actions = new Map<string, AnimationAction>();

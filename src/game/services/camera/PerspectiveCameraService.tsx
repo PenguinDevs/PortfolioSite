@@ -19,8 +19,8 @@ export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
   fov: 30,
   near: 0.1,
   far: 1000,
-  offset: [0, 2.5, 15],
-  lookatOffset: [0, 1, 0],
+  offset: [0, 5.5, 25],
+  lookatOffset: [0, 4, 0],
 };
 
 interface PerspectiveCameraServiceProps {
