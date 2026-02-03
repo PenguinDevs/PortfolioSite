@@ -2,11 +2,10 @@
 
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Group, MathUtils, Mesh, TextureLoader } from 'three';
+import { Group, MathUtils, Mesh } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
-import { useModel } from '../models';
+import { useEntityModel } from '../models';
 import { AudioService } from '../services';
-import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { Sound } from '../types';
 
@@ -29,30 +28,20 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
     const on = useRef(false);
     const targetAngle = useRef(LEVER_OFF_ANGLE);
 
-    const { scene } = useModel('lever');
+    const { cloned } = useEntityModel('lever', {
+      texturePath: '/assets/textures/colour_palette.png',
+    });
 
-    const texture = useMemo(() => {
-      const tex = new TextureLoader().load('/assets/textures/colour_palette.png');
-      tex.flipY = false;
-      return tex;
-    }, []);
-
-    const material = useMemo(
-      () => createToonMaterial({ map: texture }),
-      [texture],
-    );
-
+    // pull out the two meshes from the cloned scene
     const { base, stick } = useMemo(() => {
-      const clone = scene.clone(true);
       const meshes: Mesh[] = [];
-      clone.traverse((child) => {
+      cloned.traverse((child) => {
         if ((child as Mesh).isMesh) {
-          (child as Mesh).material = material;
           meshes.push(child as Mesh);
         }
       });
       return { base: meshes[0], stick: meshes[1] };
-    }, [scene, material]);
+    }, [cloned]);
 
     useFrame((_, delta) => {
       const handle = handleRef.current;

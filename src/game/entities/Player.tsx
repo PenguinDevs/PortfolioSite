@@ -11,12 +11,9 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  TextureLoader,
 } from 'three';
-import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { useModel, useAnimator } from '../models';
+import { useEntityModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
-import { createToonMaterial } from '../shaders/toonShader';
 
 const ANIMATION_SPEED = 6;
 const TURN_SPEED = 12;
@@ -32,30 +29,16 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const modelRef = useRef<Group>(null);
   const blinkTimer = useRef(0);
   const targetYRot = useRef(BASE_Y_ROT);
-  const { scene, animations } = useModel('penguin');
 
-  const texture = useMemo(() => {
-    const tex = new TextureLoader().load('/assets/textures/penguin_texture.png');
-    tex.flipY = false;
-    return tex;
-  }, []);
+  const { cloned, animations } = useEntityModel('penguin', {
+    texturePath: '/assets/textures/penguin_texture.png',
+    skeleton: true,
+  });
 
-  const material = useMemo(
-    () => createToonMaterial({ map: texture }),
-    [texture],
-  );
-
-  const cloned = useMemo(() => {
-    const clone = skeletonClone(scene);
-    clone.traverse((child) => {
-      if ((child as Mesh).isMesh) {
-        (child as Mesh).material = material;
-      }
-    });
-
-    // Attach eyes to the Head bone
+  // attach eyes to the Head bone
+  useMemo(() => {
     let headBone: Bone | null = null;
-    clone.traverse((child) => {
+    cloned.traverse((child) => {
       if ((child as Bone).isBone && child.name === 'Head') {
         headBone = child as Bone;
       }
@@ -79,9 +62,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
         (headBone as Bone).add(eyeGroup);
       }
     }
-
-    return clone;
-  }, [scene, texture, material]);
+  }, [cloned]);
 
   const animator = useAnimator(cloned, animations, { initialClip: 'penguin_idle', timeScale: ANIMATION_SPEED });
 
@@ -90,7 +71,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     if (!model) return;
     model.rotation.y = MathUtils.lerp(model.rotation.y, targetYRot.current, TURN_SPEED * delta);
 
-    // Blink animation
+    // blink animation
     blinkTimer.current += delta;
     const BLINK_INTERVAL = 3;
     const BLINK_DURATION = 0.15;
