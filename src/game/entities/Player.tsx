@@ -35,7 +35,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const { scene, animations } = useModel('penguin');
 
   const texture = useMemo(() => {
-    const tex = new TextureLoader().load('/assets/geometries/characters/penguin_texture.png');
+    const tex = new TextureLoader().load('/assets/textures/penguin_texture.png');
     tex.flipY = false;
     return tex;
   }, []);

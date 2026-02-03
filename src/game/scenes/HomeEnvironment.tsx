@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import type { Group } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { AlleyGround, Pedestal } from '../entities';
+import { AlleyGround, Lever, Pedestal } from '../entities';
 
 export function HomeEnvironment() {
   const pedestalRef = useRef<Group>(null);
@@ -21,6 +21,7 @@ export function HomeEnvironment() {
 
       {/* Pedestal - origin at bottom, sits flush on ground */}
       <Pedestal ref={pedestalRef} position={[4, 0, -2]} />
+      <Lever position={[2, 0, -2]} rotation={[0, Math.PI/2, 0]} />
     </group>
   );
 }
