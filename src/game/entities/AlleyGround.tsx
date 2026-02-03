@@ -7,14 +7,15 @@ import { useModel } from '../models';
 import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 
+const TILE_SCALE = 12;
 const TILE_WIDTH = 1; // alley.glb is 1m wide in Blender
 
-interface AlleyGroundProps extends ThreeElements['group'] {
+type AlleyGroundProps = ThreeElements['group'] & {
   /** First tile index (inclusive). Tiles along the X axis. */
   startTile?: number;
   /** Last tile index (inclusive). */
   endTile?: number;
-}
+};
 
 export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGround(
   { startTile = -20, endTile = 20, ...props },
@@ -26,7 +27,7 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
   useImperativeHandle(ref, () => localRef.current!);
 
   const material = useMemo(
-    () => createToonMaterial({ color: '#d4cfc8', shadowColor: '#8a8078' }),
+    () => createToonMaterial({ color: '#ffffff', shadowColor: '#ffffff' }),
     [],
   );
 
@@ -47,16 +48,18 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
   return (
     <group ref={localRef} {...props}>
       {tiles.map(({ key, clone }) => (
-        <group key={key} position={[key * TILE_WIDTH, 0, 0]}>
-          <primitive object={clone} />
+        <group key={key} position={[key * TILE_WIDTH * TILE_SCALE, 0, 0]} rotation={[0, Math.PI, 0]}>
+          <primitive object={clone} scale={TILE_SCALE}  />
         </group>
       ))}
       <InkEdgesGroup
         target={localRef}
         seed={77}
         width={3}
-        gapFreq={6}
-        gapThreshold={0.3}
+        gapFreq={20}
+        gapThreshold={0.6}
+        thresholdAngle={89}
+        creaseOffset={0.005}
       />
     </group>
   );

@@ -82,6 +82,7 @@ interface EdgeData {
 function extractEdges(
   geometry: BufferGeometry,
   thresholdAngle: number,
+  creaseOffset = 0,
 ): EdgeData {
   const thresholdDot = Math.cos((thresholdAngle * Math.PI) / 180);
   const posAttr = geometry.getAttribute('position');
@@ -150,6 +151,7 @@ function extractEdges(
 
   const segments: number[] = [];
   const vertexIndices: number[] = [];
+  const _offset = new Vector3();
   edgeFaceMap.forEach((faces, key) => {
     let include = false;
     if (faces.length === 1) {
@@ -159,6 +161,22 @@ function extractEdges(
     }
     if (include) {
       const [va, vb] = edgeVerts.get(key)!;
+
+      // Offset crease edges along the bisector of adjacent face normals
+      // so lines at concave bends aren't buried inside the geometry.
+      if (creaseOffset !== 0 && faces.length >= 1) {
+        _offset.copy(faceNormals[faces[0]]);
+        if (faces.length >= 2) {
+          _offset.add(faceNormals[faces[1]]);
+        }
+        const len = _offset.length();
+        if (len > 1e-6) {
+          _offset.multiplyScalar(creaseOffset / len);
+          va.add(_offset);
+          vb.add(_offset);
+        }
+      }
+
       segments.push(va.x, va.y, va.z, vb.x, vb.y, vb.z);
       const [ia, ib] = edgeOrigIndices.get(key)!;
       vertexIndices.push(ia, ib);
@@ -301,6 +319,10 @@ function buildInkLines(
 
 export interface InkEdgesOptions {
   thresholdAngle?: number;
+  /** Offset crease edge vertices along the face-normal bisector (local units).
+   *  Use a small positive value to push concave-bend lines out of the geometry
+   *  so they aren't occluded by both adjacent surfaces. */
+  creaseOffset?: number;
   width?: number;
   color?: string;
   seed?: number;
@@ -312,6 +334,7 @@ export interface InkEdgesOptions {
 
 const DEFAULTS: Required<InkEdgesOptions> = {
   thresholdAngle: 30,
+  creaseOffset: 0,
   width: 2,
   color: '#1a1a1a',
   seed: 0,
@@ -340,7 +363,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
     const mesh = target.current;
     if (!mesh?.geometry) return;
 
-    const { positions } = extractEdges(mesh.geometry, o.thresholdAngle);
+    const { positions } = extractEdges(mesh.geometry, o.thresholdAngle, o.creaseOffset);
     const lineObj = buildInkLines(positions, {
       color: o.color,
       opacity: o.opacity,
@@ -358,7 +381,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       lineObj.geometry.dispose();
       (lineObj.material as LineBasicMaterial).dispose();
     };
-  }, [target, o.thresholdAngle, o.color, o.width, o.opacity,
+  }, [target, o.thresholdAngle, o.creaseOffset, o.color, o.width, o.opacity,
       o.seed, o.gapFreq, o.gapThreshold, o.wobble]);
 
   return null;
@@ -387,7 +410,7 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
       if (!mesh.geometry) return;
 
       const meshSeed = o.seed + hashStr(mesh.uuid);
-      const { positions, vertexIndices } = extractEdges(mesh.geometry, o.thresholdAngle);
+      const { positions, vertexIndices } = extractEdges(mesh.geometry, o.thresholdAngle, o.creaseOffset);
 
       let skinning: SkinningInfo | undefined;
       if ((mesh as SkinnedMesh).isSkinnedMesh && vertexIndices) {
@@ -429,7 +452,7 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
         (obj.material as LineBasicMaterial).dispose();
       }
     };
-  }, [target, o.thresholdAngle, o.seed, o.color, o.width,
+  }, [target, o.thresholdAngle, o.creaseOffset, o.seed, o.color, o.width,
       o.opacity, o.gapFreq, o.gapThreshold, o.wobble]);
 
   return null;
