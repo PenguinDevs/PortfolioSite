@@ -7,7 +7,10 @@ import {
   Group,
   LineBasicMaterial,
   LineSegments,
+  Matrix4,
   Mesh,
+  Skeleton,
+  SkinnedMesh,
   Vector3,
 } from 'three';
 
@@ -64,16 +67,25 @@ const INK_FRAG_MAIN = /* glsl */ `
 `;
 
 // ---------------------------------------------------------------------------
-// Manual edge extraction
+// GPU skinning: uses Three.js built-in shader chunks via USE_SKINNING define
 // ---------------------------------------------------------------------------
 
-function extractEdgePositions(
+// ---------------------------------------------------------------------------
+// Edge extraction
+// ---------------------------------------------------------------------------
+
+interface EdgeData {
+  positions: Float32Array;
+  vertexIndices?: number[];
+}
+
+function extractEdges(
   geometry: BufferGeometry,
   thresholdAngle: number,
-): Float32Array {
+): EdgeData {
   const thresholdDot = Math.cos((thresholdAngle * Math.PI) / 180);
   const posAttr = geometry.getAttribute('position');
-  if (!posAttr) return new Float32Array(0);
+  if (!posAttr) return { positions: new Float32Array(0) };
 
   const indexAttr = geometry.getIndex();
   const pos = posAttr.array as Float32Array;
@@ -112,12 +124,15 @@ function extractEdgePositions(
 
   const edgeFaceMap = new Map<string, number[]>();
   const edgeVerts = new Map<string, [Vector3, Vector3]>();
+  const edgeOrigIndices = new Map<string, [number, number]>();
 
   const _v0 = new Vector3(), _v1 = new Vector3();
   for (let f = 0; f < triCount; f++) {
     for (let e = 0; e < 3; e++) {
-      getVertex(triIndex(f * 3 + e), _v0);
-      getVertex(triIndex(f * 3 + ((e + 1) % 3)), _v1);
+      const i0 = triIndex(f * 3 + e);
+      const i1 = triIndex(f * 3 + ((e + 1) % 3));
+      getVertex(i0, _v0);
+      getVertex(i1, _v1);
       const k0 = quantise(_v0);
       const k1 = quantise(_v1);
       const edgeKey = k0 < k1 ? k0 + '|' + k1 : k1 + '|' + k0;
@@ -127,12 +142,14 @@ function extractEdgePositions(
         faces = [];
         edgeFaceMap.set(edgeKey, faces);
         edgeVerts.set(edgeKey, [_v0.clone(), _v1.clone()]);
+        edgeOrigIndices.set(edgeKey, k0 < k1 ? [i0, i1] : [i1, i0]);
       }
       faces.push(f);
     }
   }
 
   const segments: number[] = [];
+  const vertexIndices: number[] = [];
   edgeFaceMap.forEach((faces, key) => {
     let include = false;
     if (faces.length === 1) {
@@ -143,10 +160,12 @@ function extractEdgePositions(
     if (include) {
       const [va, vb] = edgeVerts.get(key)!;
       segments.push(va.x, va.y, va.z, vb.x, vb.y, vb.z);
+      const [ia, ib] = edgeOrigIndices.get(key)!;
+      vertexIndices.push(ia, ib);
     }
   });
 
-  return new Float32Array(segments);
+  return { positions: new Float32Array(segments), vertexIndices };
 }
 
 // ---------------------------------------------------------------------------
@@ -161,12 +180,44 @@ function hashStr(s: string): number {
   return Math.abs(h) % 1000;
 }
 
-/**
- * Build a LineSegments object with ink-gap shader injection.
- * Uses only core Three.js (LineSegments, LineBasicMaterial, BufferGeometry).
- * Returns the LineSegments object which should be added as a child of the
- * target mesh.
- */
+function copySkinDataForEdges(
+  geometry: BufferGeometry,
+  vertexIndices: number[],
+): { skinIndices: Float32Array; skinWeights: Float32Array } | null {
+  const siAttr = geometry.getAttribute('skinIndex');
+  const swAttr = geometry.getAttribute('skinWeight');
+  if (!siAttr || !swAttr) return null;
+
+  const skinIndices = new Float32Array(vertexIndices.length * 4);
+  const skinWeights = new Float32Array(vertexIndices.length * 4);
+
+  for (let i = 0; i < vertexIndices.length; i++) {
+    const vi = vertexIndices[i];
+    skinIndices[i * 4]     = siAttr.getX(vi);
+    skinIndices[i * 4 + 1] = siAttr.getY(vi);
+    skinIndices[i * 4 + 2] = siAttr.getZ(vi);
+    skinIndices[i * 4 + 3] = siAttr.getW(vi);
+    skinWeights[i * 4]     = swAttr.getX(vi);
+    skinWeights[i * 4 + 1] = swAttr.getY(vi);
+    skinWeights[i * 4 + 2] = swAttr.getZ(vi);
+    skinWeights[i * 4 + 3] = swAttr.getW(vi);
+  }
+
+  return { skinIndices, skinWeights };
+}
+
+// ---------------------------------------------------------------------------
+// Build ink lines
+// ---------------------------------------------------------------------------
+
+interface SkinningInfo {
+  skinIndices: Float32Array;
+  skinWeights: Float32Array;
+  skeleton: Skeleton;
+  bindMatrix: Matrix4;
+  bindMatrixInverse: Matrix4;
+}
+
 function buildInkLines(
   edgePositions: Float32Array,
   params: {
@@ -177,11 +228,17 @@ function buildInkLines(
     gapThreshold: number;
     wobble: number;
   },
+  skinning?: SkinningInfo,
 ): LineSegments | null {
   if (edgePositions.length === 0) return null;
 
   const geo = new BufferGeometry();
   geo.setAttribute('position', new BufferAttribute(edgePositions, 3));
+
+  if (skinning) {
+    geo.setAttribute('skinIndex', new BufferAttribute(skinning.skinIndices, 4));
+    geo.setAttribute('skinWeight', new BufferAttribute(skinning.skinWeights, 4));
+  }
 
   const mat = new LineBasicMaterial({
     color: params.color,
@@ -193,26 +250,26 @@ function buildInkLines(
     polygonOffsetUnits: -2,
   });
 
-  // Inject ink-gap noise into the material shader
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uInkSeed = { value: params.seed };
     shader.uniforms.uInkGapFreq = { value: params.gapFreq };
     shader.uniforms.uInkGapThreshold = { value: params.gapThreshold };
     shader.uniforms.uInkWobble = { value: params.wobble };
 
-    // Vertex: pass object-space position via `transformed` (set by begin_vertex)
+    // Inject ink varying declaration
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
       'varying vec3 vInkObjPos;\nvoid main() {',
     );
+
+    // Capture object-space position after skinning (skinning_vertex runs
+    // between begin_vertex and project_vertex in the built-in shader)
     shader.vertexShader = shader.vertexShader.replace(
-      '#include <fog_vertex>',
-      '#include <fog_vertex>\nvInkObjPos = transformed;',
+      '#include <project_vertex>',
+      'vInkObjPos = transformed;\n#include <project_vertex>',
     );
 
     // Fragment: inject declarations before main, gap mask before opaque_fragment
-    // MeshBasicMaterial in Three.js 0.172 uses #include <opaque_fragment>
-    // which sets gl_FragColor - we modify diffuseColor.a before that
     shader.fragmentShader = shader.fragmentShader.replace(
       'void main() {',
       INK_FRAG_PARS + 'void main() {',
@@ -224,6 +281,17 @@ function buildInkLines(
   };
 
   const lineObj = new LineSegments(geo, mat);
+
+  // Let Three.js handle skinning natively by setting SkinnedMesh properties.
+  // This ensures all necessary defines (USE_SKINNING, BONE_TEXTURE) and
+  // uniform updates are managed by the renderer each frame.
+  if (skinning) {
+    (lineObj as any).isSkinnedMesh = true;
+    (lineObj as any).skeleton = skinning.skeleton;
+    (lineObj as any).bindMatrix = skinning.bindMatrix;
+    (lineObj as any).bindMatrixInverse = skinning.bindMatrixInverse;
+  }
+
   return lineObj;
 }
 
@@ -272,7 +340,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
     const mesh = target.current;
     if (!mesh?.geometry) return;
 
-    const positions = extractEdgePositions(mesh.geometry, o.thresholdAngle);
+    const { positions } = extractEdges(mesh.geometry, o.thresholdAngle);
     const lineObj = buildInkLines(positions, {
       color: o.color,
       opacity: o.opacity,
@@ -319,15 +387,35 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
       if (!mesh.geometry) return;
 
       const meshSeed = o.seed + hashStr(mesh.uuid);
-      const positions = extractEdgePositions(mesh.geometry, o.thresholdAngle);
-      const lineObj = buildInkLines(positions, {
-        color: o.color,
-        opacity: o.opacity,
-        seed: meshSeed,
-        gapFreq: o.gapFreq,
-        gapThreshold: o.gapThreshold,
-        wobble: o.wobble,
-      });
+      const { positions, vertexIndices } = extractEdges(mesh.geometry, o.thresholdAngle);
+
+      let skinning: SkinningInfo | undefined;
+      if ((mesh as SkinnedMesh).isSkinnedMesh && vertexIndices) {
+        const sm = mesh as SkinnedMesh;
+        const skinData = copySkinDataForEdges(mesh.geometry, vertexIndices);
+        if (skinData && sm.skeleton) {
+          skinning = {
+            skinIndices: skinData.skinIndices,
+            skinWeights: skinData.skinWeights,
+            skeleton: sm.skeleton,
+            bindMatrix: sm.bindMatrix,
+            bindMatrixInverse: sm.bindMatrixInverse,
+          };
+        }
+      }
+
+      const lineObj = buildInkLines(
+        positions,
+        {
+          color: o.color,
+          opacity: o.opacity,
+          seed: meshSeed,
+          gapFreq: o.gapFreq,
+          gapThreshold: o.gapThreshold,
+          wobble: o.wobble,
+        },
+        skinning,
+      );
 
       if (!lineObj) return;
       mesh.add(lineObj);

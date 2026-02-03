@@ -1,10 +1,11 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
-import { Group, Mesh, MeshStandardMaterial, TextureLoader } from 'three';
+import { Group, Mesh, TextureLoader } from 'three';
 import { clone as skeletonClone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { useModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
+import { createToonMaterial } from '../shaders/toonShader';
 
 export interface PlayerHandle {
   group: Group;
@@ -21,15 +22,20 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     return tex;
   }, []);
 
+  const material = useMemo(
+    () => createToonMaterial({ map: texture }),
+    [texture],
+  );
+
   const cloned = useMemo(() => {
     const clone = skeletonClone(scene);
     clone.traverse((child) => {
       if ((child as Mesh).isMesh) {
-        (child as Mesh).material = new MeshStandardMaterial({ map: texture });
+        (child as Mesh).material = material;
       }
     });
     return clone;
-  }, [scene, texture]);
+  }, [scene, texture, material]);
 
   const animator = useAnimator(cloned, animations, { initialClip: 'penguin_idle' });
 
