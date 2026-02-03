@@ -1,15 +1,18 @@
 'use client';
 
-import { useRef } from 'react';
-import type { Group } from 'three';
+import { useCallback, useRef } from 'react';
 import { Player } from '../entities';
+import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
-import { MovementService, OrthographicCameraService, PerspectiveCameraService } from '../services';
+import { useDerivedRef } from '../utils';
+import { MovementService, PerspectiveCameraService } from '../services';
 import { HomeEnvironment } from './HomeEnvironment';
 
 export function HomeScene() {
   const inputRef = useInput();
-  const playerRef = useRef<Group>(null);
+  const playerRef = useRef<PlayerHandle>(null);
+  const getGroup = useCallback(() => playerRef.current?.group ?? null, []);
+  const groupRef = useDerivedRef(getGroup);
 
   return (
     <>
@@ -18,7 +21,7 @@ export function HomeScene() {
       <HomeEnvironment />
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />
-      <PerspectiveCameraService targetRef={playerRef} />
+      <PerspectiveCameraService targetRef={groupRef} />
     </>
   );
 }
