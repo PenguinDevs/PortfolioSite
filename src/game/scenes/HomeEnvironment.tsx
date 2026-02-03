@@ -17,8 +17,8 @@ export function HomeEnvironment() {
   const groundMaterial = useMemo(
     () =>
       createToonMaterial({
-        color: '#ffffef',
-        shadowColor: '#ffffef',
+        color: '#ffffff',
+        shadowColor: '#ffffff',
         side: DoubleSide,
       }),
     [],

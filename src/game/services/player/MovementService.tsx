@@ -23,7 +23,7 @@ export function MovementService({ inputRef, playerRef }: MovementServiceProps) {
     if (input[InputAction.Right]) dx += 1;
 
     player.group.position.x += dx * MOVE_SPEED * delta;
-    player.setMoving(dx !== 0);
+    player.setMoving(dx !== 0, dx);
   });
 
   return null;
