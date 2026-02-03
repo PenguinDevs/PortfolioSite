@@ -22,7 +22,7 @@ export function HomeScene() {
       <HomeEnvironment />
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />
-      <PerspectiveCameraService targetRef={groupRef} />
+      <PerspectiveCameraService targetRef={groupRef} inputRef={inputRef} />
     </PlayerProvider>
   );
 }
