@@ -52,17 +52,7 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
       return { base: meshes[0], stick: meshes[1] };
     }, [scene, material]);
 
-    const debugTimer = useRef(0);
-
     useFrame((_, delta) => {
-      // TODO: remove auto-toggle
-      debugTimer.current += delta;
-      if (debugTimer.current >= 2) {
-        debugTimer.current = 0;
-        on.current = !on.current;
-        targetAngle.current = on.current ? LEVER_ON_ANGLE : LEVER_OFF_ANGLE;
-      }
-
       const handle = handleRef.current;
       if (!handle) return;
       handle.rotation.x = MathUtils.lerp(

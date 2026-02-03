@@ -3,4 +3,5 @@ export { Player } from './Player';
 export type { PlayerHandle } from './Player';
 export { Lever } from './Lever';
 export type { LeverHandle } from './Lever';
+export { LightSwitch } from './LightSwitch';
 export { Pedestal } from './Pedestal';
