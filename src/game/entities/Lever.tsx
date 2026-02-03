@@ -5,8 +5,10 @@ import { useFrame } from '@react-three/fiber';
 import { Group, MathUtils, Mesh, TextureLoader } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useModel } from '../models';
+import { AudioService } from '../services';
 import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
+import { Sound } from '../types';
 
 const TOGGLE_SPEED = 10;
 const LEVER_ON_ANGLE = Math.PI / 3;
@@ -69,6 +71,7 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
       toggle() {
         on.current = !on.current;
         targetAngle.current = on.current ? LEVER_ON_ANGLE : LEVER_OFF_ANGLE;
+        AudioService.play(Sound.Button);
       },
       setOn(value: boolean) {
         on.current = value;

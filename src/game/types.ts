@@ -7,6 +7,10 @@ export enum InputAction {
 
 export type InputState = Record<InputAction, boolean>;
 
+export enum Sound {
+  Button = '/assets/sounds/button.ogg',
+}
+
 export function createInputState(): InputState {
   return {
     [InputAction.Left]: false,
