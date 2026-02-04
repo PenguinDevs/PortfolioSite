@@ -21,6 +21,9 @@ export interface PerspectiveCameraConfig {
   springDamper: number;
   // How far ahead the camera leads as a fraction of visible screen width (0-1)
   leadPercent: number;
+  // Minimum margin from screen edge as a fraction of visible width (0-0.5)
+  // Penguin is clamped to stay within this margin on each side
+  edgeMargin: number;
 }
 
 export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
@@ -32,6 +35,7 @@ export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
   springSpeed: 5,
   springDamper: 1,
   leadPercent: 0.25,
+  edgeMargin: 0.1,
 };
 
 interface PerspectiveCameraServiceProps {
@@ -48,7 +52,7 @@ export function PerspectiveCameraService({
   const cameraRef = useRef<PerspectiveCameraType>(null);
   const {
     fov, near, far, offset, lookatOffset,
-    springSpeed, springDamper, leadPercent,
+    springSpeed, springDamper, leadPercent, edgeMargin,
   } = {
     ...DEFAULT_PERSPECTIVE_CONFIG,
     ...config,
@@ -80,7 +84,21 @@ export function PerspectiveCameraService({
 
     // Spring target is the player position plus a lead offset in the movement direction
     xSpring.targetValue = target.position.x + dx * leadDistance;
-    const springX = xSpring.value;
+    let springX = xSpring.value;
+
+    // Clamp so the penguin never leaves the visible screen area
+    const halfVisible = visibleWidth / 2;
+    const margin = visibleWidth * edgeMargin;
+    // Camera must be close enough that the penguin sits within the safe zone
+    const minCameraX = target.position.x - halfVisible + margin + offset[0];
+    const maxCameraX = target.position.x + halfVisible - margin + offset[0];
+    const clampedX = Math.max(minCameraX, Math.min(maxCameraX, springX + offset[0]));
+
+    // If the clamp kicked in, sync the spring so it doesn't fight back next frame
+    if (clampedX !== springX + offset[0]) {
+      springX = clampedX - offset[0];
+      xSpring.value = springX;
+    }
 
     camera.position.x = springX + offset[0];
     camera.position.y = target.position.y + offset[1];
