@@ -1,2 +1,4 @@
 export { HomeScene } from './HomeScene';
-export { HomeEnvironment } from './HomeEnvironment';
+export { HomeSection as HomeEnvironment } from './HomeSection';
+export { AwardsSection as AwardsEnvironment } from './AwardsSection';
+export { ProjectsSection as ProjectsEnvironment } from './ProjectsSection';
