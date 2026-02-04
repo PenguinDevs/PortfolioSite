@@ -129,12 +129,15 @@ export function SpeedLines({ activeRef, directionRef }: SpeedLinesProps) {
     if (!visible) return;
 
     const pool = poolRef.current;
+    if (pool.length === 0) return;
+
     const positions = geometry.attributes.position as BufferAttribute;
     const arr = positions.array as Float32Array;
     const dir = direction || 1;
 
     for (let i = 0; i < LINE_COUNT; i++) {
       let line = pool[i];
+      if (!line) continue;
       line.age += delta;
 
       // respawn when expired (only while active, otherwise let them finish)

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Color } from 'three';
 import { Canvas, useThree } from '@react-three/fiber';
 import { HomeScene } from './scenes';
+import { LoadingScreen } from './components/LoadingScreen';
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
 
@@ -21,12 +22,15 @@ function SceneBackground() {
 
 export function Game() {
   return (
-    <Canvas
-      gl={{ antialias: true }}
-      style={{ width: '100vw', height: '100dvh', background: '#ffffff' }}
-    >
-      <SceneBackground />
-      <HomeScene />
-    </Canvas>
+    <>
+      <LoadingScreen />
+      <Canvas
+        gl={{ antialias: true }}
+        style={{ width: '100vw', height: '100dvh', background: '#ffffff' }}
+      >
+        <SceneBackground />
+        <HomeScene />
+      </Canvas>
+    </>
   );
 }
