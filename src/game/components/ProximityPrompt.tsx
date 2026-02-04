@@ -213,7 +213,6 @@ export function ProximityPrompt({
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#ffffff',
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
                         fontSize: 18,
                         fontWeight: 700,
                         lineHeight: 1,
@@ -229,8 +228,7 @@ export function ProximityPrompt({
                   {actionText && (
                     <div
                       style={{
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        fontSize: 13,
+                        fontSize: 18,
                         fontWeight: 600,
                         whiteSpace: 'nowrap',
                       }}
@@ -242,8 +240,7 @@ export function ProximityPrompt({
                   {objectText && (
                     <div
                       style={{
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        fontSize: 11,
+                        fontSize: 15,
                         fontWeight: 400,
                         opacity: 0.6,
                         whiteSpace: 'nowrap',

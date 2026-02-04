@@ -4,6 +4,8 @@ import { type ReactNode, useId } from 'react';
 import { useLightingMode } from '../hooks';
 import { INK_EDGE_COLOUR, BACKGROUND_COLOUR } from '../constants';
 
+export const TEXT_WINDOW_FONT = "'JustAnotherHand', cursive";
+
 export interface TextWindowProps {
   children: ReactNode;
   width?: number | string;
@@ -93,7 +95,7 @@ export function TextWindow({
       />
 
       {/* Content sits above the background */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', fontFamily: TEXT_WINDOW_FONT }}>
         {children}
       </div>
     </div>
