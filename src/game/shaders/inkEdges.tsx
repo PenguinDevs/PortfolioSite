@@ -418,9 +418,11 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
 
 export interface InkEdgesGroupProps extends InkEdgesOptions {
   target: React.RefObject<Group | null>;
+  // optional predicate to include only specific meshes in the group
+  filter?: (mesh: Mesh) => boolean;
 }
 
-export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
+export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
   const o = mergeOpts(opts);
 
   useEffect(() => {
@@ -438,6 +440,7 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
       if (!(child as Mesh).isMesh) return;
       const mesh = child as Mesh;
       if (!mesh.geometry) return;
+      if (filter && !filter(mesh)) return;
 
       const meshSeed = o.seed + hashStr(mesh.uuid);
       const { positions, vertexIndices } = extractEdges(mesh.geometry, o.thresholdAngle, o.creaseOffset);
@@ -496,7 +499,7 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
         (obj.material as LineBasicMaterial).dispose();
       }
     };
-  }, [target, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
+  }, [target, filter, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
       o.opacity, o.gapFreq, o.gapThreshold, o.wobble]);
 
   return null;
