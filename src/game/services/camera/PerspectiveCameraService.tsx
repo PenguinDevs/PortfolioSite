@@ -18,8 +18,8 @@ export interface PerspectiveCameraConfig {
   // Spring tuning for horizontal follow
   springSpeed: number;
   springDamper: number;
-  // How far ahead the camera leads when the player is moving
-  leadDistance: number;
+  // How far ahead the camera leads as a fraction of visible screen width (0-1)
+  leadPercent: number;
 }
 
 export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
@@ -30,7 +30,7 @@ export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
   lookatOffset: [0, 4, 0],
   springSpeed: 5,
   springDamper: 1,
-  leadDistance: 6,
+  leadPercent: 0.25,
 };
 
 interface PerspectiveCameraServiceProps {
@@ -47,7 +47,7 @@ export function PerspectiveCameraService({
   const cameraRef = useRef<PerspectiveCameraType>(null);
   const {
     fov, near, far, offset, lookatOffset,
-    springSpeed, springDamper, leadDistance,
+    springSpeed, springDamper, leadPercent,
   } = {
     ...DEFAULT_PERSPECTIVE_CONFIG,
     ...config,
@@ -70,6 +70,11 @@ export function PerspectiveCameraService({
     let dx = 0;
     if (input[InputAction.Left]) dx -= 1;
     if (input[InputAction.Right]) dx += 1;
+
+    // Compute visible width at the target's depth so lookahead scales with screen size
+    const fovRad = camera.fov * (Math.PI / 180);
+    const visibleWidth = 2 * offset[2] * Math.tan(fovRad / 2) * camera.aspect;
+    const leadDistance = visibleWidth * leadPercent;
 
     // Spring target is the player position plus a lead offset in the movement direction
     xSpring.targetValue = target.position.x + dx * leadDistance;
