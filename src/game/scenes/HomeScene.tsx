@@ -21,7 +21,7 @@ export function HomeScene() {
   return (
     <PlayerProvider groupRef={groupRef}>
       <ambientLight intensity={AMBIENT_INTENSITY[mode]} />
-      <directionalLight position={[5, 10, 5]} intensity={DIRECTIONAL_INTENSITY[mode]} />
+      <directionalLight position={[5, 15, 5]} intensity={DIRECTIONAL_INTENSITY[mode]} />
       <HomeEnvironment />
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />

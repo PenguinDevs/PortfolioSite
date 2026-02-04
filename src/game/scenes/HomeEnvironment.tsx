@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import type { Group } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { AlleyGround, LightSwitch, Pedestal, Sign } from '../entities';
+import { AlleyGround, LightSwitch, NameTitle, Pedestal, Sign } from '../entities';
 
 export function HomeEnvironment() {
   const pedestalRef = useRef<Group>(null);
@@ -17,11 +17,13 @@ export function HomeEnvironment() {
 
   return (
     <group>
+      <NameTitle position={[0, 8, -4]} />
+
       <AlleyGround />
 
       <Pedestal ref={pedestalRef} position={[36, 0, -2]} />
 
-      <Sign position={[4, 0, -4]} rotation={[0, 0, 0]} rows={['', '--->', '', '']} />
+      <Sign position={[2.5, 0, -4]} rotation={[0, 0, 0]} rows={['', '--->', '', '']} />
 
 
       <Sign position={[24, 0, -4]} rotation={[0, 0, 0]} rows={['Only if it', 'really hurts', '|', '∀']} />

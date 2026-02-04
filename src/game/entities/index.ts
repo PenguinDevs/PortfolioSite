@@ -9,3 +9,4 @@ export { Sign } from './Sign';
 export type { SignProps } from './Sign';
 export { Keycap } from './Keycap';
 export type { KeycapHandle, KeycapProps } from './Keycap';
+export { NameTitle } from './NameTitle';

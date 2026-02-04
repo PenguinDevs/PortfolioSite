@@ -5,4 +5,5 @@ export const ModelRegistry: Record<string, string> = {
   lever: '/assets/geometries/home/lever.glb',
   sign: '/assets/geometries/home/sign.glb',
   keycap: '/assets/geometries/general/keycap.glb',
+  jason: '/assets/geometries/home/jason.glb',
 };
