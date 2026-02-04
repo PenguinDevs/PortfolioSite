@@ -2,24 +2,24 @@ import { useEffect } from 'react';
 import { Color } from 'three';
 import type { ShaderMaterial } from 'three';
 import { LightingService } from '../services';
-import type { ThemedColor } from '../types';
+import type { ThemedColour } from '../types';
 
-// Subscribes a toon ShaderMaterial's color and shadow uniforms to lighting
+// Subscribes a toon ShaderMaterial's colour and shadow uniforms to lighting
 // mode changes. Updates uniforms imperatively without triggering re-renders.
 export function useThemedToonMaterial(
   material: ShaderMaterial,
-  color: ThemedColor,
-  shadowColor: ThemedColor,
+  colour: ThemedColour,
+  shadowColour: ThemedColour,
 ) {
   useEffect(() => {
-    // Set initial colors based on current mode
+    // Set initial colours based on current mode
     const initial = LightingService.getMode();
-    material.uniforms.uColor.value = new Color(color[initial]);
-    material.uniforms.uShadowColor.value = new Color(shadowColor[initial]);
+    material.uniforms.uColor.value = new Color(colour[initial]);
+    material.uniforms.uShadowColor.value = new Color(shadowColour[initial]);
 
     return LightingService.subscribe((mode) => {
-      material.uniforms.uColor.value = new Color(color[mode]);
-      material.uniforms.uShadowColor.value = new Color(shadowColor[mode]);
+      material.uniforms.uColor.value = new Color(colour[mode]);
+      material.uniforms.uShadowColor.value = new Color(shadowColour[mode]);
     });
-  }, [material, color, shadowColor]);
+  }, [material, colour, shadowColour]);
 }

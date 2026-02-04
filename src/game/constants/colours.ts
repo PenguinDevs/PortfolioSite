@@ -10,7 +10,7 @@ export const BACKGROUND_COLOUR: ThemedColour = {
 // Alley ground
 export const GROUND_COLOUR: ThemedColour = {
   [LightingMode.Light]: '#ffffff',
-  [LightingMode.Dark]: '#2a2a3a',
+  [LightingMode.Dark]: '#3d3d3d',
 };
 
 export const GROUND_SHADOW: ThemedColour = {

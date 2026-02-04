@@ -13,6 +13,8 @@ import {
   SkinnedMesh,
   Vector3,
 } from 'three';
+import { LightingService } from '../services';
+import { LightingMode } from '../types';
 
 // ---------------------------------------------------------------------------
 // GLSL: ink-gap noise injected into LineBasicMaterial via onBeforeCompile
@@ -319,12 +321,15 @@ function buildInkLines(
 
 export interface InkEdgesOptions {
   thresholdAngle?: number;
-  /** Offset crease edge vertices along the face-normal bisector (local units).
-   *  Use a small positive value to push concave-bend lines out of the geometry
-   *  so they aren't occluded by both adjacent surfaces. */
+  // Offset crease edge vertices along the face-normal bisector (local units).
+  // Use a small positive value to push concave-bend lines out of the geometry
+  // so they aren't occluded by both adjacent surfaces.
   creaseOffset?: number;
   width?: number;
-  color?: string;
+  colour?: string;
+  // Colour used in dark mode. When provided, ink edges automatically switch
+  // between colour (light) and darkColour (dark) via the LightingService.
+  darkColour?: string;
   seed?: number;
   gapFreq?: number;
   gapThreshold?: number;
@@ -332,11 +337,13 @@ export interface InkEdgesOptions {
   opacity?: number;
 }
 
-const DEFAULTS: Required<InkEdgesOptions> = {
+type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour'>> & { darkColour?: string };
+
+const DEFAULTS: ResolvedInkEdgesOptions = {
   thresholdAngle: 30,
   creaseOffset: 0,
   width: 2,
-  color: '#1a1a1a',
+  colour: '#1a1a1a',
   seed: 0,
   gapFreq: 8,
   gapThreshold: 0.4,
@@ -344,7 +351,7 @@ const DEFAULTS: Required<InkEdgesOptions> = {
   opacity: 0.9,
 };
 
-function mergeOpts(opts: InkEdgesOptions): Required<InkEdgesOptions> {
+function mergeOpts(opts: InkEdgesOptions): ResolvedInkEdgesOptions {
   return { ...DEFAULTS, ...opts };
 }
 
@@ -363,9 +370,14 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
     const mesh = target.current;
     if (!mesh?.geometry) return;
 
+    // Resolve initial colour based on lighting mode
+    const initialMode = LightingService.getMode();
+    const initialColour = o.darkColour && initialMode === LightingMode.Dark
+      ? o.darkColour : o.colour;
+
     const { positions } = extractEdges(mesh.geometry, o.thresholdAngle, o.creaseOffset);
     const lineObj = buildInkLines(positions, {
-      color: o.color,
+      color: initialColour,
       opacity: o.opacity,
       seed: o.seed,
       gapFreq: o.gapFreq,
@@ -376,12 +388,25 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
     if (!lineObj) return;
     mesh.add(lineObj);
 
+    // Subscribe to lighting changes if dark mode colour is provided
+    let unsubLighting: (() => void) | undefined;
+    if (o.darkColour) {
+      const lightCol = o.colour;
+      const darkCol = o.darkColour;
+      unsubLighting = LightingService.subscribe((mode) => {
+        (lineObj.material as LineBasicMaterial).color.set(
+          mode === LightingMode.Light ? lightCol : darkCol
+        );
+      });
+    }
+
     return () => {
+      unsubLighting?.();
       mesh.remove(lineObj);
       lineObj.geometry.dispose();
       (lineObj.material as LineBasicMaterial).dispose();
     };
-  }, [target, o.thresholdAngle, o.creaseOffset, o.color, o.width, o.opacity,
+  }, [target, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
       o.seed, o.gapFreq, o.gapThreshold, o.wobble]);
 
   return null;
@@ -401,6 +426,11 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
   useEffect(() => {
     const group = target.current;
     if (!group) return;
+
+    // Resolve initial colour based on lighting mode
+    const initialMode = LightingService.getMode();
+    const initialColour = o.darkColour && initialMode === LightingMode.Dark
+      ? o.darkColour : o.colour;
 
     const attached: { obj: LineSegments; parent: Mesh }[] = [];
 
@@ -430,7 +460,7 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
       const lineObj = buildInkLines(
         positions,
         {
-          color: o.color,
+          color: initialColour,
           opacity: o.opacity,
           seed: meshSeed,
           gapFreq: o.gapFreq,
@@ -445,14 +475,28 @@ export function InkEdgesGroup({ target, ...opts }: InkEdgesGroupProps) {
       attached.push({ obj: lineObj, parent: mesh });
     });
 
+    // Subscribe to lighting changes if dark mode colour is provided
+    let unsubLighting: (() => void) | undefined;
+    if (o.darkColour) {
+      const lightCol = o.colour;
+      const darkCol = o.darkColour;
+      unsubLighting = LightingService.subscribe((mode) => {
+        const c = mode === LightingMode.Light ? lightCol : darkCol;
+        for (const { obj } of attached) {
+          (obj.material as LineBasicMaterial).color.set(c);
+        }
+      });
+    }
+
     return () => {
+      unsubLighting?.();
       for (const { obj, parent } of attached) {
         parent.remove(obj);
         obj.geometry.dispose();
         (obj.material as LineBasicMaterial).dispose();
       }
     };
-  }, [target, o.thresholdAngle, o.creaseOffset, o.seed, o.color, o.width,
+  }, [target, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
       o.opacity, o.gapFreq, o.gapThreshold, o.wobble]);
 
   return null;

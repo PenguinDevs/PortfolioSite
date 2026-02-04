@@ -5,7 +5,10 @@ import type { Group, Mesh } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useModel } from '../models';
 import { createToonMaterial } from '../shaders/toonShader';
+import { useThemedToonMaterial } from '../hooks';
 import { InkEdgesGroup } from '../shaders/inkEdges';
+import { GROUND_COLOUR, GROUND_SHADOW, INK_EDGE_COLOUR } from '../constants';
+import { LightingMode } from '../types';
 
 const TILE_SCALE = 12;
 const TILE_WIDTH = 1; // alley.glb is 1m wide in Blender
@@ -27,9 +30,14 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
   useImperativeHandle(ref, () => localRef.current!);
 
   const material = useMemo(
-    () => createToonMaterial({ color: '#ffffff', shadowColor: '#ffffff' }),
+    () => createToonMaterial({
+      color: GROUND_COLOUR[LightingMode.Light],
+      shadowColor: GROUND_SHADOW[LightingMode.Light],
+    }),
     [],
   );
+
+  useThemedToonMaterial(material, GROUND_COLOUR, GROUND_SHADOW);
 
   const tiles = useMemo(() => {
     const result: { key: number; clone: Group }[] = [];
@@ -54,6 +62,8 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
       ))}
       <InkEdgesGroup
         target={localRef}
+        colour={INK_EDGE_COLOUR[LightingMode.Light]}
+        darkColour={INK_EDGE_COLOUR[LightingMode.Dark]}
         seed={77}
         width={3}
         gapFreq={20}

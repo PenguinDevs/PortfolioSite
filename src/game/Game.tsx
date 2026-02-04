@@ -1,7 +1,23 @@
 'use client';
 
-import { Canvas } from '@react-three/fiber';
+import { useEffect } from 'react';
+import { Color } from 'three';
+import { Canvas, useThree } from '@react-three/fiber';
 import { HomeScene } from './scenes';
+import { useLightingMode } from './hooks';
+import { BACKGROUND_COLOUR } from './constants';
+
+// Updates the WebGL clear colour when the lighting mode changes
+function SceneBackground() {
+  const mode = useLightingMode();
+  const gl = useThree((s) => s.gl);
+
+  useEffect(() => {
+    gl.setClearColor(new Color(BACKGROUND_COLOUR[mode]));
+  }, [mode, gl]);
+
+  return null;
+}
 
 export function Game() {
   return (
@@ -9,6 +25,7 @@ export function Game() {
       gl={{ antialias: true }}
       style={{ width: '100vw', height: '100dvh', background: '#ffffff' }}
     >
+      <SceneBackground />
       <HomeScene />
     </Canvas>
   );

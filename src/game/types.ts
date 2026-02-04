@@ -16,8 +16,8 @@ export enum LightingMode {
   Dark = 'dark',
 }
 
-// A pair of colors keyed by lighting mode
-export type ThemedColor = Record<LightingMode, string>;
+// A pair of colours keyed by lighting mode
+export type ThemedColour = Record<LightingMode, string>;
 
 // A pair of numeric values keyed by lighting mode
 export type ThemedValue = Record<LightingMode, number>;

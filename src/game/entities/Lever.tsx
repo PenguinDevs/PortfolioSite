@@ -7,7 +7,8 @@ import type { ThreeElements } from '@react-three/fiber';
 import { useEntityModel } from '../models';
 import { AudioService } from '../services';
 import { InkEdgesGroup } from '../shaders/inkEdges';
-import { Sound } from '../types';
+import { INK_EDGE_COLOUR } from '../constants';
+import { LightingMode, Sound } from '../types';
 
 const TOGGLE_SPEED = 10;
 const LEVER_ON_ANGLE = Math.PI / 3;
@@ -79,6 +80,8 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
         </group>
         <InkEdgesGroup
           target={localRef}
+          colour={INK_EDGE_COLOUR[LightingMode.Light]}
+          darkColour={INK_EDGE_COLOUR[LightingMode.Dark]}
           seed={33}
           width={3}
           gapFreq={5}

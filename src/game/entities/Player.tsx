@@ -14,7 +14,7 @@ import {
 } from 'three';
 import { useEntityModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
-import { INK_EDGE_COLOR } from '../constants';
+import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
 
 const ANIMATION_SPEED = 8;
@@ -134,8 +134,8 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
       </group>
       <InkEdgesGroup
         target={localRef}
-        color={INK_EDGE_COLOR[LightingMode.Light]}
-        darkColor={INK_EDGE_COLOR[LightingMode.Dark]}
+        colour={INK_EDGE_COLOUR[LightingMode.Light]}
+        darkColour={INK_EDGE_COLOUR[LightingMode.Dark]}
         seed={7}
         width={3}
         gapThreshold={0.35}
