@@ -1,8 +1,23 @@
 import { InputAction, createInputState } from '../types';
 import type { InputState } from '../types';
 
-// minimum horizontal distance (px) before a swipe is recognised
-const SWIPE_THRESHOLD = 10;
+// px the finger must move before we treat it as a swipe instead of a hold
+const SWIPE_THRESHOLD = 8;
+
+// fraction of screen width on each edge that counts as a hold region
+// e.g. 0.2 means the leftmost 20% and rightmost 20% are hold zones
+const HOLD_REGION_EDGE = 0.2;
+
+interface TrackedTouch {
+  id: number;
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  // once the finger drifts past the threshold we stop setting hold state
+  isSwiping: boolean;
+  side: InputAction.Left | InputAction.Right;
+}
 
 export class TouchController {
   readonly state: InputState = createInputState();
@@ -10,83 +25,107 @@ export class TouchController {
   // accumulated swipe delta since last frame (consumed by MovementService)
   swipeDeltaX = 0;
 
-  // track which touch id is a swipe vs a hold-region tap
-  private swipeTouchId: number | null = null;
-  private swipeStartX = 0;
-  private swipeLastX = 0;
+  private touches: TrackedTouch[] = [];
+  private target: HTMLElement | null = null;
 
-  // hold-region touch ids (left/right halves of the screen)
-  private holdTouchId: number | null = null;
+  // recalculate hold state from all active non-swiping touches
+  private refreshHoldState() {
+    let left = false;
+    let right = false;
+    for (const t of this.touches) {
+      if (t.isSwiping) continue;
+      if (t.side === InputAction.Left) left = true;
+      else right = true;
+    }
+    this.state[InputAction.Left] = left;
+    this.state[InputAction.Right] = right;
+  }
 
   private handleTouchStart = (e: TouchEvent) => {
+    const w = window.innerWidth;
+    const leftEdge = w * HOLD_REGION_EDGE;
+    const rightEdge = w * (1 - HOLD_REGION_EDGE);
+
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
+      const x = touch.clientX;
 
-      // check if this touch lands in a hold region
-      const screenHalf = window.innerWidth / 2;
-      const isLeftHalf = touch.clientX < screenHalf;
+      // only touches in the outer edges count as hold regions
+      const inLeftZone = x < leftEdge;
+      const inRightZone = x > rightEdge;
+      const isHold = inLeftZone || inRightZone;
+      const side = inLeftZone ? InputAction.Left : InputAction.Right;
 
-      if (this.holdTouchId === null) {
-        // first hold touch -- use it for directional hold
-        this.holdTouchId = touch.identifier;
-        this.state[isLeftHalf ? InputAction.Left : InputAction.Right] = true;
-        continue;
-      }
-
-      // second finger could be a swipe
-      if (this.swipeTouchId === null) {
-        this.swipeTouchId = touch.identifier;
-        this.swipeStartX = touch.clientX;
-        this.swipeLastX = touch.clientX;
-      }
+      this.touches.push({
+        id: touch.identifier,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        lastX: touch.clientX,
+        lastY: touch.clientY,
+        // touches in the middle 60% start as swipes immediately
+        isSwiping: !isHold,
+        side,
+      });
     }
+    this.refreshHoldState();
   };
 
   private handleTouchMove = (e: TouchEvent) => {
+    // only block browser gestures if we are tracking touches from the canvas
+    if (this.touches.length > 0) {
+      e.preventDefault();
+    }
+
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
+      const tracked = this.touches.find((t) => t.id === touch.identifier);
+      if (!tracked) continue;
 
-      if (touch.identifier === this.swipeTouchId) {
-        const dx = touch.clientX - this.swipeLastX;
-        this.swipeDeltaX += dx;
-        this.swipeLastX = touch.clientX;
+      const dx = touch.clientX - tracked.lastX;
+      const dy = touch.clientY - tracked.lastY;
+      tracked.lastX = touch.clientX;
+      tracked.lastY = touch.clientY;
+
+      // once the finger has moved enough, promote to swipe mode
+      if (!tracked.isSwiping) {
+        const driftX = Math.abs(touch.clientX - tracked.startX);
+        const driftY = Math.abs(touch.clientY - tracked.startY);
+        if (driftX >= SWIPE_THRESHOLD || driftY >= SWIPE_THRESHOLD) {
+          tracked.isSwiping = true;
+          this.refreshHoldState();
+        }
       }
 
-      // if the hold finger moves across the midpoint, update direction
-      if (touch.identifier === this.holdTouchId) {
-        const screenHalf = window.innerWidth / 2;
-        const isLeftHalf = touch.clientX < screenHalf;
-        this.state[InputAction.Left] = isLeftHalf;
-        this.state[InputAction.Right] = !isLeftHalf;
-      }
+      // invert both axes: swipe left = move right, swipe up = move right
+      this.swipeDeltaX += -dx - dy;
     }
   };
 
   private handleTouchEnd = (e: TouchEvent) => {
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
-
-      if (touch.identifier === this.swipeTouchId) {
-        this.swipeTouchId = null;
-      }
-
-      if (touch.identifier === this.holdTouchId) {
-        this.holdTouchId = null;
-        this.state[InputAction.Left] = false;
-        this.state[InputAction.Right] = false;
-      }
+      const idx = this.touches.findIndex((t) => t.id === touch.identifier);
+      if (idx !== -1) this.touches.splice(idx, 1);
     }
+    this.refreshHoldState();
   };
 
-  attach() {
-    window.addEventListener('touchstart', this.handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', this.handleTouchMove, { passive: true });
+  // attach touch listeners scoped to a specific element (e.g. the canvas)
+  attach(element: HTMLElement) {
+    this.target = element;
+    // only capture touches that start on the target element
+    element.addEventListener('touchstart', this.handleTouchStart, { passive: true });
+    // move/end/cancel stay on window so we keep tracking if the finger drifts off
+    window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     window.addEventListener('touchend', this.handleTouchEnd);
     window.addEventListener('touchcancel', this.handleTouchEnd);
   }
 
   dispose() {
-    window.removeEventListener('touchstart', this.handleTouchStart);
+    if (this.target) {
+      this.target.removeEventListener('touchstart', this.handleTouchStart);
+      this.target = null;
+    }
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleTouchEnd);
     window.removeEventListener('touchcancel', this.handleTouchEnd);

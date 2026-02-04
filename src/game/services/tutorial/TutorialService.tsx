@@ -15,7 +15,8 @@ import {
 import { Keycap } from '../../entities';
 import { LightingService } from '../lighting';
 import { INK_EDGE_COLOUR } from '../../constants';
-import { InputAction, type InputState } from '../../types';
+import type { InputHandle } from '../../inputs';
+import { InputAction } from '../../types';
 
 // world-space position of the tutorial group
 const TUTORIAL_POSITION: [number, number, number] = [0, 0, 6];
@@ -203,7 +204,7 @@ function isDesktop(): boolean {
 }
 
 interface TutorialServiceProps {
-  inputRef: RefObject<InputState>;
+  inputRef: RefObject<InputHandle>;
 }
 
 export function TutorialService({ inputRef }: TutorialServiceProps) {
@@ -239,9 +240,10 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
   // poll keyboard input each frame and handle fade animation
   useFrame((_, delta) => {
     if (dismissed) return;
-    const input = inputRef.current;
-    if (!input) return;
+    const handle = inputRef.current;
+    if (!handle) return;
 
+    const input = handle.state;
     let changed = false;
 
     if (!leftDone.current && input[InputAction.Left]) {

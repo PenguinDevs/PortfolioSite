@@ -7,7 +7,8 @@ import type { PerspectiveCamera as PerspectiveCameraType } from 'three';
 import type { Group } from 'three';
 import type { RefObject } from 'react';
 import { Spring } from '../../math';
-import { InputAction, type InputState } from '../../types';
+import type { InputHandle } from '../../inputs';
+import { InputAction } from '../../types';
 
 export interface PerspectiveCameraConfig {
   fov: number;
@@ -35,7 +36,7 @@ export const DEFAULT_PERSPECTIVE_CONFIG: PerspectiveCameraConfig = {
 
 interface PerspectiveCameraServiceProps {
   targetRef: RefObject<Group | null>;
-  inputRef: RefObject<InputState>;
+  inputRef: RefObject<InputHandle>;
   config?: Partial<PerspectiveCameraConfig>;
 }
 
@@ -63,10 +64,11 @@ export function PerspectiveCameraService({
   useFrame(() => {
     const target = targetRef.current;
     const camera = cameraRef.current;
-    const input = inputRef.current;
-    if (!target || !camera || !input) return;
+    const handle = inputRef.current;
+    if (!target || !camera || !handle) return;
 
     // Compute movement direction from input so we can lead the camera ahead
+    const input = handle.state;
     let dx = 0;
     if (input[InputAction.Left]) dx -= 1;
     if (input[InputAction.Right]) dx += 1;

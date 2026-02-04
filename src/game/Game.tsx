@@ -26,7 +26,7 @@ export function Game() {
       <LoadingScreen />
       <Canvas
         gl={{ antialias: true }}
-        style={{ width: '100vw', height: '100dvh', background: '#ffffff' }}
+        style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
       >
         <SceneBackground />
         <HomeScene />

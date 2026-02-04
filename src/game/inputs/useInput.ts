@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useThree } from '@react-three/fiber';
 import type { InputState } from '../types';
 import { InputAction, createInputState } from '../types';
 import { KeyboardController } from './KeyboardController';
@@ -25,11 +26,14 @@ export function useInput(): React.MutableRefObject<InputHandle> {
     touch: touchRef.current,
   });
 
+  // grab the canvas element from r3f so touch listeners are scoped to it
+  const gl = useThree((s) => s.gl);
+
   useEffect(() => {
     const keyboard = keyboardRef.current!;
     const touch = touchRef.current!;
     keyboard.attach();
-    touch.attach();
+    touch.attach(gl.domElement);
 
     // merge keyboard + touch states at 60fps so the game loop always
     // sees a single unified input state
@@ -48,7 +52,7 @@ export function useInput(): React.MutableRefObject<InputHandle> {
       keyboard.dispose();
       touch.dispose();
     };
-  }, []);
+  }, [gl]);
 
   return handleRef;
 }
