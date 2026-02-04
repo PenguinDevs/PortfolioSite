@@ -17,16 +17,21 @@ import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
 
-const ANIMATION_SPEED = 8;
 const TURN_SPEED = 12;
 const BASE_Y_ROT = -Math.PI / 2;
+// animation timeScale per unit of movement speed
+const WALK_ANIM_SPEED_FACTOR = 1.6;
+// minimum walk timeScale so the animation doesn't freeze at very low speeds
+const MIN_WALK_TIME_SCALE = 0.5;
+// speed threshold above which the penguin switches to the fly animation
+const FLY_SPEED_THRESHOLD = 6;
 // max travel so the pupil stays inside the white (0.25 - 0.12 = 0.13)
 const PUPIL_OFFSET = 0.1;
 const EYE_TRACK_SPEED = 8;
 
 export interface PlayerHandle {
   group: Group;
-  setMoving: (moving: boolean, direction: number) => void;
+  setMoving: (moving: boolean, direction: number, speed: number) => void;
 }
 
 export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
@@ -82,9 +87,6 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
 
   const animator = useAnimator(cloned, animations, {
     initialClip: 'penguin_idle',
-    timeScales: {
-      penguin_walk: ANIMATION_SPEED,
-    },
   });
 
   useFrame((_, delta) => {
@@ -115,8 +117,18 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     get group() {
       return localRef.current!;
     },
-    setMoving(moving: boolean, direction: number) {
-      animator.play(moving ? 'penguin_walk' : 'penguin_idle');
+    setMoving(moving: boolean, direction: number, speed: number) {
+      if (!moving) {
+        animator.play('penguin_idle');
+      } else if (speed >= FLY_SPEED_THRESHOLD) {
+        animator.play('penguin_fly');
+      } else {
+        animator.play('penguin_walk');
+        // scale walk animation speed by movement speed
+        const walkTimeScale = Math.max(speed * WALK_ANIM_SPEED_FACTOR, MIN_WALK_TIME_SCALE);
+        animator.setTimeScale('penguin_walk', walkTimeScale);
+      }
+
       if (direction !== 0) {
         targetYRot.current = direction > 0 ? BASE_Y_ROT : BASE_Y_ROT + Math.PI;
         lookDir.current = direction;

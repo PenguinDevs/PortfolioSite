@@ -67,5 +67,10 @@ export function useAnimator(
     targetRef.current = name;
   }, []);
 
-  return { play };
+  const setTimeScale = useCallback((clipName: string, scale: number) => {
+    const action = actionsRef.current.get(clipName);
+    if (action) action.timeScale = scale;
+  }, []);
+
+  return { play, setTimeScale };
 }
