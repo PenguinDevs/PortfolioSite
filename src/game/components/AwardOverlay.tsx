@@ -16,7 +16,7 @@ export function AwardOverlay() {
   // Track mounted vs visible separately for fade animation
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const edgeColour = INK_EDGE_COLOUR[mode];
   const bgColour = BACKGROUND_COLOUR[mode];
