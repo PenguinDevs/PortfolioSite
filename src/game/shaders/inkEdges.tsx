@@ -20,6 +20,23 @@ import { LightingMode } from '../types';
 // GLSL: ink-gap noise injected into LineBasicMaterial via onBeforeCompile
 // ---------------------------------------------------------------------------
 
+const INK_CLIP_VERT_PARS = /* glsl */ `
+varying vec3 vInkWorldPos;
+`;
+
+const INK_CLIP_VERT_MAIN = /* glsl */ `
+vInkWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+`;
+
+const INK_CLIP_FRAG_PARS = /* glsl */ `
+uniform float uInkClipY;
+varying vec3 vInkWorldPos;
+`;
+
+const INK_CLIP_FRAG_MAIN = /* glsl */ `
+if (vInkWorldPos.y < uInkClipY) discard;
+`;
+
 const INK_FRAG_PARS = /* glsl */ `
 varying vec3 vInkObjPos;
 uniform float uInkSeed;
@@ -247,6 +264,7 @@ function buildInkLines(
     gapFreq: number;
     gapThreshold: number;
     wobble: number;
+    clipY?: { value: number };
   },
   skinning?: SkinningInfo,
 ): LineSegments | null {
@@ -298,6 +316,25 @@ function buildInkLines(
       '#include <opaque_fragment>',
       INK_FRAG_MAIN + '\n\t#include <opaque_fragment>',
     );
+
+    // optional Y clip -- shared uniform object so the caller can update it each frame
+    if (params.clipY) {
+      shader.uniforms.uInkClipY = params.clipY;
+
+      shader.vertexShader = shader.vertexShader.replace(
+        'varying vec3 vInkObjPos;',
+        'varying vec3 vInkObjPos;\n' + INK_CLIP_VERT_PARS,
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        'vInkObjPos = transformed;',
+        'vInkObjPos = transformed;\n' + INK_CLIP_VERT_MAIN,
+      );
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        'void main() {',
+        INK_CLIP_FRAG_PARS + 'void main() {\n' + INK_CLIP_FRAG_MAIN,
+      );
+    }
   };
 
   const lineObj = new LineSegments(geo, mat);
@@ -335,9 +372,14 @@ export interface InkEdgesOptions {
   gapThreshold?: number;
   wobble?: number;
   opacity?: number;
+  // shared uniform for Y-axis clipping; update .value each frame to clip ink edges
+  clipY?: { value: number };
 }
 
-type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour'>> & { darkColour?: string };
+type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY'>> & {
+  darkColour?: string;
+  clipY?: { value: number };
+};
 
 const DEFAULTS: ResolvedInkEdgesOptions = {
   thresholdAngle: 30,
@@ -383,6 +425,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       gapFreq: o.gapFreq,
       gapThreshold: o.gapThreshold,
       wobble: o.wobble,
+      clipY: o.clipY,
     });
 
     if (!lineObj) return;
@@ -407,7 +450,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       (lineObj.material as LineBasicMaterial).dispose();
     };
   }, [target, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
-      o.seed, o.gapFreq, o.gapThreshold, o.wobble]);
+      o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY]);
 
   return null;
 }
@@ -469,6 +512,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
           gapFreq: o.gapFreq,
           gapThreshold: o.gapThreshold,
           wobble: o.wobble,
+          clipY: o.clipY,
         },
         skinning,
       );
@@ -500,7 +544,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
       }
     };
   }, [target, filter, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
-      o.opacity, o.gapFreq, o.gapThreshold, o.wobble]);
+      o.opacity, o.gapFreq, o.gapThreshold, o.wobble, o.clipY]);
 
   return null;
 }

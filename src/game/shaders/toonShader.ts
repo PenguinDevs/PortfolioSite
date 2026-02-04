@@ -38,12 +38,16 @@ const fragmentShader = /* glsl */ `
   uniform float uMidThreshold;
   uniform bool uUseMap;
   uniform sampler2D uMap;
+  uniform float uClipY;
 
   varying vec3 vNormal;
   varying vec3 vPosition;
   varying vec2 vUv;
 
   void main() {
+    // discard fragments below the clip threshold (defaults to -10000 so no effect)
+    if (vPosition.y < uClipY) discard;
+
     vec3 normal = normalize(vNormal);
     float NdotL = dot(normal, uLightDir);
 
@@ -91,6 +95,7 @@ export function createToonMaterial({
       uMidThreshold: { value: midThreshold },
       uUseMap: { value: !!map },
       uMap: { value: map ?? null },
+      uClipY: { value: -10000 },
     },
     vertexShader,
     fragmentShader,

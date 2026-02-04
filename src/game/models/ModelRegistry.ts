@@ -4,4 +4,5 @@ export const ModelRegistry: Record<string, string> = {
   penguin: '/assets/geometries/characters/penguin.glb',
   lever: '/assets/geometries/home/lever.glb',
   sign: '/assets/geometries/home/sign.glb',
+  keycap: '/assets/geometries/general/keycap.glb',
 };

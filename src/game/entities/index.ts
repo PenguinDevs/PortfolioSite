@@ -7,3 +7,5 @@ export { LightSwitch } from './LightSwitch';
 export { Pedestal } from './Pedestal';
 export { Sign } from './Sign';
 export type { SignProps } from './Sign';
+export { Keycap } from './Keycap';
+export type { KeycapHandle, KeycapProps } from './Keycap';
