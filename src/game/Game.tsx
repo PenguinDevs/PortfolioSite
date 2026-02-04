@@ -5,6 +5,7 @@ import { Color } from 'three';
 import { Canvas, useThree } from '@react-three/fiber';
 import { HomeScene } from './scenes';
 import { LoadingScreen } from './components/LoadingScreen';
+import { TouchTutorial } from './components/TouchTutorial';
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
 
@@ -24,6 +25,7 @@ export function Game() {
   return (
     <>
       <LoadingScreen />
+      <TouchTutorial />
       <Canvas
         gl={{ antialias: true }}
         style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}

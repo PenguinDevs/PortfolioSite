@@ -95,3 +95,104 @@ body {
   0%, 60% { opacity: 1; }
   61%, 100% { opacity: 0; }
 }
+
+/* Touch tutorial overlay */
+.touch-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  transition: opacity 500ms ease-out;
+}
+
+/* Left and right tap zone highlights */
+.touch-tutorial-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+  border-style: dashed;
+  border-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: zone-pulse 2s ease-in-out infinite;
+}
+
+.touch-tutorial-zone-left {
+  left: 0;
+  border-right-width: 2px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.touch-tutorial-zone-right {
+  right: 0;
+  border-left-width: 2px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.touch-tutorial-zone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Centre swipe indicator */
+.touch-tutorial-swipe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.touch-tutorial-swipe-icon {
+  overflow: visible;
+}
+
+/* Finger bobbing up and down */
+.touch-tutorial-finger {
+  animation: finger-bob 1.6s ease-in-out infinite;
+}
+
+/* Chevrons bobbing in opposite direction to hint movement */
+.touch-tutorial-chevron-up {
+  animation: chevron-bob-up 1.6s ease-in-out infinite;
+}
+
+.touch-tutorial-chevron-down {
+  animation: chevron-bob-down 1.6s ease-in-out infinite;
+}
+
+/* Shared label style */
+.touch-tutorial-label {
+  font-family: 'JustAnotherHand', cursive;
+  font-size: 1.5rem;
+  text-align: center;
+  user-select: none;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes finger-bob {
+  0%, 100% { transform: translateY(-10px); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes chevron-bob-up {
+  0%, 100% { transform: translateY(2px); opacity: 0.6; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes chevron-bob-down {
+  0%, 100% { transform: translateY(-2px); opacity: 0.6; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+@keyframes zone-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
