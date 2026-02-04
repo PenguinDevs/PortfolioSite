@@ -6,6 +6,8 @@ import { Html } from '@react-three/drei';
 import { Group, MathUtils, Vector3 } from 'three';
 import { usePlayerRef } from '../contexts/PlayerContext';
 import { useProximityPromptManager } from '../contexts/ProximityPromptContext';
+import { useLightingMode } from '../hooks';
+import { INK_EDGE_COLOUR } from '../constants';
 import { TextWindow } from './TextWindow';
 
 const _playerPos = new Vector3();
@@ -39,6 +41,8 @@ export function ProximityPrompt({
   holdDuration = 0,
 }: ProximityPromptProps) {
   const promptId = useId();
+  const mode = useLightingMode();
+  const textColour = INK_EDGE_COLOUR[mode];
   const isTouch = useMemo(() => typeof window !== 'undefined' && 'ontouchstart' in window, []);
   const playerRef = usePlayerRef();
   const manager = useProximityPromptManager();
@@ -180,6 +184,7 @@ export function ProximityPrompt({
                     flexDirection: 'column',
                     alignItems: 'center',
                     gap: '4px',
+                    color: textColour,
                   }}
                 >
                   {/* Key badge */}

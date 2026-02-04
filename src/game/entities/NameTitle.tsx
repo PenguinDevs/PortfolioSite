@@ -9,6 +9,7 @@ import { useEntityModel } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { LightingMode } from '../types';
 import { INK_EDGE_COLOUR } from '../constants';
+import { useLightingMode } from '../hooks';
 import { quadraticBezier, easeInOutCubic, easeOutBack } from '../math';
 
 // how long each letter takes to reach its destination (seconds)
@@ -39,7 +40,6 @@ const LETTER_DELAY = 1;
 
 // text label config
 const FONT_PATH = '/assets/fonts/justanotherhand_regular.ttf';
-const TEXT_COLOUR = '#1a1a1a';
 const TOP_TEXT = 'Hi, I\'m';
 const BOTTOM_TEXT = 'or PenguinDevs\nbackend developer \u2022 studying computer science w/ maths minor \u2022 gamer';
 const TOP_FONT_SIZE = 0.7;
@@ -79,6 +79,8 @@ interface LetterAnimState {
 }
 
 export function NameTitle(props: ThreeElements['group']) {
+  const mode = useLightingMode();
+  const textColour = INK_EDGE_COLOUR[mode];
   const localRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
   const { cloned } = useEntityModel('jason', {
@@ -311,7 +313,7 @@ export function NameTitle(props: ThreeElements['group']) {
             ref={topTextRef}
             font={FONT_PATH}
             fontSize={TOP_FONT_SIZE}
-            color={TEXT_COLOUR}
+            color={textColour}
             anchorX="left"
             anchorY="bottom"
             position={[0, TOP_TEXT_Y, 0]}
@@ -325,7 +327,7 @@ export function NameTitle(props: ThreeElements['group']) {
             ref={bottomTextRef}
             font={FONT_PATH}
             fontSize={BOTTOM_FONT_SIZE}
-            color={TEXT_COLOUR}
+            color={textColour}
             anchorX="left"
             anchorY="top"
             position={[0, BOTTOM_TEXT_Y, 0]}
