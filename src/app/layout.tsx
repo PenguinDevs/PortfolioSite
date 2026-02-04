@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Portfolio',
-  description: 'Interactive portfolio',
+  title: "Jason Yi (@penguindevs)",
+  description: "My portfolio site",
+  icons: {
+    icon: '/profile_picture.gif',
+  },
 };
 
 export default function RootLayout({
