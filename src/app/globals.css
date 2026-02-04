@@ -77,7 +77,7 @@ body {
 /* Each dot fades in/out independently via compositor-driven opacity */
 .loading-dot {
   display: inline-block;
-  animation: dot-blink 1.2s steps(1) infinite;
+  animation: dot-blink 1.8s steps(1) infinite;
   will-change: opacity;
 }
 
