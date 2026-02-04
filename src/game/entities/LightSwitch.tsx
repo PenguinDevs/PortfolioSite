@@ -6,6 +6,7 @@ import type { Group } from 'three';
 import { Lever } from './Lever';
 import type { LeverHandle } from './Lever';
 import { ProximityPrompt } from '../components';
+import { LightingService } from '../services';
 
 export function LightSwitch(props: ThreeElements['group']) {
   const groupRef = useRef<Group>(null);
@@ -13,7 +14,7 @@ export function LightSwitch(props: ThreeElements['group']) {
 
   const handleInteract = useCallback(() => {
     leverRef.current?.toggle();
-    // ... light code here
+    LightingService.toggle();
   }, []);
 
   return (

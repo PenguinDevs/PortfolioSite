@@ -11,6 +11,17 @@ export enum Sound {
   Button = '/assets/sounds/button.ogg',
 }
 
+export enum LightingMode {
+  Light = 'light',
+  Dark = 'dark',
+}
+
+// A pair of colors keyed by lighting mode
+export type ThemedColor = Record<LightingMode, string>;
+
+// A pair of numeric values keyed by lighting mode
+export type ThemedValue = Record<LightingMode, number>;
+
 export function createInputState(): InputState {
   return {
     [InputAction.Left]: false,

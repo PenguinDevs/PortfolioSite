@@ -2,10 +2,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AnimationAction, AnimationClip, AnimationMixer, Object3D } from 'three';
 import { useFrame } from '@react-three/fiber';
 
+// per-clip time scale overrides, clips not listed default to 1
+type TimeScaleMap = Record<string, number>;
+
 interface UseAnimatorOptions {
   initialClip?: string;
   fadeSpeed?: number;
-  timeScale?: number;
+  timeScales?: TimeScaleMap;
 }
 
 export function useAnimator(
@@ -13,7 +16,7 @@ export function useAnimator(
   clips: AnimationClip[],
   options: UseAnimatorOptions = {},
 ) {
-  const { initialClip, fadeSpeed = 8, timeScale = 1 } = options;
+  const { initialClip, fadeSpeed = 8, timeScales = {} } = options;
 
   const mixerRef = useRef<AnimationMixer | null>(null);
   const actionsRef = useRef<Map<string, AnimationAction>>(new Map());
@@ -23,12 +26,12 @@ export function useAnimator(
 
   useEffect(() => {
     const mixer = new AnimationMixer(root);
-    mixer.timeScale = timeScale;
     mixerRef.current = mixer;
 
     const actions = new Map<string, AnimationAction>();
     for (const clip of clips) {
       const action = mixer.clipAction(clip);
+      action.timeScale = timeScales[clip.name] ?? 1;
       action.play();
       action.setEffectiveWeight(clip.name === targetRef.current ? 1 : 0);
       actions.set(clip.name, action);
