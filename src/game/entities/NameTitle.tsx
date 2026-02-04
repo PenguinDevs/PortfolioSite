@@ -9,19 +9,30 @@ import { useEntityModel } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { LightingMode } from '../types';
 import { INK_EDGE_COLOUR } from '../constants';
-import { quadraticBezier, easeOutCubic } from '../math';
+import { quadraticBezier, easeInOutCubic, easeOutBack } from '../math';
 
 // how long each letter takes to reach its destination (seconds)
-const LETTER_DURATION = 1.5;
+const LETTER_DURATION = 2.2;
 
 // how far the bezier control point dips below the midpoint
 const CURVE_DIP = 0.5;
+
+// how many extra full rotations each letter does during the intro (randomised per letter)
+const MIN_EXTRA_SPINS = 1;
+const MAX_EXTRA_SPINS = 3;
 
 // prefix used to identify letter objects in the GLB
 const LETTER_PREFIX = 'letter_';
 
 // max frame delta to prevent the animation skipping on load or tab-resume
 const MAX_DELTA = 0.05;
+
+// subtle idle rotation jitter applied after the intro animation
+const JITTER_INTERVAL = 1 / 3; // seconds between jitter updates (3fps)
+const JITTER_MAX_ANGLE = 0.04; // max rotation offset in radians (~2.3 degrees)
+
+// rotation takes this much longer than position to settle (multiplier on LETTER_DURATION)
+const ROTATION_DURATION_SCALE = 1.3;
 
 // seconds to wait after mount before the letter animation begins
 const LETTER_DELAY = 1;
@@ -57,9 +68,14 @@ interface LetterAnimState {
   restPosition: Vector3;
   startPosition: Vector3;
   controlPoint: Vector3;
-  // random initial rotation the letter starts at
+  // random initial rotation the letter starts at (sub-180 degrees, used with slerp)
   startQuat: Quaternion;
+  // extra multi-revolution spin tracked separately (slerp can't do >180 degrees)
+  spinAxis: Vector3;
+  spinAngle: number;
   elapsed: number;
+  // current jitter target rotation for idle wobble
+  jitterTarget: Quaternion;
 }
 
 export function NameTitle(props: ThreeElements['group']) {
@@ -75,9 +91,10 @@ export function NameTitle(props: ThreeElements['group']) {
   const { size } = useThree();
   const responsiveScale = Math.min(Math.max(size.width / REFERENCE_WIDTH, 1), MAX_SCALE);
 
-  // temporary vectors to avoid allocations in the frame loop
+  // temporary vectors/quats to avoid allocations in the frame loop
   const tempPos = useMemo(() => new Vector3(), []);
   const identityQuat = useMemo(() => new Quaternion(), []);
+  const tempSpinQuat = useMemo(() => new Quaternion(), []);
 
   // mutable animation state stored in a ref so strict mode re-renders don't reset it
   const animRef = useRef<LetterAnimState[] | null>(null);
@@ -92,6 +109,11 @@ export function NameTitle(props: ThreeElements['group']) {
 
   // centroid of the letter positions in outer-group space, used to centre the scale pivot
   const centreOffsetRef = useRef(new Vector3());
+
+  // accumulator for the 12fps jitter tick
+  const jitterClockRef = useRef(0);
+  // reusable euler for generating jitter targets
+  const tempEuler = useMemo(() => new Euler(), []);
 
   // build the animation state once per cloned object
   if (clonedRef.current !== cloned) {
@@ -131,7 +153,7 @@ export function NameTitle(props: ThreeElements['group']) {
         (startPosition.z + restPosition.z) / 2,
       );
 
-      // random initial rotation the letter will slerp from
+      // random sub-revolution start orientation (slerp handles this part)
       const startQuat = new Quaternion().setFromEuler(
         new Euler(
           Math.random() * Math.PI * 2,
@@ -139,6 +161,16 @@ export function NameTitle(props: ThreeElements['group']) {
           Math.random() * Math.PI * 2,
         ),
       );
+
+      // extra full spins on a random axis, interpolated manually since slerp
+      // always takes the shortest path and can't represent >180 degree rotations
+      const extraSpins = MIN_EXTRA_SPINS + Math.floor(Math.random() * (MAX_EXTRA_SPINS - MIN_EXTRA_SPINS + 1));
+      const spinAngle = extraSpins * Math.PI * 2;
+      const spinAxis = new Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+      ).normalize();
 
       // collect every mesh in this letter's subtree
       const meshes: Mesh[] = [];
@@ -164,7 +196,10 @@ export function NameTitle(props: ThreeElements['group']) {
         startPosition,
         controlPoint,
         startQuat,
+        spinAxis,
+        spinAngle,
         elapsed: 0,
+        jitterTarget: new Quaternion(),
       });
     }
 
@@ -188,7 +223,7 @@ export function NameTitle(props: ThreeElements['group']) {
       0,
       1,
     );
-    const textOpacity = easeOutCubic(textProgress);
+    const textOpacity = easeInOutCubic(textProgress);
     if (topTextRef.current) {
       topTextRef.current.fillOpacity = textOpacity;
     }
@@ -199,27 +234,61 @@ export function NameTitle(props: ThreeElements['group']) {
     // wait for the scene to load before starting the letter animation
     if (totalElapsedRef.current < LETTER_DELAY) return;
 
+    // tick the jitter clock and pick new random targets at 3fps
+    jitterClockRef.current += clampedDelta;
+    const shouldJitter = jitterClockRef.current >= JITTER_INTERVAL;
+    if (shouldJitter) {
+      jitterClockRef.current -= JITTER_INTERVAL;
+      for (const state of states) {
+        // pick a small random rotation offset from identity
+        tempEuler.set(
+          (Math.random() - 0.5) * 2 * JITTER_MAX_ANGLE,
+          (Math.random() - 0.5) * 2 * JITTER_MAX_ANGLE,
+          (Math.random() - 0.5) * 2 * JITTER_MAX_ANGLE,
+        );
+        state.jitterTarget.setFromEuler(tempEuler);
+      }
+    }
+
+    const rotationDuration = LETTER_DURATION * ROTATION_DURATION_SCALE;
+
     for (const state of states) {
-      // animation already finished
-      if (state.elapsed >= LETTER_DURATION) continue;
+      // still playing the intro animation (rotation outlasts position)
+      if (state.elapsed < rotationDuration) {
+        state.elapsed += clampedDelta;
 
-      state.elapsed += clampedDelta;
+        const rawProgress = MathUtils.clamp(state.elapsed / LETTER_DURATION, 0, 1);
+        const posT = easeInOutCubic(rawProgress);
 
-      const rawProgress = MathUtils.clamp(state.elapsed / LETTER_DURATION, 0, 1);
-      const easedT = easeOutCubic(rawProgress);
+        // position along the bezier curve (saturates at LETTER_DURATION)
+        quadraticBezier(state.startPosition, state.controlPoint, state.restPosition, posT, tempPos);
+        state.object.position.copy(tempPos);
 
-      // position along the bezier curve
-      quadraticBezier(state.startPosition, state.controlPoint, state.restPosition, easedT, tempPos);
-      state.object.position.copy(tempPos);
+        const scaleT = easeInOutCubic(rawProgress);
+        state.object.scale.setScalar(scaleT);
+        for (const mesh of state.meshes) {
+          mesh.scale.setScalar(scaleT);
+        }
 
-      // scale the parent and every mesh in the subtree
-      state.object.scale.setScalar(easedT);
-      for (const mesh of state.meshes) {
-        mesh.scale.setScalar(easedT);
+        // rotation runs on a longer timeline than position
+        const rotProgress = MathUtils.clamp(state.elapsed / rotationDuration, 0, 1);
+        const rotT = easeOutBack(rotProgress, 0.75);
+
+        // extra spins: interpolate angle from full spin down to 0
+        const remainingSpin = state.spinAngle * (1 - rotT);
+        tempSpinQuat.setFromAxisAngle(state.spinAxis, remainingSpin);
+
+        // combine: spin * slerp(startQuat -> identity) * jitter
+        state.object.quaternion.copy(state.startQuat).slerp(identityQuat, rotT);
+        state.object.quaternion.premultiply(tempSpinQuat);
+        state.object.quaternion.multiply(state.jitterTarget);
+        continue;
       }
 
-      // rotate from random start orientation to upright, finishing with position
-      state.object.quaternion.copy(state.startQuat).slerp(identityQuat, easedT);
+      // idle: snap to the current jitter target each tick
+      if (shouldJitter) {
+        state.object.quaternion.copy(state.jitterTarget);
+      }
     }
   });
 

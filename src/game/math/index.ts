@@ -1,2 +1,2 @@
 export { Spring } from './Spring';
-export { quadraticBezier, easeOutCubic } from './easing';
+export { quadraticBezier, easeOutCubic, easeInCubic, easeInOutCubic, easeInSine, easeOutBack } from './easing';

@@ -13,3 +13,25 @@ export function quadraticBezier(a: Vector3, b: Vector3, c: Vector3, t: number, o
 export function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
+
+// ease in cubic: stays low then accelerates at the end
+export function easeInCubic(t: number): number {
+  return t * t * t;
+}
+
+// ease in-out cubic: slow start, fast middle, slow end
+export function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+// ease in sine: gradual start that accelerates at the end
+export function easeInSine(t: number): number {
+  return 1 - Math.cos((t * Math.PI) / 2);
+}
+
+// ease out back: overshoots slightly then settles (good for rotation snap)
+export function easeOutBack(t: number, overshoot = 1.70158): number {
+  const s = overshoot;
+  const t1 = t - 1;
+  return t1 * t1 * ((s + 1) * t1 + s) + 1;
+}
