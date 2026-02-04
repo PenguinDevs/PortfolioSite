@@ -6,7 +6,7 @@ import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
 import { useDerivedRef } from '../utils';
 import { PlayerProvider } from '../contexts';
-import { MovementService, PerspectiveCameraService } from '../services';
+import { MovementService, PerspectiveCameraService, TutorialService } from '../services';
 import { useLightingMode } from '../hooks';
 import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY } from '../constants';
 import { HomeEnvironment } from './HomeEnvironment';
@@ -26,6 +26,7 @@ export function HomeScene() {
       <Player ref={playerRef} />
       <MovementService inputRef={inputRef} playerRef={playerRef} />
       <PerspectiveCameraService targetRef={groupRef} inputRef={inputRef} />
+      <TutorialService inputRef={inputRef} />
     </PlayerProvider>
   );
 }

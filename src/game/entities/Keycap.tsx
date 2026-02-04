@@ -27,7 +27,7 @@ const PRESS_INTERVAL = 1;
 const PRESS_DURATION = 0.15;
 const HOLD_DURATION = 0.3;
 const RELEASE_DURATION = 0.15;
-const PRESS_DEPTH = -0.35;
+const PRESS_DEPTH = -0.3;
 
 // confetti burst settings
 const LINE_COUNT = 14;
@@ -45,7 +45,7 @@ const enum PressState {
 // label text settings
 const FONT_PATH = '/assets/fonts/justanotherhand_regular.ttf';
 const LABEL_FONT_SIZE = 0.5;
-const LABEL_Y = 0.4;
+const LABEL_OFFSET: [number, number, number] = [0, 0.4, 0.1];
 const LABEL_COLOUR = '#1a1a1a';
 
 // themed confetti colours - black in light mode, white in dark mode
@@ -85,9 +85,23 @@ function generateBurstGeometry(): BufferGeometry {
   return geometry;
 }
 
+// default keycap colours
+const DEFAULT_COLOUR = '#d4cfc8';
+const DEFAULT_SHADOW = '#8a8078';
+
 export type KeycapProps = ThreeElements['group'] & {
   // optional text label rendered on the keycap face
   label?: string;
+  // override toon material colour (e.g. for turning green on input confirmation)
+  colour?: string;
+  // override toon material shadow colour
+  shadowColour?: string;
+  // when false the keycap sits idle instead of auto-pressing on a timer (default true)
+  autoPress?: boolean;
+  // delay in seconds before the first press cycle starts, useful for wave effects
+  pressDelay?: number;
+  // material opacity 0-1, enables transparency when < 1
+  opacity?: number;
 };
 
 export interface KeycapHandle {
@@ -95,7 +109,15 @@ export interface KeycapHandle {
 }
 
 export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
-  function Keycap({ label, ...props }, ref) {
+  function Keycap({
+    label,
+    colour = DEFAULT_COLOUR,
+    shadowColour = DEFAULT_SHADOW,
+    autoPress = true,
+    pressDelay = 0,
+    opacity = 1,
+    ...props
+  }, ref) {
     const localRef = useRef<Group>(null);
     const modelRef = useRef<Group>(null);
     const capRef = useRef<Group>(null);
@@ -103,11 +125,12 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
 
     const pressState = useRef<PressState>(PressState.Idle);
     const stateTimer = useRef(0);
-    const idleTimer = useRef(0);
+    // negative initial value delays the first press cycle
+    const idleTimer = useRef(-pressDelay);
 
     const { cloned, material } = useEntityModel('keycap', {
-      color: '#d4cfc8',
-      shadowColor: '#8a8078',
+      color: DEFAULT_COLOUR,
+      shadowColor: DEFAULT_SHADOW,
     });
 
     // reusable vector for world position lookups
@@ -126,6 +149,20 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       return unsub;
     }, [burstMaterial]);
 
+    // sync toon material colour and opacity when props change
+    useEffect(() => {
+      material.uniforms.uColor.value.set(colour);
+      material.uniforms.uShadowColor.value.set(shadowColour);
+      material.uniforms.uOpacity.value = opacity;
+      material.transparent = opacity < 1;
+    }, [material, colour, shadowColour, opacity]);
+
+    // sync burst + text opacity
+    useEffect(() => {
+      burstMaterial.opacity = opacity;
+      burstMaterial.transparent = opacity < 1;
+    }, [burstMaterial, opacity]);
+
     // initial burst geometry (hidden)
     const burstGeometry = useMemo(() => generateBurstGeometry(), []);
 
@@ -138,6 +175,9 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       // update the clip Y uniform so geometry below the resting position is discarded
       root.getWorldPosition(worldPos);
       material.uniforms.uClipY.value = worldPos.y;
+
+      // skip the auto-press cycle when autoPress is disabled
+      if (!autoPress) return;
 
       stateTimer.current += delta;
 
@@ -208,9 +248,10 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
               font={FONT_PATH}
               fontSize={LABEL_FONT_SIZE}
               color={LABEL_COLOUR}
+              fillOpacity={opacity}
               anchorX="center"
               anchorY="middle"
-              position={[0, LABEL_Y, 0]}
+              position={LABEL_OFFSET}
               rotation={[-Math.PI / 2, 0, 0]}
             >
               {label}
@@ -232,6 +273,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
           gapFreq={10}
           gapThreshold={0.38}
           clipY={material.uniforms.uClipY}
+          opacity={opacity}
         />
       </group>
     );

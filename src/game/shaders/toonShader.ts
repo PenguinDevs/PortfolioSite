@@ -39,6 +39,7 @@ const fragmentShader = /* glsl */ `
   uniform bool uUseMap;
   uniform sampler2D uMap;
   uniform float uClipY;
+  uniform float uOpacity;
 
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -63,7 +64,7 @@ const fragmentShader = /* glsl */ `
       color = shadowColor;
     }
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, uOpacity);
   }
 `;
 
@@ -96,6 +97,7 @@ export function createToonMaterial({
       uUseMap: { value: !!map },
       uMap: { value: map ?? null },
       uClipY: { value: -10000 },
+      uOpacity: { value: 1.0 },
     },
     vertexShader,
     fragmentShader,
