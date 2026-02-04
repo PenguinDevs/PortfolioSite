@@ -4,7 +4,7 @@ import type { ThemedColour, ThemedValue } from '../types';
 // Canvas / scene background
 export const BACKGROUND_COLOUR: ThemedColour = {
   [LightingMode.Light]: '#ffffff',
-  [LightingMode.Dark]: '#1a1a2e',
+  [LightingMode.Dark]: '#212121',
 };
 
 // Alley ground

@@ -23,7 +23,7 @@ export function LightSwitch(props: ThreeElements['group']) {
       <ProximityPrompt
         onInteract={handleInteract}
         actionText="Flip"
-        objectText="Light Switch"
+        // objectText="Light Switch"
         maxDistance={3}
       />
     </group>

@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Group, MathUtils, Vector3 } from 'three';
 import { usePlayerRef } from '../contexts/PlayerContext';
+import { TextWindow } from './TextWindow';
 
 const _playerPos = new Vector3();
 const _anchorPos = new Vector3();
@@ -153,102 +154,106 @@ export function ProximityPrompt({
               onClick={handleTap}
               style={{
                 pointerEvents: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
                 userSelect: 'none',
                 cursor: 'pointer',
               }}
             >
-              {/* Key badge */}
-              <div style={{ position: 'relative', width: 48, height: 48 }}>
-                {holdDuration > 0 && (
-                  <svg
-                    viewBox="0 0 48 48"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      transform: 'rotate(-90deg)',
-                    }}
-                  >
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r={RING_R}
-                      fill="none"
-                      stroke="rgba(255,255,255,0.2)"
-                      strokeWidth="3"
-                    />
-                    <circle
-                      ref={progressRef}
-                      cx="24"
-                      cy="24"
-                      r={RING_R}
-                      fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="3"
-                      strokeDasharray={CIRCUMFERENCE}
-                      strokeDashoffset={CIRCUMFERENCE}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
+              <TextWindow width="auto" padding={12}>
                 <div
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    background: 'rgba(0, 0, 0, 0.75)',
-                    border: '2px solid rgba(255, 255, 255, 0.9)',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ffffff',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    fontSize: 18,
-                    fontWeight: 700,
-                    lineHeight: 1,
+                    gap: '4px',
                   }}
                 >
-                  {isTouch ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src="/assets/images/click.svg" alt="Tap" width={22} height={22} style={{ filter: 'invert(1)' }} />
-                  ) : keyLabel}
-                </div>
-              </div>
+                  {/* Key badge */}
+                  <div style={{ position: 'relative', width: 48, height: 48 }}>
+                    {holdDuration > 0 && (
+                      <svg
+                        viewBox="0 0 48 48"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          transform: 'rotate(-90deg)',
+                        }}
+                      >
+                        <circle
+                          cx="24"
+                          cy="24"
+                          r={RING_R}
+                          fill="none"
+                          stroke="rgba(255,255,255,0.2)"
+                          strokeWidth="3"
+                        />
+                        <circle
+                          ref={progressRef}
+                          cx="24"
+                          cy="24"
+                          r={RING_R}
+                          fill="none"
+                          stroke="#ffffff"
+                          strokeWidth="3"
+                          strokeDasharray={CIRCUMFERENCE}
+                          strokeDashoffset={CIRCUMFERENCE}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    )}
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        background: 'rgba(0, 0, 0, 0.75)',
+                        border: '2px solid rgba(255, 255, 255, 0.9)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        fontSize: 18,
+                        fontWeight: 700,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {isTouch ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src="/assets/images/click.svg" alt="Tap" width={22} height={22} style={{ filter: 'invert(1)' }} />
+                      ) : keyLabel}
+                    </div>
+                  </div>
 
-              {actionText && (
-                <div
-                  style={{
-                    color: '#ffffff',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    textShadow: '0 1px 3px rgba(0,0,0,0.6)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {actionText}
-                </div>
-              )}
+                  {actionText && (
+                    <div
+                      style={{
+                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {actionText}
+                    </div>
+                  )}
 
-              {objectText && (
-                <div
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    fontSize: 11,
-                    fontWeight: 400,
-                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {objectText}
+                  {objectText && (
+                    <div
+                      style={{
+                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        fontSize: 11,
+                        fontWeight: 400,
+                        opacity: 0.6,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {objectText}
+                    </div>
+                  )}
                 </div>
-              )}
+              </TextWindow>
             </div>
           </Html>
         )}
