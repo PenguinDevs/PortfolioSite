@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Group, MathUtils, Vector3 } from 'three';
 import { usePlayerRef } from '../contexts/PlayerContext';
+import { useProximityPromptManager } from '../contexts/ProximityPromptContext';
 import { TextWindow } from './TextWindow';
 
 const _playerPos = new Vector3();
@@ -37,8 +38,10 @@ export function ProximityPrompt({
   keyLabel = 'E',
   holdDuration = 0,
 }: ProximityPromptProps) {
+  const promptId = useId();
   const isTouch = useMemo(() => typeof window !== 'undefined' && 'ontouchstart' in window, []);
   const playerRef = usePlayerRef();
+  const manager = useProximityPromptManager();
   const anchorRef = useRef<Group>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<SVGCircleElement>(null);
@@ -54,6 +57,11 @@ export function ProximityPrompt({
   const holdingRef = useRef(false);
   const holdProgressRef = useRef(0);
 
+  // Unregister from the manager when this prompt unmounts
+  useEffect(() => {
+    return () => manager.clear(promptId);
+  }, [manager, promptId]);
+
   useFrame((_, delta) => {
     if (!enabled) return;
 
@@ -67,8 +75,15 @@ export function ProximityPrompt({
 
     inRangeRef.current = dist <= maxDistance;
 
-    // Tween opacity toward target - proximity just sets the direction
-    const target = inRangeRef.current ? 1 : 0;
+    // Report distance to the manager so only the closest prompt shows
+    if (inRangeRef.current) {
+      manager.report(promptId, dist);
+    } else {
+      manager.clear(promptId);
+    }
+
+    // Only show if in range AND closest to the player
+    const target = inRangeRef.current && manager.isClosest(promptId) ? 1 : 0;
     opacityRef.current = MathUtils.lerp(opacityRef.current, target, FADE_SPEED * delta);
 
     // Snap to 0 when close enough so we can unmount the Html
@@ -148,7 +163,7 @@ export function ProximityPrompt({
 
       <group position={offset}>
         {visible && (
-          <Html center style={{ pointerEvents: 'none' }}>
+          <Html center zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
             <div
               ref={containerRef}
               onClick={handleTap}
@@ -243,7 +258,8 @@ export function ProximityPrompt({
                         fontSize: 15,
                         fontWeight: 400,
                         opacity: 0.6,
-                        whiteSpace: 'nowrap',
+                        whiteSpace: 'pre-line',
+                        textAlign: 'center',
                       }}
                     >
                       {objectText}

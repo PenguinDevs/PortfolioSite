@@ -1,3 +1,4 @@
+export { AwardOverlay } from './AwardOverlay';
 export { LoadingScreen } from './LoadingScreen';
 export { TouchTutorial } from './TouchTutorial';
 export { ProximityPrompt } from './ProximityPrompt';

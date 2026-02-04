@@ -5,6 +5,8 @@ export { Lever } from './Lever';
 export type { LeverHandle } from './Lever';
 export { LightSwitch } from './LightSwitch';
 export { Pedestal } from './Pedestal';
+export { PedestalAward } from './PedestalAward';
+export type { PedestalAwardProps } from './PedestalAward';
 export { Sign } from './Sign';
 export type { SignProps } from './Sign';
 export { Keycap } from './Keycap';

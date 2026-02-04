@@ -40,7 +40,7 @@ const LETTER_DELAY = 1;
 // text label config
 const FONT_PATH = '/assets/fonts/justanotherhand_regular.ttf';
 const TEXT_COLOUR = '#1a1a1a';
-const TOP_TEXT = 'Hi, my name is';
+const TOP_TEXT = 'Hi, I\'m';
 const BOTTOM_TEXT = 'or PenguinDevs\nbackend developer \u2022 studying computer science w/ maths minor \u2022 gamer';
 const TOP_FONT_SIZE = 0.7;
 const BOTTOM_FONT_SIZE = 0.4;

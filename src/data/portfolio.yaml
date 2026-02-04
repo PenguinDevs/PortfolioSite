@@ -1,0 +1,535 @@
+techStack:
+  languages:
+    - id: python
+      name: Python
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg
+      category: Language
+    - id: javascript
+      name: JavaScript
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg
+      category: Language
+    - id: typescript
+      name: TypeScript
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg
+      category: Language
+    - id: java
+      name: Java
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg
+      category: Language
+    - id: kotlin
+      name: Kotlin
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg
+      category: Language
+    - id: lua
+      name: Lua
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg
+      category: Language
+    - id: haskell
+      name: Haskell
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/haskell/haskell-original.svg
+      category: Language
+    - id: cpp
+      name: C++
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg
+      category: Language
+    - id: golang
+      name: Golang
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg
+      category: Language
+    - id: luau
+      name: Luau
+      imageUrl: /luau_logo.png
+      category: Language
+
+  frameworks:
+    - id: nextjs
+      name: Next.js
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg
+      category: Framework
+    - id: react
+      name: React
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg
+      category: Framework
+    - id: fastapi
+      name: FastAPI
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg
+      category: Framework
+    - id: flask
+      name: Flask
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg
+      category: Framework
+    - id: discordpy
+      name: Discord.py
+      imageUrl: /discord_py_logo.png
+      category: Framework
+
+  databases:
+    - id: mysql
+      name: MySQL
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg
+      category: Database
+    - id: mongodb
+      name: MongoDB
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg
+      category: Database
+    - id: postgresql
+      name: PostgreSQL
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg
+      category: Database
+    - id: redis
+      name: Redis
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg
+      category: Database
+    - id: supabase
+      name: Supabase
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg
+      category: Database
+
+  tools:
+    - id: blender
+      name: Blender
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/blender/blender-original.svg
+      category: Tool
+    - id: photoshop
+      name: Photoshop
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg
+      category: Tool
+    - id: substance3d
+      name: Adobe Substance 3D Painter
+      imageUrl: https://www.adobe.com/content/dam/shared/images/product-icons/svg/substance-3d-painter.svg
+      category: Tool
+    - id: robloxstudio
+      name: Roblox Studio
+      imageUrl: data:image/svg+xml;base64,PHN2ZyBjbGFzcz0id2ViLWJsb3gtY3NzLXRzcy1udnB5emctbG9nbyIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiB2aWV3Qm94PSIwIDAgMzMgMzMiIGZpbGw9IndoaXRlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik02Ljc4ODE3IDAuOTc1MzQyTDMuMjE2MDYgMTQuMzAwNEwxMi4zMDY5IDE2LjczMzdMMTMuNDQyNCAxMi40OTk0TDI5LjU4ODEgMTYuODI2NEwzMi4wMjQ3IDcuNzM4ODRMNi43ODgxNyAwLjk3NTM0MloiIGZpbGw9ImN1cnJlbnRDb2xvciI+PC9wYXRoPjxwYXRoIGQ9Ik0xOC42MDY5IDIxLjQ0OEwyLjQ2MTI0IDE3LjEyMTFMMC4wMjQ2NTgyIDI2LjIxMTlMMjUuMjYxMSAzMi45NzU0TDI4LjgzMzIgMTkuNjUwNEwxOS43NDI0IDE3LjIxMzhMMTguNjA2OSAyMS40NDhaIiBmaWxsPSJjdXJyZW50Q29sb3IiPjwvcGF0aD48L3N2Zz4=
+      category: Tool
+    - id: photogrammetry
+      name: Photogrammetry
+      imageUrl: https://cdn-icons-png.flaticon.com/512/2103/2103633.png
+      category: Tool
+    - id: postman
+      name: Postman
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-plain.svg
+      category: Tool
+    - id: git
+      name: Git
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg
+      category: Tool
+    - id: github
+      name: Github
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg
+      category: Tool
+    - id: docker
+      name: Docker
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg
+      category: Tool
+
+  apis:
+    - id: discordapi
+      name: Discord API
+      imageUrl: data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZGlzY29yZCIgdmlld0JveD0iMCAwIDE2IDE2Ij4NCiAgPHBhdGggZD0iTTEzLjU0NSAyLjkwN2ExMy4yIDEzLjIgMCAwIDAtMy4yNTctMS4wMTEuMDUuMDUgMCAwIDAtLjA1Mi4wMjVjLS4xNDEuMjUtLjI5Ny41NzctLjQwNi44MzNhMTIuMiAxMi4yIDAgMCAwLTMuNjU4IDAgOCA4IDAgMCAwLS40MTItLjgzMy4wNS4wNSAwIDAgMC0uMDUyLS4wMjVjLTEuMTI1LjE5NC0yLjIyLjUzNC0zLjI1NyAxLjAxMWEuMDQuMDQgMCAwIDAtLjAyMS4wMThDLjM1NiA2LjAyNC0uMjEzIDkuMDQ3LjA2NiAxMi4wMzJxLjAwMy4wMjIuMDIxLjAzN2ExMy4zIDEzLjMgMCAwIDAgMy45OTUgMi4wMi4wNS4wNSAwIDAgMCAuMDU2LS4wMTlxLjQ2My0uNjMuODE4LTEuMzI5YS4wNS4wNSAwIDAgMC0uMDEtLjA1OWwtLjAxOC0uMDExYTkgOSAwIDAgMS0xLjI0OC0uNTk1LjA1LjA1IDAgMCAxLS4wMi0uMDY2bC4wMTUtLjAxOXEuMTI3LS4wOTUuMjQ4LS4xOTVhLjA1LjA1IDAgMCAxIC4wNTEtLjAwN2MyLjYxOSAxLjE5NiA1LjQ1NCAxLjE5NiA4LjA0MSAwYS4wNS4wNSAwIDAgMSAuMDUzLjAwN3EuMTIxLjEuMjQ4LjE5NWEuMDUuMDUgMCAwIDEtLjAwNC4wODUgOCA4IDAgMCAxLTEuMjQ5LjU5NC4wNS4wNSAwIDAgMC0uMDMuMDMuMDUuMDUgMCAwIDAgLjAwMy4wNDFjLjI0LjQ2NS41MTUuOTA5LjgxNyAxLjMyOWEuMDUuMDUgMCAwIDAgLjA1Ni4wMTkgMTMuMiAxMy4yIDAgMCAwIDQuMDAxLTIuMDIuMDUuMDUgMCAwIDAgLjAyMS0uMDM3Yy4zMzQtMy40NTEtLjU1OS02LjQ0OS0yLjM2Ni05LjEwNmEuMDMuMDMgMCAwIDAtLjAyLS4wMTltLTguMTk4IDcuMzA3Yy0uNzg5IDAtMS40MzgtLjcyNC0xLjQzOC0xLjYxMnMuNjM3LTEuNjEzIDEuNDM4LTEuNjEzYy44MDcgMCAxLjQ1LjczIDEuNDM4IDEuNjEzIDAgLjg4OC0uNjM3IDEuNjEyLTEuNDM4IDEuNjEybTUuMzE2IDBjLS43ODggMC0xLjQzOC0uNzI0LTEuNDM4LTEuNjEycy42MzctMS42MTMgMS40MzgtMS42MTNjLjgwNyAwIDEuNDUxLjczIDEuNDM4IDEuNjEzIDAgLjg4OC0uNjMxIDEuNjEyLTEuNDM4IDEuNjEyIi8+DQo8L3N2Zz4=
+      category: API
+    - id: riotgamesapi
+      name: Riot Games API
+      imageUrl: /riot_games_logo.png
+      category: API
+    - id: openaiapi
+      name: OpenAI API
+      imageUrl: https://openai.com/favicon.ico
+      category: API
+    - id: lingohub
+      name: LingoHub
+      imageUrl: /lingohub_logo.png
+      category: API
+
+  os:
+    - id: arch
+      name: Arch Linux
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/archlinux/archlinux-original.svg
+      category: OS
+    - id: windows
+      name: Windows
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg
+      category: OS
+
+  datafiles:
+    - id: json
+      name: JSON
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/json/json-original.svg
+      category: Data File
+    - id: xml
+      name: XML
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xml/xml-original.svg
+      category: Data File
+    - id: yaml
+      name: YAML
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/yaml/yaml-original.svg
+      category: Data File
+    - id: toml
+      name: TOML
+      imageUrl: /toml_logo.png
+      category: Data File
+    - id: latex
+      name: LaTeX
+      imageUrl: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/latex/latex-original.svg
+      category: Data File
+
+  protocols:
+    - id: xmpp
+      name: XMPP
+      imageUrl: data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwcHgiIGhlaWdodD0iMjAwcHgiIHg9IjBweCIgeT0iMHB4IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyMDAgMjAwIj4NCg0KPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF9yaWdodF8iIHkyPSIxLjI3OWUtMTMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4Mj0iLTEwNzMuMiIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMTk2LjYwNCwzNy4zNjg5NzcpIiB5MT0iMTI2Ljg1IiB4MT0iLTEwNzMuMiI+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzFiMzk2NyIgb2Zmc2V0PSIuMDExIi8+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzEzYjVlYSIgb2Zmc2V0PSIuNDY3Ii8+DQoJPHN0b3Agc3RvcC1jb2xvcj0iIzAwMmI1YyIgb2Zmc2V0PSIuOTk0NSIvPg0KPC9saW5lYXJHcmFkaWVudD4NCg0KPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF9sZWZ0XyIgeTI9IjEuMjc5ZS0xMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgyPSItMTA3My4yIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KC0xLDAsMCwxLC05OTQuNzg4MDEsMzcuMzY3OTc3KSIgeTE9IjEyNi44NSIgeDE9Ii0xMDczLjIiPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMxYjM5NjciIG9mZnNldD0iLjAxMSIvPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMxM2I1ZWEiIG9mZnNldD0iLjQ2NyIvPg0KCTxzdG9wIHN0b3AtY29sb3I9IiMwMDJiNWMiIG9mZnNldD0iLjk5NDUiLz4NCjwvbGluZWFyR3JhZGllbnQ+DQoNCjxwYXRoIGQ9Im0gMTUxLjgwNTEyLDUxLjU1Nzk3OCBjIDAuMDc3LDEuMzEzIC0xLjc4NywwLjk2OCAtMS43ODcsMi4yOTMgMCwzOC41NTEwMDIgLTQ2LjU1OCw5Ny4zNjYwMTIgLTkxLjY4Nzk4NSwxMDguNzMwMDEyIHYgMS42MzkgQyAxMTguMjgzMTMsMTU4LjY5OTk5IDE4Ni44OTAxMiw5Ni40MTk5OCAxODguNDAwMTIsMzcuMzY5OTc3IGwgLTM2LjU5OSwxNC4xODkwMDEgeiIgc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF9yaWdodF8pIi8+DQo8cGF0aCBkPSJtIDEzMy42NzMxMiw1Ni4zMDA5NzggYyAwLjA3NiwxLjMxMyAwLjEyLDIuNjMgMC4xMiwzLjk1NyAwLDM4LjU1MTAwMiAtMzAuNjk4OTgsOTAuNDk3MDEyIC03NS44MjY5ODUsMTAxLjg2MDAxMiB2IDEuNjM5IGMgNTkuMDQ0MDA1LC0yLjc5IDEwNS44MDk5OTUsLTYzLjAyNDAxIDEwNS44MDk5OTUsLTEwOS4yMDAwMTIgMCwtMi4zNzUgLTAuMTI4LC00LjcyOSAtMC4zNzEsLTcuMDU2IGwgLTI5LjczLDguNzk4IHoiIHN0eWxlPSJmaWxsOiNlOTZkMWYiLz4NCjxwYXRoIGQ9Im0gMTYzLjY5MTEyLDQ2Ljk1MTk3OCAtNy42MTY5OSwyLjcyMiBjIDAuMDQxLDAuOTYyIDAuMDY2LDIuMjU0IDAuMDY2LDMuMjI1IDAsNDEuMjE5MDAyIC0zNy4yNzEsOTguMjA0MDEyIC04Ny4yNzE5OTUsMTA3LjEyMDAxMiAtMy4yNDUwMSwxLjA4OCAtNy41MzgwMSwyLjA3NyAtMTAuOTMyLDIuOTMxIHYgMS42MzggQyAxMjMuMTkwMTMsMTU5LjAyNzk5IDE2OS4wMzYxMyw5Mi43MjE5OCAxNjMuNjk2MTIsNDYuOTQ3OTc4IFoiIHN0eWxlPSJmaWxsOiNkOTU0MWUiLz4NCg0KPHBhdGggZD0ibSA1MC4wMTEsNTEuNTU2OTc4IGMgLTAuMDc3LDEuMzEzIDEuNzg3LDAuOTY4IDEuNzg3LDIuMjkzIDAsMzguNTUxMDAyIDQ2LjU1ODAwNyw5Ny4zNjYwMTIgOTEuNjg3OTksMTA4LjczMDAxMiB2IDEuNjM5IEMgODMuNTMzLDE1OC42OTg5OSAxNC45MjYsOTYuNDE4OTggMTMuNDE2LDM3LjM2ODk3NyBsIDM2LjU5OSwxNC4xODkwMDEgeiIgc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF9sZWZ0XykiLz4NCjxwYXRoIGQ9Im0gNjguMTQzLDU2LjI5OTk3OCBjIC0wLjA3NiwxLjMxMyAtMC4xMiwyLjYzIC0wLjEyLDMuOTU3IDAsMzguNTUxMDAyIDMwLjY5ODk5NSw5MC40OTcwMTIgNzUuODI2OTksMTAxLjg2MDAxMiB2IDEuNjM5IEMgODQuODA2LDE2MC45NjU5OSAzOC4wNCwxMDAuNzMxOTggMzguMDQsNTQuNTU1OTc4IGMgMCwtMi4zNzUgMC4xMjgsLTQuNzI5IDAuMzcxLC03LjA1NiBsIDI5LjczLDguNzk4IHoiIHN0eWxlPSJmaWxsOiNhMGNlNjciLz4NCjxwYXRoIGQ9Im0gMzguMTI1LDQ2Ljk1MDk3OCA3LjYxNywyLjcyMiBjIC0wLjA0MSwwLjk2MiAtMC4wNjYsMi4yNTQgLTAuMDY2LDMuMjI1IDAsNDEuMjE5MDAyIDM3LjI3MSw5OC4yMDQwMTIgODcuMjcxOTksMTA3LjEyMDAxMiAzLjI0NSwxLjA4OCA3LjUzOCwyLjA3NyAxMC45MzIsMi45MzEgdiAxLjYzOCBDIDc4LjYyNiwxNTkuMDI2OTkgMzIuNzgsOTIuNzIwOTggMzguMTIsNDYuOTQ2OTc4IFoiIHN0eWxlPSJmaWxsOiM0Mzk2MzkiLz4NCg0KPHN0eWxlIHhtbG5zPSIiIGNsYXNzPSJkYXJrcmVhZGVyIGRhcmtyZWFkZXItLWZhbGxiYWNrIj5odG1sLCBib2R5LCBib2R5IDpub3QoaWZyYW1lKSB7DQogICAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tZGFya3JlYWRlci1iYWNrZ3JvdW5kLWZmZmZmZiwgIzE4MWExYikgIWltcG9ydGFudDsNCiAgICBib3JkZXItY29sb3I6IHZhcigtLWRhcmtyZWFkZXItYm9yZGVyLTQwNDA0MCwgIzc3NmU2MikgIWltcG9ydGFudDsNCiAgICBjb2xvcjogdmFyKC0tZGFya3JlYWRlci10ZXh0LTAwMDAwMCwgI2U4ZTZlMykgIWltcG9ydGFudDsNCn0NCmRpdltzdHlsZSo9ImJhY2tncm91bmQtY29sb3I6IHJnYigxMzUsIDEzNSwgMTM1KSJdIHsNCiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjODc4Nzg3ICFpbXBvcnRhbnQ7DQp9PC9zdHlsZT48L3N2Zz4=
+      category: Protocol
+
+awards:
+  - id: macathon-2025
+    title: MACATHON 2025
+    secondaryText: Hackathon Winner
+    description: Won $1800 with team for "Catch N Go" - a gamified social mobile app built in 48 hours in a team of 4.
+    href: https://www.linkedin.com/posts/jason-yi-penguindevs_first-place-macathon-2025-was-an-amazing-activity-7330566985598009347-pUfV
+    year: '25'
+    badge:
+      text: '1ST PLACE'
+      bgColor: bg-amber-500/20 dark:bg-amber-500/30
+      textColor: text-amber-700 dark:text-amber-300
+      icon: '▲'
+    stats:
+      - value: '$1.8K'
+        label: PRIZE
+      - value: '48H'
+        label: BUILD
+    theme:
+      borderColor: border-amber-200/50 dark:border-amber-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-amber-600 dark:text-amber-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-amber-400 to-orange-500
+      accentBar: bg-gradient-to-b from-amber-400 to-orange-500
+
+  - id: valotracker-trending
+    title: 'ValoTracker'
+    secondaryText: Discord Trending Bot
+    description: "Reached #1 on Discord's trending bots with 40,000+ servers, fetching up to 9 million matches weekly through pull-based workers."
+    href: https://valotracker.com
+    year: '24'
+    badge:
+      text: '#1 TRENDING'
+      bgColor: bg-purple-500/20 dark:bg-purple-500/30
+      textColor: text-purple-700 dark:text-purple-300
+      icon: '●'
+    stats:
+      - value: '40K+'
+        label: SERVERS
+      - value: '9M'
+        label: WEEKLY
+    theme:
+      borderColor: border-purple-200/50 dark:border-purple-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-purple-600 dark:text-purple-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-purple-400 to-pink-500
+      accentBar: bg-gradient-to-b from-purple-500 to-pink-500
+
+  - id: maps-advanced
+    title: MAPS Advanced
+    secondaryText: Competitive Programming
+    description: 2nd Place in Monash University's collegiate competitive programming competition
+    href: https://www.linkedin.com/posts/monashaps_thats-a-wrap-on-mcpc-2025-this-year-ugcPost-7381497433828012032-ZEoE
+    year: '25'
+    badge:
+      text: '2ND PLACE'
+      bgColor: bg-slate-500/20 dark:bg-slate-500/30
+      textColor: text-slate-700 dark:text-slate-300
+      icon: '■'
+    theme:
+      borderColor: border-slate-200/50 dark:border-slate-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-slate-600 dark:text-slate-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-slate-400 to-gray-500
+      accentBar: bg-gradient-to-b from-slate-500 to-gray-500
+
+  - id: maps-beginner
+    title: MAPS Beginner
+    secondaryText: Competitive Programming
+    description: 2nd Place in Monash University's beginner competitive programming competition
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '25'
+    badge:
+      text: '2ND PLACE'
+      bgColor: bg-emerald-500/20 dark:bg-emerald-500/30
+      textColor: text-emerald-700 dark:text-emerald-300
+      icon: '◆'
+    theme:
+      borderColor: border-emerald-200/50 dark:border-emerald-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-emerald-600 dark:text-emerald-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-emerald-400 to-teal-500
+      accentBar: bg-gradient-to-b from-emerald-500 to-teal-500
+
+  - id: adf-2024
+    title: ADF Future Innovators
+    secondaryText: National STEM Recognition
+    description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '24'
+    badge:
+      text: 'STEM'
+      bgColor: bg-blue-500/20 dark:bg-blue-500/30
+      textColor: text-blue-700 dark:text-blue-300
+      icon: '★'
+    stats:
+      - value: '1/5K'
+        label: SELECTED
+    theme:
+      borderColor: border-blue-200/50 dark:border-blue-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-blue-600 dark:text-blue-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-blue-400 to-cyan-500
+      accentBar: bg-gradient-to-b from-blue-500 to-cyan-500
+
+  - id: adf-2022
+    title: ADF Future Innovators
+    secondaryText: National STEM Recognition
+    description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
+    href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
+    year: '22'
+    badge:
+      text: 'STEM'
+      bgColor: bg-indigo-500/20 dark:bg-indigo-500/30
+      textColor: text-indigo-700 dark:text-indigo-300
+      icon: '✦'
+    stats:
+      - value: '1/5K'
+        label: SELECTED
+    theme:
+      borderColor: border-indigo-200/50 dark:border-indigo-700/50
+      bgColor: bg-white dark:bg-gray-900
+      textColor: text-gray-900 dark:text-gray-100
+      secondaryTextColor: text-indigo-600 dark:text-indigo-400
+      descriptionColor: text-gray-700 dark:text-gray-300
+      gradientOverlay: bg-gradient-to-br from-indigo-400 to-violet-500
+      accentBar: bg-gradient-to-b from-indigo-500 to-violet-500
+
+projects:
+  - id: valotracker
+    title: ValoTracker
+    description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
+    tags:
+      - Valorant
+      - 'Discord Trending #1'
+    techStack:
+      - Python
+      - TypeScript
+      - Golang
+      - Flask
+      - Next.js
+      - MySQL
+      - MongoDB
+      - Redis
+      - Discord API
+      - Riot Games API
+      - LingoHub
+      - Docker
+      - Postman
+      - XMPP
+    buttons:
+      - label: Visit Site
+        href: https://valotracker.com
+        type: external
+      - label: Add Bot
+        href: https://valotracker.com/invite
+        type: external
+    link:
+      type: external
+      value: https://valotracker.com
+
+  - id: catch-n-go
+    title: Catch N Go
+    description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
+    tags:
+      - 1st Place Winner
+      - Hackathon
+    techStack:
+      - Kotlin
+      - Java
+      - Python
+      - FastAPI
+      - MongoDB
+      - Docker
+      - OpenAI API
+    buttons:
+      - label: View Devpost
+        href: https://devpost.com/software/catch-n-go
+        type: external
+      - label: Frontend Code
+        href: https://github.com/Swofty-Developments/MacathonFrontend
+        type: external
+      - label: Backend Code
+        href: https://github.com/Swofty-Developments/MacathonBackend
+        type: external
+    link:
+      type: external
+      value: https://devpost.com/software/catch-n-go
+
+  - id: ceebs
+    title: Ceebs - Food Ordering Platform
+    description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
+    tags:
+      - Ecommerce
+      - Lead Developer
+    techStack:
+      - Python
+      - TypeScript
+      - Next.js
+      - PostgreSQL
+      - FastAPI
+      - Discord.py
+    buttons:
+      - label: Visit Site
+        href: https://ceebs.site/
+        type: external
+      - label: Visit Merchant
+        href: https://merchant.ceebs.site/
+        type: external
+    link:
+      type: external
+      value: https://ceebs.site
+
+  - id: valorpc
+    title: ValoRPC
+    description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
+    tags:
+      - ★ 26
+      - OCR
+    techStack:
+      - Python
+    buttons:
+      - label: View Code
+        href: https://github.com/PenguinDevs/ValoRPC
+        type: external
+      - label: Download
+        href: https://github.com/PenguinDevs/ValoRPC/releases
+        type: external
+    link:
+      type: external
+      value: https://github.com/PenguinDevs/ValoRPC
+
+  - id: penguinengine
+    title: PenguinEngine
+    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
+    tags:
+      - Monorepo
+      - Library
+    techStack:
+      - Lua
+      - Luau
+      - TypeScript
+      - Github
+      - Roblox Studio
+    buttons:
+      - label: View Code
+        href: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
+        type: external
+      - label: Suspension Demo
+        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.mp4
+        type: external
+    link:
+      type: external
+      value: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
+
+  - id: allocateus
+    title: AllocateUs
+    description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
+    tags:
+      - Hackathon Project
+    techStack:
+      - Python
+      - TypeScript
+      - Next.js
+      - FastAPI
+      - OpenAI API
+    buttons:
+      - label: View Devpost
+        href: https://devpost.com/software/allocateus
+        type: external
+      - label: View Backend
+        href: https://github.com/BillyHri/unihack2025
+        type: external
+      - label: View Frontend
+        href: https://github.com/BillyHri/unihack2025-frontend
+        type: external
+    link:
+      type: external
+      value: https://devpost.com/software/allocateus
+
+  - id: roblox-games
+    title: Roblox Games Portfolio
+    description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
+    tags:
+      - 13M+ Plays
+      - Game Development
+    techStack:
+      - Lua
+      - Luau
+      - Blender
+      - Roblox Studio
+      - Photoshop
+    buttons:
+      - label: View Portfolio
+        href: https://create.roblox.com/talent/creators/204152663
+        type: external
+      - label: Play PetBattles
+        href: https://www.roblox.com/games/9278437733/Pet-Battles
+        type: external
+      - label: View PetBattles Source
+        href: https://github.com/PenguinDevs/PetBattles
+        type: external
+    link:
+      type: external
+      value: https://create.roblox.com/talent/creators/204152663
+
+  - id: nissan-silvia
+    title: Nissan Silvia S15 3D Model
+    description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
+    tags:
+      - 3D Art
+      - Modeling
+    techStack:
+      - Blender
+      - Adobe Substance 3D Painter
+      - Photogrammetry
+    buttons:
+      - label: View Artwork
+        href: https://www.artstation.com/artwork/kNdArK
+        type: external
+    link:
+      type: external
+      value: https://www.artstation.com/artwork/kNdArK
+
+friends:
+  - id: swofty
+    name: Swofty
+    profileImage: https://api.shiroko.me/discord/avatar/873815509097918504
+    link: https://swofty.net/
+  - id: tyzren
+    name: Tans
+    profileImage: https://api.shiroko.me/discord/avatar/782492200587362315
+    link: https://portfolio.tyzren.com/
+  - id: sexnine
+    name: sexnine
+    profileImage: https://api.shiroko.me/discord/avatar/807958370887270400
+    link: https://sexnine.xyz/
+  - id: bobbedbob
+    name: BobbedBob
+    profileImage: https://api.shiroko.me/discord/avatar/411004916430143508
+    link: https://bobbedbob.io/
+  - id: haruka
+    name: Haruka
+    profileImage: https://api.shiroko.me/discord/avatar/222069018507345921
+    link: https://shiroko.me/

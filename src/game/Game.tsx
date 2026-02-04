@@ -6,6 +6,9 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { HomeScene } from './scenes';
 import { LoadingScreen } from './components/LoadingScreen';
 import { TouchTutorial } from './components/TouchTutorial';
+import { AwardOverlay } from './components/AwardOverlay';
+import { AwardOverlayProvider } from './contexts/AwardOverlayContext';
+import type { AwardData } from './contexts/AwardOverlayContext';
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
 
@@ -21,9 +24,9 @@ function SceneBackground() {
   return null;
 }
 
-export function Game() {
+export function Game({ awards }: { awards: AwardData[] }) {
   return (
-    <>
+    <AwardOverlayProvider awards={awards}>
       <LoadingScreen />
       <TouchTutorial />
       <Canvas
@@ -33,6 +36,7 @@ export function Game() {
         <SceneBackground />
         <HomeScene />
       </Canvas>
-    </>
+      <AwardOverlay />
+    </AwardOverlayProvider>
   );
 }
