@@ -14,6 +14,8 @@ import {
 } from 'three';
 import { useEntityModel, useAnimator } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
+import { INK_EDGE_COLOR } from '../constants';
+import { LightingMode } from '../types';
 
 const ANIMATION_SPEED = 8;
 const TURN_SPEED = 12;
@@ -78,7 +80,12 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     }
   }, [cloned]);
 
-  const animator = useAnimator(cloned, animations, { initialClip: 'penguin_idle', timeScale: ANIMATION_SPEED });
+  const animator = useAnimator(cloned, animations, {
+    initialClip: 'penguin_idle',
+    timeScales: {
+      penguin_walk: ANIMATION_SPEED,
+    },
+  });
 
   useFrame((_, delta) => {
     const model = modelRef.current;
@@ -127,6 +134,8 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
       </group>
       <InkEdgesGroup
         target={localRef}
+        color={INK_EDGE_COLOR[LightingMode.Light]}
+        darkColor={INK_EDGE_COLOR[LightingMode.Dark]}
         seed={7}
         width={3}
         gapThreshold={0.35}
