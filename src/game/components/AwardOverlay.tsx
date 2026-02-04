@@ -197,7 +197,7 @@ export function AwardOverlay() {
                 fontFamily: TEXT_WINDOW_FONT,
               }}
             >
-              '{activeAward.year}
+              &apos;{activeAward.year}
             </span>
           </div>
 
