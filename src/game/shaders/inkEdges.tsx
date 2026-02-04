@@ -288,6 +288,12 @@ function buildInkLines(
     polygonOffsetUnits: -2,
   });
 
+  // override cache key so clipY variant compiles a separate shader program
+  const baseKey = mat.customProgramCacheKey;
+  mat.customProgramCacheKey = () =>
+    (typeof baseKey === 'function' ? baseKey.call(mat) : '') +
+    (params.clipY ? '|inkClipY' : '');
+
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uInkSeed = { value: params.seed };
     shader.uniforms.uInkGapFreq = { value: params.gapFreq };
@@ -307,15 +313,9 @@ function buildInkLines(
       'vInkObjPos = transformed;\n#include <project_vertex>',
     );
 
-    // Fragment: inject declarations before main, gap mask before opaque_fragment
-    shader.fragmentShader = shader.fragmentShader.replace(
-      'void main() {',
-      INK_FRAG_PARS + 'void main() {',
-    );
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <opaque_fragment>',
-      INK_FRAG_MAIN + '\n\t#include <opaque_fragment>',
-    );
+    // build combined fragment preamble and main-body prefix
+    let fragPars = INK_FRAG_PARS;
+    let fragMainPrefix = '';
 
     // optional Y clip -- shared uniform object so the caller can update it each frame
     if (params.clipY) {
@@ -330,11 +330,19 @@ function buildInkLines(
         'vInkObjPos = transformed;\n' + INK_CLIP_VERT_MAIN,
       );
 
-      shader.fragmentShader = shader.fragmentShader.replace(
-        'void main() {',
-        INK_CLIP_FRAG_PARS + 'void main() {\n' + INK_CLIP_FRAG_MAIN,
-      );
+      fragPars = INK_CLIP_FRAG_PARS + fragPars;
+      fragMainPrefix = INK_CLIP_FRAG_MAIN;
     }
+
+    // single replace for fragment declarations + main body prefix
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'void main() {',
+      fragPars + 'void main() {\n' + fragMainPrefix,
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <opaque_fragment>',
+      INK_FRAG_MAIN + '\n\t#include <opaque_fragment>',
+    );
   };
 
   const lineObj = new LineSegments(geo, mat);
