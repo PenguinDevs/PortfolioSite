@@ -13,6 +13,7 @@ import {
   MeshBasicMaterial,
 } from 'three';
 import { useEntityModel, useAnimator } from '../models';
+import { SpeedLines } from '../effects';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
@@ -41,6 +42,8 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const targetYRot = useRef(BASE_Y_ROT);
   const lookDir = useRef(0);
   const pupilsRef = useRef<{ mesh: Mesh; side: number }[]>([]);
+  const flyingRef = useRef(false);
+  const moveDir = useRef(0);
 
   const { cloned, animations } = useEntityModel('penguin', {
     texturePath: '/assets/textures/penguin_texture.png',
@@ -118,9 +121,13 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
       return localRef.current!;
     },
     setMoving(moving: boolean, direction: number, speed: number) {
+      const isFlying = moving && speed >= FLY_SPEED_THRESHOLD;
+      flyingRef.current = isFlying;
+      moveDir.current = direction;
+
       if (!moving) {
         animator.play('penguin_idle');
-      } else if (speed >= FLY_SPEED_THRESHOLD) {
+      } else if (isFlying) {
         animator.play('penguin_fly');
       } else {
         animator.play('penguin_walk');
@@ -144,6 +151,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
       <group ref={modelRef} rotation={[0, BASE_Y_ROT, 0]}>
         <primitive object={cloned} scale={0.4} />
       </group>
+      <SpeedLines activeRef={flyingRef} directionRef={moveDir} />
       <InkEdgesGroup
         target={localRef}
         colour={INK_EDGE_COLOUR[LightingMode.Light]}
