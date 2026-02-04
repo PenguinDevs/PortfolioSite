@@ -24,7 +24,7 @@ const SCALE = 0.5;
 
 // press cycle timing (seconds)
 const PRESS_INTERVAL = 1;
-const PRESS_DURATION = 0.15;
+const PRESS_DURATION = 0.05;
 const HOLD_DURATION = 0.3;
 const RELEASE_DURATION = 0.15;
 const PRESS_DEPTH = -0.3;
