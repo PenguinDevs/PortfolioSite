@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import { DirectionalLight } from 'three';
+import { DirectionalLight, Mesh } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Player } from '../entities';
 import type { PlayerHandle } from '../entities/Player';
@@ -15,6 +15,7 @@ import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY } from '../con
 import { HomeSection } from './HomeSection';
 import { AwardsSection } from './AwardsSection';
 import { ProjectsSection } from './ProjectsSection';
+import { CircularSceneProvider, CircularSlot } from './circular';
 
 // directional light offset from the player (angled from the top-right)
 // lower Y = more angled light = taller shadows on the ground
@@ -37,10 +38,18 @@ const SHADOW_BIAS = -0.002;
 const SHADOW_PLANE_WIDTH = 200;
 const SHADOW_PLANE_DEPTH = 50;
 
+// section positions along the circular track
+const HOME_X = 0;
+const AWARDS_X = 42;
+const PROJECTS_X = 60;
+// total loop length -- after this distance the scene wraps back to the start
+const TRACK_LENGTH = 80;
+
 export function HomeScene() {
   const inputRef = useInput();
   const playerRef = useRef<PlayerHandle>(null);
   const lightRef = useRef<DirectionalLight>(null);
+  const shadowPlaneRef = useRef<Mesh>(null);
   const getGroup = useCallback(() => playerRef.current?.group ?? null, []);
   const groupRef = useDerivedRef(getGroup);
   const mode = useLightingMode();
@@ -59,7 +68,7 @@ export function HomeScene() {
     };
   }, []);
 
-  // keep the shadow light centred on the player so the frustum always covers the visible area
+  // keep the shadow light and shadow plane centred on the player
   useFrame(() => {
     const light = lightRef.current;
     const player = groupRef.current;
@@ -68,6 +77,10 @@ export function HomeScene() {
     const px = player.position.x;
     light.position.set(px + LIGHT_OFFSET_X, LIGHT_OFFSET_Y, LIGHT_OFFSET_Z);
     light.target.position.set(px, 0, 0);
+
+    if (shadowPlaneRef.current) {
+      shadowPlaneRef.current.position.x = px;
+    }
   });
 
   return (
@@ -91,14 +104,23 @@ export function HomeScene() {
         />
 
         {/* transparent ground plane that only shows cast shadows */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[30, 0.01, 0]} receiveShadow>
+        <mesh ref={shadowPlaneRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]} receiveShadow>
           <planeGeometry args={[SHADOW_PLANE_WIDTH, SHADOW_PLANE_DEPTH]} />
           <shadowMaterial transparent opacity={SHADOW_OPACITY[mode]} />
         </mesh>
 
-        <HomeSection />
-        <AwardsSection position={[42, 0, 0]} />
-        <ProjectsSection position={[60, 0, 0]} />
+        <CircularSceneProvider trackLength={TRACK_LENGTH}>
+          <CircularSlot baseX={HOME_X}>
+            <HomeSection />
+          </CircularSlot>
+          <CircularSlot baseX={AWARDS_X}>
+            <AwardsSection />
+          </CircularSlot>
+          <CircularSlot baseX={PROJECTS_X}>
+            <ProjectsSection />
+          </CircularSlot>
+        </CircularSceneProvider>
+
         <Player ref={playerRef} />
         <MovementService inputRef={inputRef} playerRef={playerRef} />
         <PerspectiveCameraService targetRef={groupRef} inputRef={inputRef} />
