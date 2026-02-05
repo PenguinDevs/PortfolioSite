@@ -1,10 +1,12 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
-import { Frustum, Matrix4, Vector3 } from 'three';
+import { useEffect, useMemo, useRef } from 'react';
+import { Color, Frustum, Matrix4, Vector3 } from 'three';
 import type { Group, ShaderMaterial } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeOutCubic } from '../math';
+import { LightingService } from '../services';
+import { GROUND_COLOUR } from '../constants';
 
 // fallback edge duration when segment count isn't available yet (seconds)
 const DEFAULT_EDGE_DURATION = 1.2;
@@ -105,11 +107,22 @@ export function useEntityReveal(
       if (!materialsRef.current.includes(material)) {
         materialsRef.current.push(material);
       }
-      // set initial state: invisible and white
+      // set initial state: invisible with reveal base colour matching current mode
       material.uniforms.uOpacity.value = 0;
       material.uniforms.uRevealProgress.value = 0;
+      material.uniforms.uRevealColour.value = new Color(GROUND_COLOUR[LightingService.getMode()]);
       material.transparent = true;
     };
+  }, []);
+
+  // keep reveal base colour in sync with the current lighting mode
+  useEffect(() => {
+    return LightingService.subscribe((mode) => {
+      const col = new Color(GROUND_COLOUR[mode]);
+      for (const mat of materialsRef.current) {
+        mat.uniforms.uRevealColour.value = col;
+      }
+    });
   }, []);
 
   // animation state stored in refs to avoid re-renders

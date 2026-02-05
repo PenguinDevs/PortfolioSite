@@ -41,6 +41,7 @@ const fragmentShader = /* glsl */ `
   uniform float uClipY;
   uniform float uOpacity;
   uniform float uRevealProgress;
+  uniform vec3 uRevealColour;
 
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -65,8 +66,8 @@ const fragmentShader = /* glsl */ `
       color = shadowColor;
     }
 
-    // reveal animation: lerp from white to the computed colour
-    color = mix(vec3(1.0), color, uRevealProgress);
+    // reveal animation: lerp from reveal base colour to the computed colour
+    color = mix(uRevealColour, color, uRevealProgress);
 
     gl_FragColor = vec4(color, uOpacity);
   }
@@ -103,6 +104,7 @@ export function createToonMaterial({
       uClipY: { value: -10000 },
       uOpacity: { value: 1.0 },
       uRevealProgress: { value: 1.0 },
+      uRevealColour: { value: new Color('#ffffff') },
     },
     vertexShader,
     fragmentShader,
