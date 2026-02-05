@@ -6,8 +6,13 @@ import type { Group, ShaderMaterial } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeOutCubic } from '../math';
 
-// how long the ink edge draw-in takes (seconds)
+// fallback edge duration when segment count isn't available yet (seconds)
 const DEFAULT_EDGE_DURATION = 1.2;
+// edge duration bounds for complexity-based scaling
+const MIN_EDGE_DURATION = 0.5;
+const MAX_EDGE_DURATION = 2.5;
+// segment count at which edge duration approaches the max
+const EDGE_COMPLEXITY_REF = 300;
 // quick opacity fade so the white mesh doesn't pop in instantly
 const DEFAULT_OPACITY_FADE_DURATION = 0.15;
 // pause after edges finish before colour starts fading in
@@ -49,9 +54,24 @@ export interface EntityRevealOptions {
   immediate?: boolean;
 }
 
+// draw progress uniform extended with segment count for complexity-based duration.
+// the ink edges system writes segmentCount so the reveal hook can adapt timing.
+export interface DrawProgressUniform {
+  value: number;
+  segmentCount: number;
+}
+
+// computes edge draw duration from the total segment count using sqrt scaling
+function computeEdgeDuration(segmentCount: number): number {
+  if (segmentCount <= 0) return DEFAULT_EDGE_DURATION;
+  const t = Math.min(Math.sqrt(segmentCount / EDGE_COMPLEXITY_REF), 1);
+  return MIN_EDGE_DURATION + (MAX_EDGE_DURATION - MIN_EDGE_DURATION) * t;
+}
+
 export interface EntityRevealResult {
-  // shared uniform for ink edge draw-in progress (-1 = hidden, 0..1 = drawing, >1 = done)
-  drawProgress: { value: number };
+  // shared uniform for ink edge draw-in progress (-1 = hidden, 0..1 = drawing, >1 = done).
+  // also carries segmentCount written by the ink edges system.
+  drawProgress: DrawProgressUniform;
   // shared uniform for toon material colour reveal (0 = white, 1 = coloured)
   colourProgress: { value: number };
   // connect this to your toon material in a useEffect to drive the reveal.
@@ -64,7 +84,7 @@ export function useEntityReveal(
   options: EntityRevealOptions = {},
 ): EntityRevealResult {
   const {
-    edgeDuration = DEFAULT_EDGE_DURATION,
+    edgeDuration: userEdgeDuration,
     colourDelay = DEFAULT_COLOUR_DELAY,
     colourDuration = DEFAULT_COLOUR_DURATION,
     opacityFadeDuration = DEFAULT_OPACITY_FADE_DURATION,
@@ -72,8 +92,9 @@ export function useEntityReveal(
     immediate = false,
   } = options;
 
-  // shared uniform objects that persist across renders
-  const drawProgress = useMemo(() => ({ value: -1 }), []);
+  // shared uniform objects that persist across renders.
+  // segmentCount is written by the ink edges system so we can adapt edge duration.
+  const drawProgress = useMemo<DrawProgressUniform>(() => ({ value: -1, segmentCount: 0 }), []);
   const colourProgress = useMemo(() => ({ value: 0 }), []);
 
   // track connected toon materials so we can drive their uOpacity and uRevealProgress
@@ -96,6 +117,9 @@ export function useEntityReveal(
   const timerRef = useRef(0);
   // counts frames spent in the Waiting phase so we can detect initial-load entities
   const waitingFramesRef = useRef(0);
+  // snapshotted edge duration, computed from segment count when the animation starts.
+  // if the user provided an explicit edgeDuration, that takes priority.
+  const effectiveEdgeDurationRef = useRef<number>(0);
 
   // reusable objects for frustum checks (avoids allocations per frame)
   const frustum = useMemo(() => new Frustum(), []);
@@ -128,6 +152,8 @@ export function useEntityReveal(
           phaseRef.current = RevealPhase.Delaying;
           timerRef.current = 0;
         } else {
+          // snapshot edge duration from segment count (or user override)
+          effectiveEdgeDurationRef.current = userEdgeDuration ?? computeEdgeDuration(drawProgress.segmentCount);
           phaseRef.current = RevealPhase.FadingIn;
           timerRef.current = 0;
           drawProgress.value = 0;
@@ -143,6 +169,8 @@ export function useEntityReveal(
       // waiting for the initial-load delay to elapse before starting the reveal
       case RevealPhase.Delaying: {
         if (t >= delay) {
+          // snapshot edge duration from segment count (or user override)
+          effectiveEdgeDurationRef.current = userEdgeDuration ?? computeEdgeDuration(drawProgress.segmentCount);
           phaseRef.current = RevealPhase.FadingIn;
           timerRef.current = 0;
           drawProgress.value = 0;
@@ -152,13 +180,14 @@ export function useEntityReveal(
 
       // quick opacity fade: mesh becomes visible as white
       case RevealPhase.FadingIn: {
+        const dur = effectiveEdgeDurationRef.current;
         const opacityT = Math.min(t / opacityFadeDuration, 1);
         const opacity = easeOutCubic(opacityT);
         for (const mat of materialsRef.current) {
           mat.uniforms.uOpacity.value = opacity;
         }
         // start edge drawing at the same time
-        const edgeT = Math.min(t / edgeDuration, 1);
+        const edgeT = Math.min(t / dur, 1);
         drawProgress.value = easeOutCubic(edgeT) * DRAW_PROGRESS_OVERSHOOT;
 
         if (opacityT >= 1) {
@@ -170,7 +199,8 @@ export function useEntityReveal(
 
       // ink edges drawing in
       case RevealPhase.DrawingEdges: {
-        const edgeT = Math.min(t / edgeDuration, 1);
+        const dur = effectiveEdgeDurationRef.current;
+        const edgeT = Math.min(t / dur, 1);
         drawProgress.value = easeOutCubic(edgeT) * DRAW_PROGRESS_OVERSHOOT;
 
         if (edgeT >= 1) {

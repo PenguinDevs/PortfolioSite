@@ -384,7 +384,7 @@ function buildInkLines(
     gapThreshold: number;
     wobble: number;
     clipY?: { value: number };
-    drawProgress?: { value: number };
+    drawProgress?: { value: number; segmentCount?: number };
   },
   skinning?: SkinningInfo,
 ): LineSegments | null {
@@ -398,6 +398,9 @@ function buildInkLines(
   if (hasDrawReveal) {
     const drawOrder = computeDrawOrder(edgePositions);
     geo.setAttribute('aDrawOrder', new BufferAttribute(drawOrder, 1));
+    // report segment count so the reveal hook can scale edge duration by complexity
+    const segCount = edgePositions.length / 6;
+    params.drawProgress!.segmentCount = (params.drawProgress!.segmentCount ?? 0) + segCount;
   }
 
   if (skinning) {
@@ -530,14 +533,15 @@ export interface InkEdgesOptions {
   // shared uniform for Y-axis clipping; update .value each frame to clip ink edges
   clipY?: { value: number };
   // shared uniform for draw-in reveal; edges with draw order > this value are hidden.
-  // -1 = all hidden, 0..1 = progressive reveal, >1 = all visible
-  drawProgress?: { value: number };
+  // -1 = all hidden, 0..1 = progressive reveal, >1 = all visible.
+  // segmentCount is written back by the ink edges system for complexity-based duration scaling.
+  drawProgress?: { value: number; segmentCount?: number };
 }
 
 type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY' | 'drawProgress'>> & {
   darkColour?: string;
   clipY?: { value: number };
-  drawProgress?: { value: number };
+  drawProgress?: { value: number; segmentCount?: number };
 };
 
 const DEFAULTS: ResolvedInkEdgesOptions = {
