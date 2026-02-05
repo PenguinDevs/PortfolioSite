@@ -17,6 +17,9 @@ interface AwardYaml {
     bgColor: string;
     textColor: string;
     icon: string;
+    iconColour?: string;
+    model?: string;
+    model_texture?: string;
   };
   stats?: { value: string; label: string }[];
 }
@@ -39,7 +42,13 @@ export function getAwards(): AwardData[] {
     href: a.href,
     year: a.year,
     imageUrl: a.imageUrl,
-    badge: a.badge ? { text: a.badge.text, icon: a.badge.icon } : undefined,
+    badge: a.badge ? {
+      text: a.badge.text,
+      icon: a.badge.icon,
+      iconColour: a.badge.iconColour,
+      model: a.badge.model,
+      modelTexture: a.badge.model_texture,
+    } : undefined,
     stats: a.stats,
   }));
 }

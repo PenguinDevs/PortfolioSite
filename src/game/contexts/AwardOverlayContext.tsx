@@ -14,6 +14,9 @@ export interface AwardData {
   badge?: {
     text: string;
     icon: string;
+    iconColour?: string;
+    model?: string;
+    modelTexture?: string;
   };
   stats?: { value: string; label: string }[];
 }

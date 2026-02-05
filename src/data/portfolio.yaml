@@ -191,6 +191,9 @@ awards:
       bgColor: bg-amber-500/20 dark:bg-amber-500/30
       textColor: text-amber-700 dark:text-amber-300
       icon: '▲'
+      iconColour: '#f59e0b'
+      model: 'geometries/home/macathon_award.glb'
+      model_texture: 'textures/colour_palette.png'
     stats:
       - value: '$1.8K'
         label: PRIZE
@@ -216,6 +219,9 @@ awards:
       bgColor: bg-purple-500/20 dark:bg-purple-500/30
       textColor: text-purple-700 dark:text-purple-300
       icon: '●'
+      iconColour: '#a855f7'
+      model: 'geometries/home/valotracker_award.glb'
+      model_texture: 'textures/colour_palette.png'
     stats:
       - value: '40K+'
         label: SERVERS
@@ -241,6 +247,9 @@ awards:
       bgColor: bg-slate-500/20 dark:bg-slate-500/30
       textColor: text-slate-700 dark:text-slate-300
       icon: '■'
+      iconColour: '#64748b'
+      model: 'geometries/home/maps_award.glb'
+      model_texture: 'textures/colour_palette.png'
     theme:
       borderColor: border-slate-200/50 dark:border-slate-700/50
       bgColor: bg-white dark:bg-gray-900
@@ -261,6 +270,9 @@ awards:
       bgColor: bg-emerald-500/20 dark:bg-emerald-500/30
       textColor: text-emerald-700 dark:text-emerald-300
       icon: '◆'
+      iconColour: '#10b981'
+      model: 'geometries/home/maps_award.glb'
+      model_texture: 'textures/colour_palette.png'
     theme:
       borderColor: border-emerald-200/50 dark:border-emerald-700/50
       bgColor: bg-white dark:bg-gray-900
@@ -281,6 +293,7 @@ awards:
       bgColor: bg-blue-500/20 dark:bg-blue-500/30
       textColor: text-blue-700 dark:text-blue-300
       icon: '★'
+      iconColour: '#3b82f6'
     stats:
       - value: '1/5K'
         label: SELECTED
@@ -304,6 +317,7 @@ awards:
       bgColor: bg-indigo-500/20 dark:bg-indigo-500/30
       textColor: text-indigo-700 dark:text-indigo-300
       icon: '✦'
+      iconColour: '#6366f1'
     stats:
       - value: '1/5K'
         label: SELECTED
