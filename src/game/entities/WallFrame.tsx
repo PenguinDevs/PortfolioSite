@@ -14,17 +14,11 @@ import {
 import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { createToonMaterial } from '../shaders/toonShader';
-import { useEntityReveal } from '../hooks';
+import { useEntityReveal, useThemedToonMaterial } from '../hooks';
 import { InkEdges } from '../shaders/inkEdges';
-import { INK_EDGE_COLOUR } from '../constants';
+import { INK_EDGE_COLOUR, WALL_FRAME_COLOUR, WALL_FRAME_SHADOW, WALL_FRAME_BACKING_COLOUR } from '../constants';
 import { LightingMode } from '../types';
-
-// frame toon shader colours
-const FRAME_COLOUR = '#ffffff';
-const FRAME_SHADOW_COLOUR = '#b0a898';
-
-// backing plane colour (slightly warmer white, like canvas)
-const BACKING_COLOUR = '#faf8f5';
+import { LightingService } from '../services';
 
 // default frame dimensions (world units)
 const DEFAULT_CONTENT_WIDTH = 2;
@@ -86,10 +80,6 @@ export type WallFrameProps = ThreeElements['group'] & {
   frameDepth?: number;
   // depth of the bevel on the front edge
   bevelDepth?: number;
-  // toon shader base colour for the frame
-  colour?: string;
-  // toon shader shadow colour for the frame
-  shadowColour?: string;
   // render a backing plane behind the content
   showBacking?: boolean;
   // ink edge noise seed for deterministic variation
@@ -106,8 +96,6 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
       frameBorder = DEFAULT_FRAME_BORDER,
       frameDepth = DEFAULT_FRAME_DEPTH,
       bevelDepth = DEFAULT_BEVEL_DEPTH,
-      colour = FRAME_COLOUR,
-      shadowColour = FRAME_SHADOW_COLOUR,
       showBacking = true,
       seed = 77,
       children,
@@ -126,9 +114,15 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
     );
 
     const frameMaterial = useMemo(
-      () => createToonMaterial({ color: colour, shadowColor: shadowColour, side: DoubleSide }),
-      [colour, shadowColour],
+      () => createToonMaterial({
+        color: WALL_FRAME_COLOUR[LightingMode.Light],
+        shadowColor: WALL_FRAME_SHADOW[LightingMode.Light],
+        side: DoubleSide,
+      }),
+      [],
     );
+
+    useThemedToonMaterial(frameMaterial, WALL_FRAME_COLOUR, WALL_FRAME_SHADOW);
 
     const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
     // content (including Html overlays) is not mounted until the colour phase starts,
@@ -146,9 +140,24 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
 
     // plain material for the backing so it looks consistent regardless of face normal
     const backingMaterial = useMemo(
-      () => new MeshBasicMaterial({ color: BACKING_COLOUR, side: DoubleSide, transparent: true, opacity: 0 }),
+      () => new MeshBasicMaterial({
+        color: WALL_FRAME_BACKING_COLOUR[LightingMode.Light],
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0,
+      }),
       [],
     );
+
+    // subscribe backing colour to lighting mode changes
+    useEffect(() => {
+      const initial = LightingService.getMode();
+      backingMaterial.color.set(WALL_FRAME_BACKING_COLOUR[initial]);
+
+      return LightingService.subscribe((mode) => {
+        backingMaterial.color.set(WALL_FRAME_BACKING_COLOUR[mode]);
+      });
+    }, [backingMaterial]);
 
     // fade in backing opacity and mount content once the colour phase begins
     useFrame(() => {

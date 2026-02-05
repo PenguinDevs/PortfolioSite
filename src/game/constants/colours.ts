@@ -18,6 +18,22 @@ export const GROUND_SHADOW: ThemedColour = {
   [LightingMode.Dark]: '#1a1a28',
 };
 
+// Wall frame
+export const WALL_FRAME_COLOUR: ThemedColour = {
+  [LightingMode.Light]: '#ffffff',
+  [LightingMode.Dark]: '#3d3d3d', // matches alley ground
+};
+
+export const WALL_FRAME_SHADOW: ThemedColour = {
+  [LightingMode.Light]: '#b0a898',
+  [LightingMode.Dark]: '#1a1a28', // matches alley ground shadow
+};
+
+export const WALL_FRAME_BACKING_COLOUR: ThemedColour = {
+  [LightingMode.Light]: '#faf8f5',
+  [LightingMode.Dark]: '#3d3d3d', // matches alley ground
+};
+
 // Ink edge outlines
 export const INK_EDGE_COLOUR: ThemedColour = {
   [LightingMode.Light]: '#1a1a1a',
