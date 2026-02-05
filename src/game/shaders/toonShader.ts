@@ -81,7 +81,7 @@ export interface ToonMaterialOptions {
 export function createToonMaterial({
   color = '#e8e4df',
   shadowColor = '#a08850',
-  lightDir = [-0.4, 0.9, 0.5],
+  lightDir = [0.4, 0.7, 0.5],
   litThreshold = 0.3,
   midThreshold = -0.2,
   side = DoubleSide,

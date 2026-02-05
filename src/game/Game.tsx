@@ -30,6 +30,7 @@ export function Game({ awards }: { awards: AwardData[] }) {
       <LoadingScreen />
       <TouchTutorial />
       <Canvas
+        shadows
         gl={{ antialias: true }}
         style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
       >

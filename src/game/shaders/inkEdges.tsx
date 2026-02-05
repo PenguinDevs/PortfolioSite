@@ -346,6 +346,8 @@ function buildInkLines(
   };
 
   const lineObj = new LineSegments(geo, mat);
+  // ink edge lines should never appear in shadow maps
+  lineObj.castShadow = false;
 
   // Let Three.js handle skinning natively by setting SkinnedMesh properties.
   // This ensures all necessary defines (USE_SKINNING, BONE_TEXTURE) and

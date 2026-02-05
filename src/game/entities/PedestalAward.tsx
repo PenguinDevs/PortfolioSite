@@ -96,6 +96,7 @@ function BadgeModel({ modelPath, texturePath, phase }: BadgeModelProps) {
     clone.traverse((child) => {
       if ((child as Mesh).isMesh) {
         (child as Mesh).material = material;
+        (child as Mesh).castShadow = true;
       }
     });
     return clone;

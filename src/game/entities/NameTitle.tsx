@@ -87,6 +87,7 @@ export function NameTitle(props: ThreeElements['group']) {
     color: '#d4cfc8',
     shadowColor: '#8a8078',
     lightDir: [0.5, 2, -1],
+    castShadow: false,
   });
 
   // scale up on wider viewports so the title isn't tiny on desktop

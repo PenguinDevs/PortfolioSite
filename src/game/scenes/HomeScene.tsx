@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { DirectionalLight } from 'three';
+import { useFrame } from '@react-three/fiber';
 import { Player } from '../entities';
 import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
@@ -9,23 +11,91 @@ import { PlayerProvider } from '../contexts';
 import { ProximityPromptProvider } from '../contexts/ProximityPromptContext';
 import { MovementService, PerspectiveCameraService, TutorialService } from '../services';
 import { useLightingMode } from '../hooks';
-import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY } from '../constants';
+import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY } from '../constants';
 import { HomeSection } from './HomeSection';
 import { AwardsSection } from './AwardsSection';
 import { ProjectsSection } from './ProjectsSection';
 
+// directional light offset from the player (angled from the top-right)
+// lower Y = more angled light = taller shadows on the ground
+const LIGHT_OFFSET_X = 5;
+const LIGHT_OFFSET_Y = 10;
+const LIGHT_OFFSET_Z = 5;
+
+// shadow camera frustum (wide enough to cover the full visible area around the player)
+// the frustum is in light-space so needs to be generous due to the angled projection
+const SHADOW_LEFT = -35;
+const SHADOW_RIGHT = 35;
+const SHADOW_TOP = 25;
+const SHADOW_BOTTOM = -15;
+const SHADOW_NEAR = 1;
+const SHADOW_FAR = 60;
+const SHADOW_MAP_SIZE = 2048;
+const SHADOW_BIAS = -0.002;
+
+// shadow ground plane covers the full walkable area
+const SHADOW_PLANE_WIDTH = 200;
+const SHADOW_PLANE_DEPTH = 50;
+
 export function HomeScene() {
   const inputRef = useInput();
   const playerRef = useRef<PlayerHandle>(null);
+  const lightRef = useRef<DirectionalLight>(null);
   const getGroup = useCallback(() => playerRef.current?.group ?? null, []);
   const groupRef = useDerivedRef(getGroup);
   const mode = useLightingMode();
+
+  // add the light target to the scene so its world matrix updates, and
+  // call updateProjectionMatrix after R3F has applied the dash props
+  useEffect(() => {
+    const light = lightRef.current;
+    if (!light) return;
+
+    light.parent?.add(light.target);
+    light.shadow.camera.updateProjectionMatrix();
+
+    return () => {
+      light.target.removeFromParent();
+    };
+  }, []);
+
+  // keep the shadow light centred on the player so the frustum always covers the visible area
+  useFrame(() => {
+    const light = lightRef.current;
+    const player = groupRef.current;
+    if (!light || !player) return;
+
+    const px = player.position.x;
+    light.position.set(px + LIGHT_OFFSET_X, LIGHT_OFFSET_Y, LIGHT_OFFSET_Z);
+    light.target.position.set(px, 0, 0);
+  });
 
   return (
     <PlayerProvider groupRef={groupRef}>
       <ProximityPromptProvider>
         <ambientLight intensity={AMBIENT_INTENSITY[mode]} />
-        <directionalLight position={[5, 15, 5]} intensity={DIRECTIONAL_INTENSITY[mode]} />
+        <directionalLight
+          ref={lightRef}
+          position={[LIGHT_OFFSET_X, LIGHT_OFFSET_Y, LIGHT_OFFSET_Z]}
+          intensity={DIRECTIONAL_INTENSITY[mode]}
+          castShadow
+          shadow-mapSize-width={SHADOW_MAP_SIZE}
+          shadow-mapSize-height={SHADOW_MAP_SIZE}
+          shadow-camera-left={SHADOW_LEFT}
+          shadow-camera-right={SHADOW_RIGHT}
+          shadow-camera-top={SHADOW_TOP}
+          shadow-camera-bottom={SHADOW_BOTTOM}
+          shadow-camera-near={SHADOW_NEAR}
+          shadow-camera-far={SHADOW_FAR}
+          shadow-bias={SHADOW_BIAS}
+        />
+
+        {/* transparent ground plane that only shows cast shadows */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[30, 0.01, 0]} receiveShadow>
+          <planeGeometry args={[SHADOW_PLANE_WIDTH, SHADOW_PLANE_DEPTH]} />
+          <shadowMaterial transparent opacity={SHADOW_OPACITY[mode]} />
+        </mesh>
+
         <HomeSection />
         <AwardsSection position={[42, 0, 0]} />
         <ProjectsSection position={[60, 0, 0]} />

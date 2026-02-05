@@ -24,6 +24,12 @@ export const INK_EDGE_COLOUR: ThemedColour = {
   [LightingMode.Dark]: '#e0e0e0',
 };
 
+// Blob shadow opacity beneath entities
+export const SHADOW_OPACITY: ThemedValue = {
+  [LightingMode.Light]: 0.2,
+  [LightingMode.Dark]: 0.35,
+};
+
 // Scene lighting intensities
 export const AMBIENT_INTENSITY: ThemedValue = {
   [LightingMode.Light]: 0.6,

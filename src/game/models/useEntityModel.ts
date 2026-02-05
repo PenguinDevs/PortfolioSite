@@ -11,12 +11,14 @@ export interface EntityModelOptions extends Omit<ToonMaterialOptions, 'map'> {
   texturePath?: string;
   // use skeleton-aware clone (required for skinned/animated meshes)
   skeleton?: boolean;
+  // whether meshes in this model cast shadows (defaults to true)
+  castShadow?: boolean;
 }
 
 // Loads a model, creates a toon material, clones the scene, and applies the
 // material to every mesh. Covers the boilerplate shared by most entities.
 export function useEntityModel(name: string, options: EntityModelOptions = {}) {
-  const { texturePath, skeleton = false, ...materialOptions } = options;
+  const { texturePath, skeleton = false, castShadow: shouldCastShadow = true, ...materialOptions } = options;
   const { scene, animations } = useModel(name);
 
   const texture = useMemo(() => {
@@ -37,6 +39,7 @@ export function useEntityModel(name: string, options: EntityModelOptions = {}) {
     clone.traverse((child) => {
       if ((child as Mesh).isMesh) {
         (child as Mesh).material = material;
+        (child as Mesh).castShadow = shouldCastShadow;
       }
     });
     return clone;
