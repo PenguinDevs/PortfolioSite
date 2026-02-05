@@ -57,6 +57,9 @@ const TEXT_DELAY = LETTER_DELAY + LETTER_DURATION - 0.3;
 // how long the text fade-in takes
 const TEXT_FADE_DURATION = 1.5;
 
+// instant tilt applied on hover (alternates direction per icon)
+const SOCIAL_HOVER_TILT_DEG = 10;
+
 // display config for each social platform, keyed by the field name in portfolio.yaml
 interface SocialLinkConfig {
   key: keyof SocialLinks;
@@ -417,7 +420,10 @@ export function NameTitle(props: ThreeElements['group']) {
                 transform: 'translateX(50%)',
               }}
             >
-              {SOCIAL_LINK_CONFIG.map((config) => (
+              {SOCIAL_LINK_CONFIG.map((config, i) => {
+                // alternate tilt direction per icon
+                const tiltDeg = (i % 2 === 0 ? 1 : -1) * SOCIAL_HOVER_TILT_DEG;
+                return (
                 <a
                   key={config.key}
                   href={socialLinks[config.key]}
@@ -440,9 +446,11 @@ export function NameTitle(props: ThreeElements['group']) {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = config.hoverBgColour;
+                    e.currentTarget.style.transform = `rotate(${tiltDeg}deg)`;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = config.bgColour;
+                    e.currentTarget.style.transform = '';
                   }}
                 >
                   <svg
@@ -455,7 +463,8 @@ export function NameTitle(props: ThreeElements['group']) {
                   </svg>
                   <span>{config.label}</span>
                 </a>
-              ))}
+                );
+              })}
             </div>
           </Html>
 
