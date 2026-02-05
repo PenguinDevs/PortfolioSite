@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import {
   Bone,
@@ -13,7 +13,6 @@ import {
   MeshBasicMaterial,
 } from 'three';
 import { useEntityModel, useAnimator } from '../models';
-import { useEntityReveal } from '../hooks';
 import { SpeedLines } from '../effects';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
@@ -46,19 +45,10 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const flyingRef = useRef(false);
   const moveDir = useRef(0);
 
-  const { cloned, material, animations } = useEntityModel('penguin', {
+  const { cloned, animations } = useEntityModel('penguin', {
     texturePath: '/assets/textures/penguin_texture.png',
     skeleton: true,
   });
-
-  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
-
-  useEffect(() => {
-    connectMaterial(material);
-  }, [material, connectMaterial]);
-
-  // refs for eye materials so we can drive their opacity during reveal
-  const eyeMatsRef = useRef<MeshBasicMaterial[]>([]);
 
   // attach eyes to the Head bone
   useMemo(() => {
@@ -77,9 +67,8 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
       });
       for (const g of stale) g.removeFromParent();
 
-      const whiteMat = new MeshBasicMaterial({ color: new Color('#ffffff'), side: DoubleSide, transparent: true, opacity: 0 });
-      const blackMat = new MeshBasicMaterial({ color: new Color('#000000'), side: DoubleSide, transparent: true, opacity: 0 });
-      eyeMatsRef.current = [whiteMat, blackMat];
+      const whiteMat = new MeshBasicMaterial({ color: new Color('#ffffff'), side: DoubleSide });
+      const blackMat = new MeshBasicMaterial({ color: new Color('#000000'), side: DoubleSide });
       const eyeWhiteGeo = new CircleGeometry(0.25, 24);
       const pupilGeo = new CircleGeometry(0.12, 20);
 
@@ -124,13 +113,6 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
     for (const { mesh, side } of pupilsRef.current) {
       const targetX = lookDir.current * PUPIL_OFFSET;
       mesh.position.x = MathUtils.lerp(mesh.position.x, targetX, EYE_TRACK_SPEED * delta);
-    }
-
-    // fade eye materials in during the colour reveal phase
-    const eyeOpacity = colourProgress.value;
-    for (const mat of eyeMatsRef.current) {
-      mat.opacity = eyeOpacity;
-      if (eyeOpacity >= 1) mat.transparent = false;
     }
   });
 
@@ -177,7 +159,6 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
         seed={7}
         width={3}
         gapThreshold={0.35}
-        drawProgress={drawProgress}
       />
     </group>
   );
