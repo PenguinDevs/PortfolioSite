@@ -17,7 +17,8 @@ const MAX_EDGE_DURATION = 2.5;
 const EDGE_COMPLEXITY_REF = 300;
 // quick opacity fade so the white mesh doesn't pop in instantly
 const DEFAULT_OPACITY_FADE_DURATION = 0.15;
-// pause after edges finish before colour starts fading in
+// offset from edge completion before colour starts fading in.
+// positive = pause after edges finish, negative = start colour before edges complete.
 const DEFAULT_COLOUR_DELAY = -0.5;
 // how long the colour/texture fade-in takes
 const DEFAULT_COLOUR_DURATION = 0.5;
@@ -36,10 +37,7 @@ const INITIAL_LOAD_FRAME_THRESHOLD = 2;
 const enum RevealPhase {
   Waiting,
   Delaying,
-  FadingIn,
-  DrawingEdges,
-  ColourDelay,
-  ColouringIn,
+  Revealing,
   Done,
 }
 
@@ -126,7 +124,7 @@ export function useEntityReveal(
   }, []);
 
   // animation state stored in refs to avoid re-renders
-  const phaseRef = useRef(immediate ? RevealPhase.FadingIn : RevealPhase.Waiting);
+  const phaseRef = useRef(immediate ? RevealPhase.Revealing : RevealPhase.Waiting);
   const timerRef = useRef(0);
   // counts frames spent in the Waiting phase so we can detect initial-load entities
   const waitingFramesRef = useRef(0);
@@ -167,7 +165,7 @@ export function useEntityReveal(
         } else {
           // snapshot edge duration from segment count (or user override)
           effectiveEdgeDurationRef.current = userEdgeDuration ?? computeEdgeDuration(drawProgress.segmentCount);
-          phaseRef.current = RevealPhase.FadingIn;
+          phaseRef.current = RevealPhase.Revealing;
           timerRef.current = 0;
           drawProgress.value = 0;
         }
@@ -184,70 +182,47 @@ export function useEntityReveal(
         if (t >= delay) {
           // snapshot edge duration from segment count (or user override)
           effectiveEdgeDurationRef.current = userEdgeDuration ?? computeEdgeDuration(drawProgress.segmentCount);
-          phaseRef.current = RevealPhase.FadingIn;
+          phaseRef.current = RevealPhase.Revealing;
           timerRef.current = 0;
           drawProgress.value = 0;
         }
         break;
       }
 
-      // quick opacity fade: mesh becomes visible as white
-      case RevealPhase.FadingIn: {
+      // unified reveal: opacity, edges, and colour all driven from absolute time.
+      // negative colourDelay starts colour before edges finish.
+      case RevealPhase.Revealing: {
         const dur = effectiveEdgeDurationRef.current;
+
+        // opacity fade
         const opacityT = Math.min(t / opacityFadeDuration, 1);
-        const opacity = easeOutCubic(opacityT);
         for (const mat of materialsRef.current) {
-          mat.uniforms.uOpacity.value = opacity;
+          mat.uniforms.uOpacity.value = easeOutCubic(opacityT);
         }
-        // start edge drawing at the same time
+
+        // edge drawing
         const edgeT = Math.min(t / dur, 1);
         drawProgress.value = easeOutCubic(edgeT) * DRAW_PROGRESS_OVERSHOOT;
 
-        if (opacityT >= 1) {
-          phaseRef.current = RevealPhase.DrawingEdges;
-          // don't reset timer -- edge drawing is already in progress from the same start time
-        }
-        break;
-      }
-
-      // ink edges drawing in
-      case RevealPhase.DrawingEdges: {
-        const dur = effectiveEdgeDurationRef.current;
-        const edgeT = Math.min(t / dur, 1);
-        drawProgress.value = easeOutCubic(edgeT) * DRAW_PROGRESS_OVERSHOOT;
-
-        if (edgeT >= 1) {
-          phaseRef.current = RevealPhase.ColourDelay;
-          timerRef.current = 0;
-        }
-        break;
-      }
-
-      // short pause between edge completion and colour fade
-      case RevealPhase.ColourDelay: {
-        if (t >= colourDelay) {
-          phaseRef.current = RevealPhase.ColouringIn;
-          timerRef.current = 0;
-        }
-        break;
-      }
-
-      // colour/texture fading in
-      case RevealPhase.ColouringIn: {
-        const colourT = Math.min(t / colourDuration, 1);
-        const progress = easeOutCubic(colourT);
-        colourProgress.value = progress;
-        for (const mat of materialsRef.current) {
-          mat.uniforms.uRevealProgress.value = progress;
+        // colour fade (starts at edgeDuration + colourDelay, which can be before edges finish)
+        const colourStart = dur + colourDelay;
+        if (t >= colourStart) {
+          const colourT = Math.min((t - colourStart) / colourDuration, 1);
+          const progress = easeOutCubic(colourT);
+          colourProgress.value = progress;
+          for (const mat of materialsRef.current) {
+            mat.uniforms.uRevealProgress.value = progress;
+          }
         }
 
-        if (colourT >= 1) {
+        // done when both edges and colour are complete
+        const colourEnd = colourStart + colourDuration;
+        if (t >= dur && t >= colourEnd) {
           phaseRef.current = RevealPhase.Done;
           // ensure final values are exact
           colourProgress.value = 1;
           for (const mat of materialsRef.current) {
             mat.uniforms.uRevealProgress.value = 1;
-            // disable transparency now that the entity is fully opaque
             mat.transparent = false;
           }
         }
