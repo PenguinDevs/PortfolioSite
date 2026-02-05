@@ -39,7 +39,7 @@ const WALL_EMBEDS: WallEmbed[] = [
     label: 'LinkedIn Post',
     width: 500,
     height: 400,
-    position: [-6, 8, -11.9],
+    position: [-5, 8, -11.9],
     contentWidth: 10,
     contentHeight: 8,
     seed: 42,

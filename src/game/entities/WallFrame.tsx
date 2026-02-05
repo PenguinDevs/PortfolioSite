@@ -18,7 +18,7 @@ import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
 
 // frame toon shader colours
-const FRAME_COLOUR = '#e8e4df';
+const FRAME_COLOUR = '#ffffff';
 const FRAME_SHADOW_COLOUR = '#b0a898';
 
 // backing plane colour (slightly warmer white, like canvas)
