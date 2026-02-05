@@ -1,7 +1,7 @@
 'use client';
 
 import type { ThreeElements } from '@react-three/fiber';
-import { PedestalAward } from '../entities';
+import { PedestalAward, Sign } from '../entities';
 import { useAwardOverlay } from '../contexts/AwardOverlayContext';
 
 // spacing between each pedestal along the x axis
@@ -19,6 +19,8 @@ export function AwardsSection(props: AwardsSectionProps) {
 
   return (
     <group {...props}>
+      <Sign position={[-12, 0, -4]} rotation={[0, 0, 0]} rows={['', 'Awards', '---->', '']} />
+
       {awards.map((award, i) => (
         <PedestalAward
           key={award.id}
