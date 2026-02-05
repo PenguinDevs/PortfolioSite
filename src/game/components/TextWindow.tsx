@@ -4,7 +4,7 @@ import { type ReactNode, useId } from 'react';
 import { useLightingMode } from '../hooks';
 import { INK_EDGE_COLOUR, BACKGROUND_COLOUR } from '../constants';
 
-export const TEXT_WINDOW_FONT = "'JustAnotherHand', cursive";
+export const TEXT_WINDOW_FONT = "'PatrickHand', cursive";
 
 export interface TextWindowProps {
   children: ReactNode;
