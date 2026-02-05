@@ -177,7 +177,7 @@ export function ProximityPrompt({
                 cursor: 'pointer',
               }}
             >
-              <TextWindow width="auto" padding={12}>
+              <TextWindow width="max-content" padding={12}>
                 <div
                   style={{
                     display: 'flex',
@@ -263,7 +263,7 @@ export function ProximityPrompt({
                         fontSize: 15,
                         fontWeight: 400,
                         opacity: 0.6,
-                        whiteSpace: 'pre-line',
+                        whiteSpace: 'pre',
                         textAlign: 'center',
                       }}
                     >
