@@ -4,12 +4,14 @@ import { useMemo, useRef } from 'react';
 import { Vector3, Quaternion, Euler, MathUtils, Mesh, type Object3D, type Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { ThreeElements } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { Text, Html } from '@react-three/drei';
 import { useEntityModel } from '../models';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { LightingMode } from '../types';
 import { INK_EDGE_COLOUR } from '../constants';
 import { useLightingMode } from '../hooks';
+import { useSocialLinks } from '../contexts';
+import type { SocialLinks } from '@/data/portfolio';
 import { quadraticBezier, easeInOutCubic, easeOutBack } from '../math';
 
 // how long each letter takes to reach its destination (seconds)
@@ -48,11 +50,64 @@ const BOTTOM_FONT_SIZE = 0.4;
 // how far above/below the name the labels sit (local Y)
 const TOP_TEXT_Y = 1;
 const BOTTOM_TEXT_Y = -0.2;
+const SOCIAL_LINKS_Y = -1.4;
 
 // seconds after mount before the text labels start fading in
 const TEXT_DELAY = LETTER_DELAY + LETTER_DURATION - 0.3;
 // how long the text fade-in takes
 const TEXT_FADE_DURATION = 1.5;
+
+// display config for each social platform, keyed by the field name in portfolio.yaml
+interface SocialLinkConfig {
+  key: keyof SocialLinks;
+  label: string;
+  bgColour: string;
+  hoverBgColour: string;
+  icon: { viewBox: string; path: string };
+}
+
+const SOCIAL_LINK_CONFIG: SocialLinkConfig[] = [
+  {
+    key: 'github',
+    label: 'GitHub',
+    bgColour: '#111827',
+    hoverBgColour: '#1f2937',
+    icon: {
+      viewBox: '0 0 20 20',
+      path: 'M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z',
+    },
+  },
+  {
+    key: 'linkedin',
+    label: 'LinkedIn',
+    bgColour: '#2563eb',
+    hoverBgColour: '#1d4ed8',
+    icon: {
+      viewBox: '0 0 20 20',
+      path: 'M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z',
+    },
+  },
+  {
+    key: 'x',
+    label: 'X',
+    bgColour: '#000000',
+    hoverBgColour: '#1f2937',
+    icon: {
+      viewBox: '0 0 24 24',
+      path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
+    },
+  },
+  {
+    key: 'discord',
+    label: 'Discord',
+    bgColour: '#4f46e5',
+    hoverBgColour: '#4338ca',
+    icon: {
+      viewBox: '0 0 16 16',
+      path: 'M13.545 2.907a13.2 13.2 0 00-3.257-1.011.05.05 0 00-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 00-3.658 0 8 8 0 00-.412-.833.05.05 0 00-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 00-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 003.995 2.02.05.05 0 00.056-.019q.463-.63.818-1.329a.05.05 0 00-.01-.059l-.018-.011a9 9 0 01-1.248-.595.05.05 0 01-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 01.051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 01.053.007q.121.1.248.195a.05.05 0 01-.004.085 8 8 0 01-1.249.594.05.05 0 00-.03.03.05.05 0 00.003.041c.24.465.515.909.817 1.329a.05.05 0 00.056.019 13.2 13.2 0 004.001-2.02.05.05 0 00.021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 00-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612',
+    },
+  },
+];
 
 // responsive scaling: the viewport width (px) at which scale = 1
 // wider screens scale up, narrower screens keep the current size
@@ -81,6 +136,7 @@ interface LetterAnimState {
 export function NameTitle(props: ThreeElements['group']) {
   const mode = useLightingMode();
   const textColour = INK_EDGE_COLOUR[mode];
+  const socialLinks = useSocialLinks();
   const localRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
   const { cloned } = useEntityModel('jason', {
@@ -107,6 +163,7 @@ export function NameTitle(props: ThreeElements['group']) {
   // refs for the text labels so we can animate their opacity
   const topTextRef = useRef<any>(null);
   const bottomTextRef = useRef<any>(null);
+  const socialRef = useRef<HTMLDivElement>(null);
   // total elapsed time since mount for the text delay
   const totalElapsedRef = useRef(0);
 
@@ -233,6 +290,9 @@ export function NameTitle(props: ThreeElements['group']) {
     if (bottomTextRef.current) {
       bottomTextRef.current.fillOpacity = textOpacity;
     }
+    if (socialRef.current) {
+      socialRef.current.style.opacity = String(textOpacity);
+    }
 
     // wait for the scene to load before starting the letter animation
     if (totalElapsedRef.current < LETTER_DELAY) return;
@@ -336,6 +396,68 @@ export function NameTitle(props: ThreeElements['group']) {
           >
             {BOTTOM_TEXT}
           </Text>
+
+          {/* social links */}
+          <Html
+            transform
+            distanceFactor={5}
+            position={[0, SOCIAL_LINKS_Y, 0]}
+            style={{ pointerEvents: 'none' }}
+          >
+            <div
+              ref={socialRef}
+              style={{
+                opacity: 0,
+                display: 'flex',
+                gap: '8px',
+                flexWrap: 'wrap',
+                pointerEvents: 'auto',
+                // drei centres Html content via translate(-50%,-50%) on the wrapper;
+                // shift right by 50% of our own width to left-align with the text above
+                transform: 'translateX(50%)',
+              }}
+            >
+              {SOCIAL_LINK_CONFIG.map((config) => (
+                <a
+                  key={config.key}
+                  href={socialLinks[config.key]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    backgroundColor: config.bgColour,
+                    color: '#ffffff',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    fontFamily: 'system-ui, sans-serif',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    transition: 'background-color 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = config.hoverBgColour;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = config.bgColour;
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox={config.icon.viewBox}
+                    fill="currentColor"
+                  >
+                    <path d={config.icon.path} />
+                  </svg>
+                  <span>{config.label}</span>
+                </a>
+              ))}
+            </div>
+          </Html>
 
           <InkEdgesGroup
             target={modelRef}

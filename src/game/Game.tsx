@@ -9,6 +9,8 @@ import { TouchTutorial } from './components/TouchTutorial';
 import { AwardOverlay } from './components/AwardOverlay';
 import { AwardOverlayProvider } from './contexts/AwardOverlayContext';
 import type { AwardData } from './contexts/AwardOverlayContext';
+import { SocialLinksProvider } from './contexts/SocialLinksContext';
+import type { SocialLinks } from '@/data/portfolio';
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
 
@@ -24,20 +26,22 @@ function SceneBackground() {
   return null;
 }
 
-export function Game({ awards }: { awards: AwardData[] }) {
+export function Game({ awards, socialLinks }: { awards: AwardData[]; socialLinks: SocialLinks }) {
   return (
-    <AwardOverlayProvider awards={awards}>
-      <LoadingScreen />
-      <TouchTutorial />
-      <Canvas
-        shadows
-        gl={{ antialias: true }}
-        style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
-      >
-        <SceneBackground />
-        <HomeScene />
-      </Canvas>
-      <AwardOverlay />
-    </AwardOverlayProvider>
+    <SocialLinksProvider socialLinks={socialLinks}>
+      <AwardOverlayProvider awards={awards}>
+        <LoadingScreen />
+        <TouchTutorial />
+        <Canvas
+          shadows
+          gl={{ antialias: true }}
+          style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
+        >
+          <SceneBackground />
+          <HomeScene />
+        </Canvas>
+        <AwardOverlay />
+      </AwardOverlayProvider>
+    </SocialLinksProvider>
   );
 }

@@ -25,13 +25,25 @@ interface AwardYaml {
   stats?: { value: string; label: string }[];
 }
 
+export interface SocialLinks {
+  github: string;
+  linkedin: string;
+  x: string;
+  discord: string;
+}
+
 interface PortfolioData {
+  social: SocialLinks;
   awards: AwardYaml[];
 }
 
 // Read and parse the portfolio YAML at build time (server-only)
 const raw = fs.readFileSync(path.join(process.cwd(), 'src/data/portfolio.yaml'), 'utf-8');
 const portfolio = parse(raw) as PortfolioData;
+
+export function getSocialLinks(): SocialLinks {
+  return portfolio.social;
+}
 
 // Map YAML entries to the AwardData shape used by the game
 export function getAwards(): AwardData[] {
