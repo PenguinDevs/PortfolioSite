@@ -283,7 +283,7 @@ awards:
       accentBar: bg-gradient-to-b from-emerald-500 to-teal-500
 
   - id: adf-2024
-    title: ADF Future Innovators
+    title: 2024 ADF Future Innovators
     secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
@@ -294,6 +294,7 @@ awards:
       textColor: text-blue-700 dark:text-blue-300
       icon: '★'
       iconColour: '#3b82f6'
+      imageIcon: 'images/adf_future_innovators.jpg'
     stats:
       - value: '1/5K'
         label: SELECTED
@@ -307,7 +308,7 @@ awards:
       accentBar: bg-gradient-to-b from-blue-500 to-cyan-500
 
   - id: adf-2022
-    title: ADF Future Innovators
+    title: 2022 ADF Future Innovators
     secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
@@ -318,6 +319,7 @@ awards:
       textColor: text-indigo-700 dark:text-indigo-300
       icon: '✦'
       iconColour: '#6366f1'
+      imageIcon: 'images/adf_future_innovators.jpg'
     stats:
       - value: '1/5K'
         label: SELECTED

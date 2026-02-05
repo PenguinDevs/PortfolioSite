@@ -20,6 +20,7 @@ interface AwardYaml {
     iconColour?: string;
     model?: string;
     model_texture?: string;
+    imageIcon?: string;
   };
   stats?: { value: string; label: string }[];
 }
@@ -48,6 +49,7 @@ export function getAwards(): AwardData[] {
       iconColour: a.badge.iconColour,
       model: a.badge.model,
       modelTexture: a.badge.model_texture,
+      imageIcon: a.badge.imageIcon,
     } : undefined,
     stats: a.stats,
   }));

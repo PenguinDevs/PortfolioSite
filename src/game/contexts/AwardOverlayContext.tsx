@@ -17,6 +17,7 @@ export interface AwardData {
     iconColour?: string;
     model?: string;
     modelTexture?: string;
+    imageIcon?: string;
   };
   stats?: { value: string; label: string }[];
 }

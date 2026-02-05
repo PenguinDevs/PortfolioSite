@@ -240,7 +240,7 @@ export function ProximityPrompt({
                     >
                       {isTouch ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src="/assets/images/click.svg" alt="Tap" width={22} height={22} style={{ filter: 'invert(1)' }} />
+                        <img src="/assets/images/click.svg" alt="Tap" width={30} height={30} style={{ filter: 'invert(1)' }} />
                       ) : keyLabel}
                     </div>
                   </div>
