@@ -1,13 +1,8 @@
 'use client';
 
-import { useRef } from 'react';
-import type { Group } from 'three';
-import { useFrame } from '@react-three/fiber';
 import { AlleyGround, LightSwitch, NameTitle, Sign } from '../entities';
 
 export function HomeSection() {
-  const pedestalRef = useRef<Group>(null);
-
   return (
     <group>
       <NameTitle position={[0, 8, -4]} />

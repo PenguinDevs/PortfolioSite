@@ -43,7 +43,7 @@ const HOME_X = 0;
 const AWARDS_X = 42;
 const PROJECTS_X = 60;
 // total loop length -- after this distance the scene wraps back to the start
-const TRACK_LENGTH = 80;
+const TRACK_LENGTH = 84;
 
 export function HomeScene() {
   const inputRef = useInput();

@@ -21,7 +21,7 @@ type AlleyGroundProps = ThreeElements['group'] & {
 };
 
 export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGround(
-  { startTile = -20, endTile = 20, ...props },
+  { startTile = -6, endTile = 6, ...props },
   ref,
 ) {
   const localRef = useRef<Group>(null);
