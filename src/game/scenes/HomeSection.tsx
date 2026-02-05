@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { TextureLoader } from 'three';
+import { useEffect, useRef, useState } from 'react';
+import { MeshBasicMaterial, TextureLoader } from 'three';
 import type { Texture } from 'three';
+import { useFrame } from '@react-three/fiber';
 import { AlleyGround, LightSwitch, NameTitle, Sign, WallFrame } from '../entities';
 
 // penguin frame dimensions (world units)
@@ -11,8 +12,12 @@ const PENGUIN_CONTENT_HEIGHT = 4;
 
 const PENGUIN_IMAGE_PATH = '/assets/images/penguin_fullshot.png';
 
+// fade-in speed (opacity per second)
+const FADE_SPEED = 2;
+
 function PenguinImage() {
   const [texture, setTexture] = useState<Texture | null>(null);
+  const materialRef = useRef<MeshBasicMaterial>(null);
 
   useEffect(() => {
     const loader = new TextureLoader();
@@ -24,12 +29,19 @@ function PenguinImage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // fade in from 0 after mount (WallFrame delays mounting until the colour phase)
+  useFrame((_, delta) => {
+    const mat = materialRef.current;
+    if (!mat || mat.opacity >= 1) return;
+    mat.opacity = Math.min(1, mat.opacity + delta * FADE_SPEED);
+  });
+
   if (!texture) return null;
 
   return (
     <mesh>
       <planeGeometry args={[PENGUIN_CONTENT_WIDTH, PENGUIN_CONTENT_HEIGHT]} />
-      <meshBasicMaterial map={texture} transparent />
+      <meshBasicMaterial ref={materialRef} map={texture} transparent opacity={0} />
     </mesh>
   );
 }
