@@ -85,6 +85,29 @@ const INK_FRAG_MAIN = /* glsl */ `
   }
 `;
 
+// draw-in reveal: vertex passes draw order to fragment, fragment discards
+// edges that haven't been "reached" yet by the advancing wavefront
+const INK_DRAW_VERT_PARS = /* glsl */ `
+attribute float aDrawOrder;
+varying float vDrawOrder;
+`;
+
+const INK_DRAW_VERT_MAIN = /* glsl */ `
+vDrawOrder = aDrawOrder;
+`;
+
+const INK_DRAW_FRAG_PARS = /* glsl */ `
+uniform float uDrawProgress;
+varying float vDrawOrder;
+`;
+
+const INK_DRAW_FRAG_MAIN = /* glsl */ `
+  {
+    float drawMask = 1.0 - smoothstep(uDrawProgress - 0.05, uDrawProgress, vDrawOrder);
+    diffuseColor.a *= drawMask;
+  }
+`;
+
 // ---------------------------------------------------------------------------
 // GPU skinning: uses Three.js built-in shader chunks via USE_SKINNING define
 // ---------------------------------------------------------------------------
@@ -244,6 +267,102 @@ function copySkinDataForEdges(
 }
 
 // ---------------------------------------------------------------------------
+// Draw order computation for reveal animation
+// ---------------------------------------------------------------------------
+
+// BFS from a random start segment to produce a normalised draw order (0..1)
+// per vertex. Handles disconnected geometry clusters by continuing the BFS
+// from unvisited segments until all are reached.
+function computeDrawOrder(positions: Float32Array): Float32Array {
+  const segmentCount = positions.length / 6;
+  if (segmentCount === 0) return new Float32Array(0);
+
+  // quantise vertex positions to find shared vertices between segments
+  const precision = 1e4;
+  const quantise = (x: number, y: number, z: number) =>
+    `${Math.round(x * precision)},${Math.round(y * precision)},${Math.round(z * precision)}`;
+
+  // map: quantised vertex key -> list of segment indices that share it
+  const vertexSegments = new Map<string, number[]>();
+  for (let s = 0; s < segmentCount; s++) {
+    const base = s * 6;
+    for (let v = 0; v < 2; v++) {
+      const off = base + v * 3;
+      const key = quantise(positions[off], positions[off + 1], positions[off + 2]);
+      let list = vertexSegments.get(key);
+      if (!list) {
+        list = [];
+        vertexSegments.set(key, list);
+      }
+      list.push(s);
+    }
+  }
+
+  // build segment adjacency (segments sharing a vertex are neighbours)
+  const adj: number[][] = Array.from({ length: segmentCount }, () => []);
+  for (const segments of vertexSegments.values()) {
+    for (let i = 0; i < segments.length; i++) {
+      for (let j = i + 1; j < segments.length; j++) {
+        adj[segments[i]].push(segments[j]);
+        adj[segments[j]].push(segments[i]);
+      }
+    }
+  }
+
+  // BFS to assign a level (distance from start) to each segment
+  const segmentLevel = new Int32Array(segmentCount).fill(-1);
+  let maxLevel = 0;
+
+  // pick a random start segment
+  const startSegment = Math.floor(Math.random() * segmentCount);
+  const queue: number[] = [startSegment];
+  segmentLevel[startSegment] = 0;
+  let head = 0;
+
+  while (head < queue.length) {
+    const current = queue[head++];
+    const nextLevel = segmentLevel[current] + 1;
+    for (const neighbour of adj[current]) {
+      if (segmentLevel[neighbour] === -1) {
+        segmentLevel[neighbour] = nextLevel;
+        if (nextLevel > maxLevel) maxLevel = nextLevel;
+        queue.push(neighbour);
+      }
+    }
+  }
+
+  // handle disconnected components: start new BFS from any unvisited segment
+  for (let s = 0; s < segmentCount; s++) {
+    if (segmentLevel[s] !== -1) continue;
+    const componentStart = maxLevel + 1;
+    segmentLevel[s] = componentStart;
+    maxLevel = componentStart;
+    queue.push(s);
+    while (head < queue.length) {
+      const current = queue[head++];
+      const nextLevel = segmentLevel[current] + 1;
+      for (const neighbour of adj[current]) {
+        if (segmentLevel[neighbour] === -1) {
+          segmentLevel[neighbour] = nextLevel;
+          if (nextLevel > maxLevel) maxLevel = nextLevel;
+          queue.push(neighbour);
+        }
+      }
+    }
+  }
+
+  // normalise to 0..1 and expand to per-vertex (2 verts per segment)
+  const perVertex = new Float32Array(segmentCount * 2);
+  for (let s = 0; s < segmentCount; s++) {
+    const normalised = maxLevel > 0 ? segmentLevel[s] / maxLevel : 0;
+    perVertex[s * 2] = normalised;
+    perVertex[s * 2 + 1] = normalised;
+  }
+
+  return perVertex;
+}
+
+// ---------------------------------------------------------------------------
 // Build ink lines
 // ---------------------------------------------------------------------------
 
@@ -265,6 +384,7 @@ function buildInkLines(
     gapThreshold: number;
     wobble: number;
     clipY?: { value: number };
+    drawProgress?: { value: number };
   },
   skinning?: SkinningInfo,
 ): LineSegments | null {
@@ -272,6 +392,13 @@ function buildInkLines(
 
   const geo = new BufferGeometry();
   geo.setAttribute('position', new BufferAttribute(edgePositions, 3));
+
+  // when draw progress is provided, compute per-segment draw order for the reveal animation
+  const hasDrawReveal = !!params.drawProgress;
+  if (hasDrawReveal) {
+    const drawOrder = computeDrawOrder(edgePositions);
+    geo.setAttribute('aDrawOrder', new BufferAttribute(drawOrder, 1));
+  }
 
   if (skinning) {
     geo.setAttribute('skinIndex', new BufferAttribute(skinning.skinIndices, 4));
@@ -288,11 +415,12 @@ function buildInkLines(
     polygonOffsetUnits: -2,
   });
 
-  // override cache key so clipY variant compiles a separate shader program
+  // override cache key so each variant compiles a separate shader program
   const baseKey = mat.customProgramCacheKey;
   mat.customProgramCacheKey = () =>
     (typeof baseKey === 'function' ? baseKey.call(mat) : '') +
-    (params.clipY ? '|inkClipY' : '');
+    (params.clipY ? '|inkClipY' : '') +
+    (hasDrawReveal ? '|inkDraw' : '');
 
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uInkSeed = { value: params.seed };
@@ -301,21 +429,32 @@ function buildInkLines(
     shader.uniforms.uInkWobble = { value: params.wobble };
 
     // Inject ink varying declaration
+    let vertPars = 'varying vec3 vInkObjPos;\n';
+    let vertMain = 'vInkObjPos = transformed;\n';
+
+    // optional draw-in reveal
+    if (hasDrawReveal) {
+      shader.uniforms.uDrawProgress = params.drawProgress!;
+      vertPars += INK_DRAW_VERT_PARS;
+      vertMain += INK_DRAW_VERT_MAIN;
+    }
+
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
-      'varying vec3 vInkObjPos;\nvoid main() {',
+      vertPars + 'void main() {',
     );
 
     // Capture object-space position after skinning (skinning_vertex runs
     // between begin_vertex and project_vertex in the built-in shader)
     shader.vertexShader = shader.vertexShader.replace(
       '#include <project_vertex>',
-      'vInkObjPos = transformed;\n#include <project_vertex>',
+      vertMain + '#include <project_vertex>',
     );
 
     // build combined fragment preamble and main-body prefix
     let fragPars = INK_FRAG_PARS;
     let fragMainPrefix = '';
+    let fragMainSuffix = INK_FRAG_MAIN;
 
     // optional Y clip -- shared uniform object so the caller can update it each frame
     if (params.clipY) {
@@ -334,6 +473,12 @@ function buildInkLines(
       fragMainPrefix = INK_CLIP_FRAG_MAIN;
     }
 
+    // optional draw-in reveal masking
+    if (hasDrawReveal) {
+      fragPars += INK_DRAW_FRAG_PARS;
+      fragMainSuffix += INK_DRAW_FRAG_MAIN;
+    }
+
     // single replace for fragment declarations + main body prefix
     shader.fragmentShader = shader.fragmentShader.replace(
       'void main() {',
@@ -341,7 +486,7 @@ function buildInkLines(
     );
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <opaque_fragment>',
-      INK_FRAG_MAIN + '\n\t#include <opaque_fragment>',
+      fragMainSuffix + '\n\t#include <opaque_fragment>',
     );
   };
 
@@ -384,11 +529,15 @@ export interface InkEdgesOptions {
   opacity?: number;
   // shared uniform for Y-axis clipping; update .value each frame to clip ink edges
   clipY?: { value: number };
+  // shared uniform for draw-in reveal; edges with draw order > this value are hidden.
+  // -1 = all hidden, 0..1 = progressive reveal, >1 = all visible
+  drawProgress?: { value: number };
 }
 
-type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY'>> & {
+type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY' | 'drawProgress'>> & {
   darkColour?: string;
   clipY?: { value: number };
+  drawProgress?: { value: number };
 };
 
 const DEFAULTS: ResolvedInkEdgesOptions = {
@@ -436,6 +585,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       gapThreshold: o.gapThreshold,
       wobble: o.wobble,
       clipY: o.clipY,
+      drawProgress: o.drawProgress,
     });
 
     if (!lineObj) return;
@@ -460,7 +610,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       (lineObj.material as LineBasicMaterial).dispose();
     };
   }, [target, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
-      o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY]);
+      o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress]);
 
   return null;
 }
@@ -523,6 +673,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
           gapThreshold: o.gapThreshold,
           wobble: o.wobble,
           clipY: o.clipY,
+          drawProgress: o.drawProgress,
         },
         skinning,
       );
@@ -554,7 +705,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
       }
     };
   }, [target, filter, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
-      o.opacity, o.gapFreq, o.gapThreshold, o.wobble, o.clipY]);
+      o.opacity, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress]);
 
   return null;
 }
