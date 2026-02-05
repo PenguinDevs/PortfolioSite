@@ -12,3 +12,5 @@ export type { SignProps } from './Sign';
 export { Keycap } from './Keycap';
 export type { KeycapHandle, KeycapProps } from './Keycap';
 export { NameTitle } from './NameTitle';
+export { WallFrame } from './WallFrame';
+export type { WallFrameProps } from './WallFrame';
