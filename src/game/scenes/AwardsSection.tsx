@@ -96,7 +96,7 @@ export function AwardsSection(props: AwardsSectionProps) {
           seed={embed.seed}
         >
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div style={{ width: embed.width, height: embed.height }}>
+            <div style={{ width: embed.width, height: embed.height, position: 'relative' }}>
               <iframe
                 src={embed.embedUrl}
                 title={embed.label}
@@ -105,6 +105,17 @@ export function AwardsSection(props: AwardsSectionProps) {
                   height: '100%',
                   border: 'none',
                   borderRadius: 8,
+                }}
+              />
+              {/* clickable overlay so clicks open the link instead of being swallowed by the iframe */}
+              <a
+                href={embed.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  cursor: 'pointer',
                 }}
               />
             </div>
