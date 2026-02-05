@@ -5,7 +5,7 @@ import { PedestalAward } from '../entities';
 import { useAwardOverlay } from '../contexts/AwardOverlayContext';
 
 // spacing between each pedestal along the x axis
-const PEDESTAL_SPACING = 2;
+const PEDESTAL_SPACING = 4;
 const PEDESTAL_Z = -2;
 
 type AwardsSectionProps = ThreeElements['group'];
