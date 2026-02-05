@@ -15,6 +15,7 @@ import {
 import type { ThreeElements } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { useEntityModel } from '../models';
+import { useEntityReveal } from '../hooks';
 import { LightingService } from '../services';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
@@ -133,6 +134,8 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       shadowColor: DEFAULT_SHADOW,
     });
 
+    const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+
     // reusable vector for world position lookups
     const worldPos = useMemo(() => new Vector3(), []);
 
@@ -149,13 +152,16 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       return unsub;
     }, [burstMaterial]);
 
-    // sync toon material colour and opacity when props change
+    // sync toon material colour when props change (opacity is managed by the reveal hook)
     useEffect(() => {
       material.uniforms.uColor.value.set(colour);
       material.uniforms.uShadowColor.value.set(shadowColour);
-      material.uniforms.uOpacity.value = opacity;
-      material.transparent = opacity < 1;
-    }, [material, colour, shadowColour, opacity]);
+    }, [material, colour, shadowColour]);
+
+    // connect material to the reveal system (runs after the colour effect above)
+    useEffect(() => {
+      connectMaterial(material);
+    }, [material, connectMaterial]);
 
     // sync burst + text opacity
     useEffect(() => {
@@ -274,6 +280,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
           gapThreshold={0.38}
           clipY={material.uniforms.uClipY}
           opacity={opacity}
+          drawProgress={drawProgress}
         />
       </group>
     );

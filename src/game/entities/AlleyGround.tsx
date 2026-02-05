@@ -1,11 +1,11 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { Group, Mesh } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useModel } from '../models';
 import { createToonMaterial } from '../shaders/toonShader';
-import { useThemedToonMaterial } from '../hooks';
+import { useThemedToonMaterial, useEntityReveal } from '../hooks';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { GROUND_COLOUR, GROUND_SHADOW, INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
@@ -39,6 +39,12 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
 
   useThemedToonMaterial(material, GROUND_COLOUR, GROUND_SHADOW);
 
+  const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+
+  useEffect(() => {
+    connectMaterial(material);
+  }, [material, connectMaterial]);
+
   const tiles = useMemo(() => {
     const result: { key: number; clone: Group }[] = [];
     for (let i = startTile; i <= endTile; i++) {
@@ -70,6 +76,7 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
         gapThreshold={0.6}
         thresholdAngle={89}
         creaseOffset={0.005}
+        drawProgress={drawProgress}
       />
     </group>
   );

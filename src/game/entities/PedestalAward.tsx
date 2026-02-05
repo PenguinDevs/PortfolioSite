@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DoubleSide, PlaneGeometry, TextureLoader } from 'three';
-import type { Mesh } from 'three';
+import type { Mesh, ShaderMaterial } from 'three';
 import type { Group } from 'three';
 import { useFrame } from '@react-three/fiber';
 import type { ThreeElements } from '@react-three/fiber';
@@ -11,6 +11,7 @@ import { Pedestal } from './Pedestal';
 import { ProximityPrompt } from '../components';
 import { useAwardOverlay } from '../contexts/AwardOverlayContext';
 import type { AwardData } from '../contexts/AwardOverlayContext';
+import { useEntityReveal } from '../hooks';
 import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
@@ -65,11 +66,13 @@ interface BadgeModelProps {
   modelPath: string;
   texturePath?: string;
   phase: number;
+  drawProgress?: { value: number };
+  connectMaterial?: (material: ShaderMaterial) => void;
 }
 
 // Renders a badge 3D model on top of the pedestal.
 // Separated into its own component so useGLTF can be called unconditionally.
-function BadgeModel({ modelPath, texturePath, phase }: BadgeModelProps) {
+function BadgeModel({ modelPath, texturePath, phase, drawProgress, connectMaterial }: BadgeModelProps) {
   const fullModelPath = ASSET_BASE_PATH + modelPath;
   const { scene } = useGLTF(fullModelPath);
   const modelRef = useRef<Group>(null);
@@ -90,6 +93,12 @@ function BadgeModel({ modelPath, texturePath, phase }: BadgeModelProps) {
     }),
     [texture],
   );
+
+  useEffect(() => {
+    if (connectMaterial) {
+      connectMaterial(material);
+    }
+  }, [material, connectMaterial]);
 
   const cloned = useMemo(() => {
     const clone = scene.clone(true);
@@ -122,6 +131,7 @@ function BadgeModel({ modelPath, texturePath, phase }: BadgeModelProps) {
         width={3}
         gapFreq={10}
         gapThreshold={0.38}
+        drawProgress={drawProgress}
       />
     </group>
   );
@@ -130,10 +140,11 @@ function BadgeModel({ modelPath, texturePath, phase }: BadgeModelProps) {
 interface BadgeImageProps {
   imagePath: string;
   phase: number;
+  drawProgress?: { value: number };
 }
 
 // Renders a textured image plane on top of the pedestal with ink edges.
-function BadgeImage({ imagePath, phase }: BadgeImageProps) {
+function BadgeImage({ imagePath, phase, drawProgress }: BadgeImageProps) {
   const groupRef = useRef<Group>(null);
   const elapsed = useRef(0);
   const texture = useTexture(ASSET_BASE_PATH + imagePath);
@@ -169,6 +180,7 @@ function BadgeImage({ imagePath, phase }: BadgeImageProps) {
         width={3}
         gapFreq={10}
         gapThreshold={0.38}
+        drawProgress={drawProgress}
       />
     </group>
   );
@@ -183,6 +195,8 @@ export function PedestalAward({ award, ...props }: PedestalAwardProps) {
   const iconRef = useRef<Group>(null);
   const elapsed = useRef(0);
   const { showAward } = useAwardOverlay();
+
+  const { drawProgress, connectMaterial } = useEntityReveal(groupRef);
 
   const handleInteract = useCallback(() => {
     showAward(award);
@@ -206,6 +220,12 @@ export function PedestalAward({ award, ...props }: PedestalAwardProps) {
       ? ICON_BASE_Y_WITH_IMAGE
       : ICON_BASE_Y_NO_MODEL;
 
+  // wrap reveal props for the Pedestal child
+  const revealProps = useMemo(
+    () => ({ drawProgress, connectMaterial }),
+    [drawProgress, connectMaterial],
+  );
+
   // animate icon hover in sync with the model (same phase)
   useFrame((_, delta) => {
     elapsed.current += delta;
@@ -217,12 +237,18 @@ export function PedestalAward({ award, ...props }: PedestalAwardProps) {
 
   return (
     <group ref={groupRef} {...props}>
-      <Pedestal />
+      <Pedestal reveal={revealProps} />
       {badgeModel && (
-        <BadgeModel modelPath={badgeModel} texturePath={badgeTexture} phase={phase} />
+        <BadgeModel
+          modelPath={badgeModel}
+          texturePath={badgeTexture}
+          phase={phase}
+          drawProgress={drawProgress}
+          connectMaterial={connectMaterial}
+        />
       )}
       {!badgeModel && badgeImageIcon && (
-        <BadgeImage imagePath={badgeImageIcon} phase={phase} />
+        <BadgeImage imagePath={badgeImageIcon} phase={phase} drawProgress={drawProgress} />
       )}
       {badgeIcon && iconColour && (
         <group ref={iconRef} position={[hasDisplayItem ? 0.45 : 0.35, iconBaseY, hasDisplayItem ? 0.45 : 0.35]}>

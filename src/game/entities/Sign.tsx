@@ -1,10 +1,12 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import type { Group } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { useEntityModel } from '../models';
+import { useEntityReveal } from '../hooks';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { LightingMode } from '../types';
 import { INK_EDGE_COLOUR } from '../constants';
@@ -28,8 +30,25 @@ export type SignProps = ThreeElements['group'] & {
 export const Sign = forwardRef<Group, SignProps>(function Sign({ rows, ...props }, ref) {
   const localRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
-  const { cloned } = useEntityModel('sign', {
+  const { cloned, material } = useEntityModel('sign', {
     texturePath: '/assets/textures/colour_palette.png',
+  });
+
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
+
+  // refs for the text rows so we can drive their opacity during the colour reveal
+  const textRefs = useRef<any[]>([]);
+
+  useEffect(() => {
+    connectMaterial(material);
+  }, [material, connectMaterial]);
+
+  // fade text labels in during the colour reveal phase
+  useFrame(() => {
+    const opacity = colourProgress.value;
+    for (const t of textRefs.current) {
+      if (t) t.fillOpacity = opacity;
+    }
   });
 
   useImperativeHandle(ref, () => localRef.current!);
@@ -45,11 +64,13 @@ export const Sign = forwardRef<Group, SignProps>(function Sign({ rows, ...props 
       {Array.from({ length: ROW_COUNT }, (_, i) => (
         <Text
           key={i}
+          ref={(el: any) => { textRefs.current[i] = el; }}
           font={FONT_PATH}
           fontSize={FONT_SIZE}
           color={TEXT_COLOUR}
           anchorX="center"
           anchorY="middle"
+          fillOpacity={0}
           position={[0, TEXT_BASE_Y - i * ROW_SPACING, TEXT_BASE_Z]}
         >
           {rows[i]}
@@ -64,6 +85,7 @@ export const Sign = forwardRef<Group, SignProps>(function Sign({ rows, ...props 
         width={3}
         gapFreq={10}
         gapThreshold={0.38}
+        drawProgress={drawProgress}
       />
     </group>
   );

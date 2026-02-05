@@ -1,10 +1,11 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Group, MathUtils, Mesh } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useEntityModel } from '../models';
+import { useEntityReveal } from '../hooks';
 import { AudioService } from '../services';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
@@ -29,9 +30,15 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
     const on = useRef(false);
     const targetAngle = useRef(LEVER_OFF_ANGLE);
 
-    const { cloned } = useEntityModel('lever', {
+    const { cloned, material } = useEntityModel('lever', {
       texturePath: '/assets/textures/colour_palette.png',
     });
+
+    const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+
+    useEffect(() => {
+      connectMaterial(material);
+    }, [material, connectMaterial]);
 
     // pull out the two meshes from the cloned scene
     const { base, stick } = useMemo(() => {
@@ -86,6 +93,7 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
           width={3}
           gapFreq={5}
           gapThreshold={0.5}
+          drawProgress={drawProgress}
         />
       </group>
     );

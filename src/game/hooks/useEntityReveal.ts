@@ -11,16 +11,24 @@ const DEFAULT_EDGE_DURATION = 1.2;
 // quick opacity fade so the white mesh doesn't pop in instantly
 const DEFAULT_OPACITY_FADE_DURATION = 0.15;
 // pause after edges finish before colour starts fading in
-const DEFAULT_COLOUR_DELAY = 0.1;
+const DEFAULT_COLOUR_DELAY = -0.5;
 // how long the colour/texture fade-in takes
-const DEFAULT_COLOUR_DURATION = 0.8;
+const DEFAULT_COLOUR_DURATION = 0.5;
 
 // draw progress is driven slightly past 1 so the last edge fully appears
 // (the smoothstep transition zone needs a little headroom)
 const DRAW_PROGRESS_OVERSHOOT = 1.05;
 
+// delay before reveal starts for entities visible on initial page load (seconds)
+const DEFAULT_INITIAL_DELAY = 2.0;
+
+// if the entity enters the frustum within this many frames of mount,
+// treat it as visible on initial page load and apply the delay
+const INITIAL_LOAD_FRAME_THRESHOLD = 2;
+
 const enum RevealPhase {
   Waiting,
+  Delaying,
   FadingIn,
   DrawingEdges,
   ColourDelay,
@@ -33,6 +41,10 @@ export interface EntityRevealOptions {
   colourDelay?: number;
   colourDuration?: number;
   opacityFadeDuration?: number;
+  // delay before reveal starts for entities visible on initial page load.
+  // only applies when the entity is in the frustum from the very first frame
+  // (entities that scroll into view later skip the delay entirely).
+  delay?: number;
   // skip viewport detection and reveal immediately (useful for testing)
   immediate?: boolean;
 }
@@ -56,6 +68,7 @@ export function useEntityReveal(
     colourDelay = DEFAULT_COLOUR_DELAY,
     colourDuration = DEFAULT_COLOUR_DURATION,
     opacityFadeDuration = DEFAULT_OPACITY_FADE_DURATION,
+    delay = DEFAULT_INITIAL_DELAY,
     immediate = false,
   } = options;
 
@@ -81,6 +94,8 @@ export function useEntityReveal(
   // animation state stored in refs to avoid re-renders
   const phaseRef = useRef(immediate ? RevealPhase.FadingIn : RevealPhase.Waiting);
   const timerRef = useRef(0);
+  // counts frames spent in the Waiting phase so we can detect initial-load entities
+  const waitingFramesRef = useRef(0);
 
   // reusable objects for frustum checks (avoids allocations per frame)
   const frustum = useMemo(() => new Frustum(), []);
@@ -101,14 +116,22 @@ export function useEntityReveal(
 
     // viewport detection: check if the entity is visible to the camera
     if (phase === RevealPhase.Waiting) {
+      waitingFramesRef.current += 1;
       group.getWorldPosition(worldPos);
       projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
       frustum.setFromProjectionMatrix(projScreenMatrix);
 
       if (frustum.containsPoint(worldPos)) {
-        phaseRef.current = RevealPhase.FadingIn;
-        timerRef.current = 0;
-        drawProgress.value = 0;
+        // entity was already in view on initial page load -- apply the delay
+        const isInitialLoad = waitingFramesRef.current <= INITIAL_LOAD_FRAME_THRESHOLD;
+        if (isInitialLoad && delay > 0) {
+          phaseRef.current = RevealPhase.Delaying;
+          timerRef.current = 0;
+        } else {
+          phaseRef.current = RevealPhase.FadingIn;
+          timerRef.current = 0;
+          drawProgress.value = 0;
+        }
       }
       return;
     }
@@ -117,6 +140,16 @@ export function useEntityReveal(
     const t = timerRef.current;
 
     switch (phase) {
+      // waiting for the initial-load delay to elapse before starting the reveal
+      case RevealPhase.Delaying: {
+        if (t >= delay) {
+          phaseRef.current = RevealPhase.FadingIn;
+          timerRef.current = 0;
+          drawProgress.value = 0;
+        }
+        break;
+      }
+
       // quick opacity fade: mesh becomes visible as white
       case RevealPhase.FadingIn: {
         const opacityT = Math.min(t / opacityFadeDuration, 1);

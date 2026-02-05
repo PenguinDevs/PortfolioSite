@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import {
   DoubleSide,
   ExtrudeGeometry,
@@ -12,7 +12,9 @@ import {
   Shape,
 } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { createToonMaterial } from '../shaders/toonShader';
+import { useEntityReveal } from '../hooks';
 import { InkEdges } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
@@ -128,6 +130,15 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
       [colour, shadowColour],
     );
 
+    const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
+    // content (including Html overlays) is not mounted until the colour phase starts,
+    // because drei's <Html> ignores the Three.js parent group's visible flag
+    const [contentMounted, setContentMounted] = useState(false);
+
+    useEffect(() => {
+      connectMaterial(frameMaterial);
+    }, [frameMaterial, connectMaterial]);
+
     const backingGeo = useMemo(
       () => new PlaneGeometry(contentWidth, contentHeight),
       [contentWidth, contentHeight],
@@ -135,9 +146,19 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
 
     // plain material for the backing so it looks consistent regardless of face normal
     const backingMaterial = useMemo(
-      () => new MeshBasicMaterial({ color: BACKING_COLOUR, side: DoubleSide }),
+      () => new MeshBasicMaterial({ color: BACKING_COLOUR, side: DoubleSide, transparent: true, opacity: 0 }),
       [],
     );
+
+    // fade in backing opacity and mount content once the colour phase begins
+    useFrame(() => {
+      const progress = colourProgress.value;
+      backingMaterial.opacity = progress;
+      if (progress >= 1) backingMaterial.transparent = false;
+      if (!contentMounted && progress > 0.01) {
+        setContentMounted(true);
+      }
+    });
 
     // content and backing sit in the middle of the frame depth
     const midZ = frameDepth * 0.5;
@@ -154,10 +175,12 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
           />
         )}
 
-        {/* content area centred inside the frame opening */}
-        <group position={[0, 0, midZ + CONTENT_Z_NUDGE]}>
-          {children}
-        </group>
+        {/* content area centred inside the frame opening, mounted once colour reveals */}
+        {contentMounted && (
+          <group position={[0, 0, midZ + CONTENT_Z_NUDGE]}>
+            {children}
+          </group>
+        )}
 
         <InkEdges
           target={frameMeshRef}
@@ -167,6 +190,7 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
           width={3}
           gapFreq={10}
           gapThreshold={0.38}
+          drawProgress={drawProgress}
         />
       </group>
     );
