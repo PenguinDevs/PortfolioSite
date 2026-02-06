@@ -20,7 +20,7 @@ interface WallEmbed {
   id: string;
   // URL opened when the player interacts
   url: string;
-  // proxied embed URL (routed through /linkedin-embed to bypass frame-ancestors)
+  // LinkedIn embed URL (falls back to static image if blocked)
   embedUrl: string;
   // fallback screenshot shown when the iframe is blocked (e.g. Brave shields)
   fallbackImage: string;
@@ -40,8 +40,8 @@ const WALL_EMBEDS: WallEmbed[] = [
   {
     id: 'macathon-2025',
     url: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7330566984138477570/',
-    embedUrl: '/linkedin-embed/feed/update/urn:li:ugcPost:7330566984138477570?collapsed=1',
-    fallbackImage: '/images/linkedin-macathon-2025.png',
+    embedUrl: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7330566984138477570?collapsed=1',
+    fallbackImage: '/images/linkedin_macathon_2025.png',
     label: 'LinkedIn Post',
     width: 500,
     height: 400,
@@ -53,8 +53,8 @@ const WALL_EMBEDS: WallEmbed[] = [
   {
     id: 'adf-awards',
     url: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7381497433828012032/',
-    embedUrl: '/linkedin-embed/feed/update/urn:li:ugcPost:7381497433828012032?collapsed=1',
-    fallbackImage: '/images/linkedin-maps-2025.png',
+    embedUrl: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7381497433828012032?collapsed=1',
+    fallbackImage: '/images/linkedin_maps_2025.png',
     label: 'LinkedIn Post',
     width: 400,
     height: 300,
@@ -127,18 +127,27 @@ function EmbedWithFallback({
   }
 
   return (
-    <iframe
-      ref={iframeRef}
-      src={embedUrl}
-      title={label}
-      onLoad={handleLoad}
-      style={{
-        width,
-        height,
-        border: 'none',
-        borderRadius: 8,
-      }}
-    />
+    <div style={{ width, height, position: 'relative' }}>
+      <iframe
+        ref={iframeRef}
+        src={embedUrl}
+        title={label}
+        onLoad={handleLoad}
+        style={{
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          borderRadius: 8,
+        }}
+      />
+      {/* click overlay so taps open the post instead of being swallowed by the iframe */}
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+      />
+    </div>
   );
 }
 
