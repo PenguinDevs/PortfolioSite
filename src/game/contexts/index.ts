@@ -3,3 +3,4 @@ export type { AwardData } from './AwardOverlayContext';
 export { PlayerProvider, usePlayerRef } from './PlayerContext';
 export { ProximityPromptProvider, useProximityPromptManager } from './ProximityPromptContext';
 export { SocialLinksProvider, useSocialLinks } from './SocialLinksContext';
+export { ProjectsProvider, useProjects } from './ProjectsContext';

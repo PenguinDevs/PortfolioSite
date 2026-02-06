@@ -43,7 +43,7 @@ techStack:
       category: Language
     - id: luau
       name: Luau
-      imageUrl: /luau_logo.png
+      imageUrl: /assets/images/luau_logo.png
       category: Language
 
   frameworks:
@@ -65,7 +65,7 @@ techStack:
       category: Framework
     - id: discordpy
       name: Discord.py
-      imageUrl: /discord_py_logo.png
+      imageUrl: /assets/images/discord_py_logo.png
       category: Framework
 
   databases:
@@ -135,7 +135,7 @@ techStack:
       category: API
     - id: riotgamesapi
       name: Riot Games API
-      imageUrl: /riot_games_logo.png
+      imageUrl: /assets/images/riot_games_logo.png
       category: API
     - id: openaiapi
       name: OpenAI API
@@ -143,7 +143,7 @@ techStack:
       category: API
     - id: lingohub
       name: LingoHub
-      imageUrl: /lingohub_logo.png
+      imageUrl: /assets/images/lingohub_logo.png
       category: API
 
   os:
@@ -171,7 +171,7 @@ techStack:
       category: Data File
     - id: toml
       name: TOML
-      imageUrl: /toml_logo.png
+      imageUrl: /assets/images/toml_logo.png
       category: Data File
     - id: latex
       name: LaTeX
@@ -340,6 +340,8 @@ awards:
 projects:
   - id: valotracker
     title: ValoTracker
+    featured: true
+    previewImage: /assets/images/penguin_headshot.png
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
     tags:
       - Valorant
@@ -491,6 +493,8 @@ projects:
 
   - id: roblox-games
     title: Roblox Games Portfolio
+    featured: true
+    previewImage: /assets/images/penguin_headshot.png
     description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
     tags:
       - 13M+ Plays

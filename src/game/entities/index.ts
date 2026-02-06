@@ -14,3 +14,7 @@ export type { KeycapHandle, KeycapProps } from './Keycap';
 export { NameTitle } from './NameTitle';
 export { WallFrame } from './WallFrame';
 export type { WallFrameProps } from './WallFrame';
+export { ProjectMonitor } from './ProjectMonitor';
+export type { ProjectMonitorProps } from './ProjectMonitor';
+export { GalleryWallItem } from './GalleryWallItem';
+export type { GalleryWallItemProps } from './GalleryWallItem';

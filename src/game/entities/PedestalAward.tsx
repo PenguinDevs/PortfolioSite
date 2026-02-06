@@ -16,6 +16,7 @@ import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
+import { phaseFromId } from '../utils';
 
 // common base path for badge assets under public/assets/
 const ASSET_BASE_PATH = '/assets/';
@@ -49,15 +50,6 @@ const IMAGE_ICON_SIZE = 1.5;
 const BADGE_MODEL_COLOUR = '#d4cfc8';
 const BADGE_MODEL_SHADOW = '#8a8078';
 
-// deterministic phase from a string so each pedestal bobs at its own offset (FNV-1a)
-function phaseFromId(id: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return (Math.abs(h | 0) % 1000) / 1000 * Math.PI * 2;
-}
 
 // max dimension for the image icon plane (the other axis scales to match aspect ratio)
 const IMAGE_ICON_MAX_DIM = IMAGE_ICON_SIZE;

@@ -15,6 +15,7 @@ import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { createToonMaterial } from '../shaders/toonShader';
 import { useEntityReveal, useThemedToonMaterial } from '../hooks';
+import type { EntityRevealResult } from '../hooks';
 import { InkEdges } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR, WALL_FRAME_COLOUR, WALL_FRAME_SHADOW, WALL_FRAME_BACKING_COLOUR } from '../constants';
 import { LightingMode } from '../types';
@@ -84,6 +85,9 @@ export type WallFrameProps = ThreeElements['group'] & {
   showBacking?: boolean;
   // ink edge noise seed for deterministic variation
   seed?: number;
+  // when provided by a parent composite entity, the frame uses the parent's
+  // coordinated reveal instead of running its own independent one
+  reveal?: EntityRevealResult;
   // r3f children rendered inside the frame opening
   children?: React.ReactNode;
 };
@@ -98,6 +102,7 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
       bevelDepth = DEFAULT_BEVEL_DEPTH,
       showBacking = true,
       seed = 77,
+      reveal: externalReveal,
       children,
       ...groupProps
     },
@@ -124,7 +129,9 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
 
     useThemedToonMaterial(frameMaterial, WALL_FRAME_COLOUR, WALL_FRAME_SHADOW);
 
-    const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
+    // always call the hook (React rules), but prefer external reveal when provided
+    const internalReveal = useEntityReveal(localRef);
+    const { drawProgress, colourProgress, connectMaterial } = externalReveal ?? internalReveal;
     // content (including Html overlays) is not mounted until the colour phase starts,
     // because drei's <Html> ignores the Three.js parent group's visible flag
     const [contentMounted, setContentMounted] = useState(false);
