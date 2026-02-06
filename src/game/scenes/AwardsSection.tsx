@@ -1,11 +1,14 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { ThreeElements } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { PedestalAward, Sign, WallFrame } from '../entities';
 import { ProximityPrompt } from '../components';
 import { useAwardOverlay } from '../contexts/AwardOverlayContext';
+
+// seconds to wait for the iframe to load before showing the fallback image
+const EMBED_TIMEOUT_MS = 5000;
 
 // spacing between each pedestal along the x axis
 const PEDESTAL_SPACING = 4;
@@ -17,8 +20,10 @@ interface WallEmbed {
   id: string;
   // URL opened when the player interacts
   url: string;
-  // iframe embed source
+  // proxied embed URL (routed through /linkedin-embed to bypass frame-ancestors)
   embedUrl: string;
+  // fallback screenshot shown when the iframe is blocked (e.g. Brave shields)
+  fallbackImage: string;
   // label shown on the proximity prompt
   label: string;
   // iframe pixel dimensions
@@ -35,7 +40,8 @@ const WALL_EMBEDS: WallEmbed[] = [
   {
     id: 'macathon-2025',
     url: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7330566984138477570/',
-    embedUrl: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7330566984138477570?collapsed=1',
+    embedUrl: '/linkedin-embed/feed/update/urn:li:ugcPost:7330566984138477570?collapsed=1',
+    fallbackImage: '/images/linkedin-macathon-2025.png',
     label: 'LinkedIn Post',
     width: 500,
     height: 400,
@@ -47,7 +53,8 @@ const WALL_EMBEDS: WallEmbed[] = [
   {
     id: 'adf-awards',
     url: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7381497433828012032/',
-    embedUrl: 'https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7381497433828012032?collapsed=1',
+    embedUrl: '/linkedin-embed/feed/update/urn:li:ugcPost:7381497433828012032?collapsed=1',
+    fallbackImage: '/images/linkedin-maps-2025.png',
     label: 'LinkedIn Post',
     width: 400,
     height: 300,
@@ -57,6 +64,83 @@ const WALL_EMBEDS: WallEmbed[] = [
     seed: 43,
   },
 ];
+
+// tries to render an iframe embed, falls back to a static image if it
+// doesn't load within the timeout (e.g. blocked by Brave shields)
+function EmbedWithFallback({
+  embedUrl,
+  fallbackImage,
+  label,
+  url,
+  width,
+  height,
+}: {
+  embedUrl: string;
+  fallbackImage: string;
+  label: string;
+  url: string;
+  width: number;
+  height: number;
+}) {
+  const [useFallback, setUseFallback] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLoad = useCallback(() => {
+    // iframe loaded successfully, cancel the fallback timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const startTimer = useCallback(() => {
+    timerRef.current = setTimeout(() => {
+      setUseFallback(true);
+    }, EMBED_TIMEOUT_MS);
+  }, []);
+
+  // start the timeout when the iframe mounts
+  const iframeRef = useCallback(
+    (node: HTMLIFrameElement | null) => {
+      if (node) startTimer();
+    },
+    [startTimer],
+  );
+
+  if (useFallback) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ display: 'block', cursor: 'pointer' }}
+      >
+        <img
+          src={fallbackImage}
+          alt={label}
+          width={width}
+          height={height}
+          style={{ borderRadius: 8, objectFit: 'cover', display: 'block' }}
+        />
+      </a>
+    );
+  }
+
+  return (
+    <iframe
+      ref={iframeRef}
+      src={embedUrl}
+      title={label}
+      onLoad={handleLoad}
+      style={{
+        width,
+        height,
+        border: 'none',
+        borderRadius: 8,
+      }}
+    />
+  );
+}
 
 // -------------------------------------------------------------------------
 
@@ -96,29 +180,14 @@ export function AwardsSection(props: AwardsSectionProps) {
           seed={embed.seed}
         >
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div style={{ width: embed.width, height: embed.height, position: 'relative' }}>
-              <iframe
-                src={embed.embedUrl}
-                title={embed.label}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  borderRadius: 8,
-                }}
-              />
-              {/* clickable overlay so clicks open the link instead of being swallowed by the iframe */}
-              <a
-                href={embed.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  cursor: 'pointer',
-                }}
-              />
-            </div>
+            <EmbedWithFallback
+              embedUrl={embed.embedUrl}
+              fallbackImage={embed.fallbackImage}
+              label={embed.label}
+              url={embed.url}
+              width={embed.width}
+              height={embed.height}
+            />
           </Html>
           <ProximityPrompt
             onInteract={() => openUrl(embed.url)}
