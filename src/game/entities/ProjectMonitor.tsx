@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Group } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
@@ -8,7 +8,7 @@ import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
 import { ProximityPrompt } from '../components';
 import { useEntityReveal } from '../hooks';
-import type { TechStackItem } from '@/data/portfolio';
+import type { TechStackItem, ProjectButton, ProjectMediaItem } from '@/data/portfolio';
 import { phaseFromId } from '../utils';
 
 // monitor screen dimensions (world units)
@@ -21,6 +21,15 @@ const INFO_Y_OFFSET = 0.3;
 
 // html pixel width for the info card (scaled by distanceFactor in 3D)
 const HTML_WIDTH = 500;
+
+// pixel dimensions for the media embed inside the WallFrame
+const MEDIA_WIDTH = 640;
+const MEDIA_HEIGHT = 400;
+
+// how long each slide is shown before crossfading to the next (seconds)
+const SLIDE_DURATION = 5;
+// crossfade transition time (seconds)
+const SLIDE_FADE_DURATION = 0.8;
 
 // ---- styles ----------------------------------------------------------------
 
@@ -93,6 +102,26 @@ const techIconStyle: React.CSSProperties = {
   flexShrink: 0,
 };
 
+const buttonsRowStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: 6,
+  flexWrap: 'wrap',
+};
+
+const buttonStyle: React.CSSProperties = {
+  display: 'inline-block',
+  fontSize: 11,
+  color: '#1a1a1a',
+  background: '#f5f5f5',
+  border: '1px solid #1a1a1a',
+  borderRadius: 10,
+  padding: '3px 10px',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+  cursor: 'pointer',
+};
+
 // ---- main entity -----------------------------------------------------------
 
 export type ProjectMonitorProps = ThreeElements['group'] & {
@@ -102,8 +131,9 @@ export type ProjectMonitorProps = ThreeElements['group'] & {
     description: string;
     tags: string[];
     techStack: TechStackItem[];
+    buttons: ProjectButton[];
     link: { type: string; value: string };
-    previewImage?: string;
+    media: ProjectMediaItem[];
   };
   // optional overrides for the monitor frame dimensions
   contentWidth?: number;
@@ -118,6 +148,7 @@ export function ProjectMonitor({
 }: ProjectMonitorProps) {
   const groupRef = useRef<Group>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
 
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef);
   const reveal = useMemo(
@@ -125,15 +156,52 @@ export function ProjectMonitor({
     [drawProgress, colourProgress, connectMaterial],
   );
 
+  // slideshow state for multiple media items
+  const hasSlideshow = project.media.length > 1;
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slideTimerRef = useRef(0);
+
+  const advanceSlide = useCallback(() => {
+    setActiveSlide((prev) => (prev + 1) % project.media.length);
+  }, [project.media.length]);
+
+  // for image slides, auto-advance after SLIDE_DURATION seconds;
+  // video slides advance when the clip finishes (via onEnded)
+  useEffect(() => {
+    if (!hasSlideshow) return;
+    const currentItem = project.media[activeSlide];
+    if (currentItem.type === 'video') return; // videos advance on onEnded
+    const timer = setTimeout(advanceSlide, SLIDE_DURATION * 1000);
+    return () => clearTimeout(timer);
+  }, [hasSlideshow, activeSlide, project.media, advanceSlide]);
+
+  // track elapsed time for crossfade interpolation
+  useEffect(() => {
+    slideTimerRef.current = 0;
+  }, [activeSlide]);
+
   // mount the Html info card only once colour starts revealing
   const [infoMounted, setInfoMounted] = useState(false);
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!infoMounted && colourProgress.value > 0.01) {
       setInfoMounted(true);
     }
-    // drive card opacity from colour reveal progress
+    // drive card and media opacity from colour reveal progress
     if (cardRef.current) {
       cardRef.current.style.opacity = String(colourProgress.value);
+    }
+    // drive slideshow crossfade
+    slideTimerRef.current += delta;
+    if (mediaRef.current) {
+      const children = mediaRef.current.children;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i] as HTMLElement;
+        const isActive = i === activeSlide;
+        // crossfade: ramp opacity up/down over SLIDE_FADE_DURATION
+        const t = Math.min(slideTimerRef.current / SLIDE_FADE_DURATION, 1);
+        const slideOpacity = isActive ? t : (1 - t);
+        child.style.opacity = String(slideOpacity * colourProgress.value);
+      }
     }
   });
 
@@ -146,7 +214,7 @@ export function ProjectMonitor({
 
   return (
     <group ref={groupRef} {...groupProps}>
-      {/* monitor screen (image goes here) */}
+      {/* monitor screen with optional media */}
       <WallFrame
         contentWidth={contentWidth}
         contentHeight={contentHeight}
@@ -154,7 +222,57 @@ export function ProjectMonitor({
         showBacking
         seed={Math.abs(phaseFromId(project.id) * 100 | 0)}
         reveal={reveal}
-      />
+      >
+        {project.media.length > 0 && (
+          <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
+            <div
+              ref={mediaRef}
+              style={{ position: 'relative', width: MEDIA_WIDTH, height: MEDIA_HEIGHT }}
+            >
+              {project.media.map((item, i) => (
+                <div
+                  key={item.src}
+                  style={{
+                    position: i === 0 ? 'relative' : 'absolute',
+                    inset: 0,
+                    opacity: 0,
+                    transition: hasSlideshow ? undefined : 'none',
+                  }}
+                >
+                  {item.type === 'video' ? (
+                    <video
+                      src={item.src}
+                      width={MEDIA_WIDTH}
+                      height={MEDIA_HEIGHT}
+                      autoPlay
+                      loop={!hasSlideshow}
+                      muted
+                      playsInline
+                      onEnded={hasSlideshow ? advanceSlide : undefined}
+                      style={{ display: 'block', objectFit: 'cover', borderRadius: 4 }}
+                    />
+                  ) : (
+                    <img
+                      src={item.src}
+                      alt={project.title}
+                      width={MEDIA_WIDTH}
+                      height={MEDIA_HEIGHT}
+                      style={{ display: 'block', objectFit: 'cover', borderRadius: 4 }}
+                    />
+                  )}
+                </div>
+              ))}
+              {/* click overlay so taps open the link instead of being swallowed by the canvas */}
+              <a
+                href={project.link.value}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+              />
+            </div>
+          </Html>
+        )}
+      </WallFrame>
 
       {/* compact info card below the frame */}
       {infoMounted && (
@@ -186,6 +304,22 @@ export function ProjectMonitor({
                   </span>
                 ))}
               </div>
+
+              {project.buttons.length > 0 && (
+                <div style={buttonsRowStyle}>
+                  {project.buttons.map((btn) => (
+                    <a
+                      key={btn.label}
+                      href={btn.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={buttonStyle}
+                    >
+                      {btn.label} &rarr;
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
             </div>
           </Html>

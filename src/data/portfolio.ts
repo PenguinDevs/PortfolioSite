@@ -25,6 +25,10 @@ export interface ProjectButton {
   type: string;
 }
 
+export type ProjectMediaItem =
+  | { type: 'image'; src: string }
+  | { type: 'video'; src: string };
+
 export interface ProjectData {
   id: string;
   title: string;
@@ -33,8 +37,7 @@ export interface ProjectData {
   techStack: TechStackItem[];
   buttons: ProjectButton[];
   link: { type: string; value: string };
-  featured: boolean;
-  previewImage?: string;
+  media: ProjectMediaItem[];
 }
 
 // --- raw YAML shape interfaces ----------------------------------------------
@@ -75,8 +78,7 @@ interface ProjectYaml {
   techStack?: string[];
   buttons?: ProjectButton[];
   link: { type: string; value: string };
-  featured?: boolean;
-  previewImage?: string;
+  media?: { type: 'image' | 'video'; src: string }[];
 }
 
 interface PortfolioData {
@@ -145,7 +147,6 @@ export function getProjects(): ProjectData[] {
       .filter((item): item is TechStackItem => item !== undefined),
     buttons: p.buttons ?? [],
     link: p.link,
-    featured: p.featured ?? false,
-    previewImage: p.previewImage,
+    media: p.media ?? [],
   }));
 }

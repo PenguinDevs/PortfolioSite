@@ -340,8 +340,13 @@ awards:
 projects:
   - id: valotracker
     title: ValoTracker
-    featured: true
-    previewImage: /assets/images/tech/penguin_headshot.png
+    media:
+      - type: video
+        src: /assets/videos/projects/valotracker_banner.webm
+      - type: image
+        src: /assets/images/projects/valotracker_preview1.png
+      - type: image
+        src: /assets/images/projects/valotracker_preview2.png
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
     tags:
       - Valorant
@@ -374,6 +379,21 @@ projects:
 
   - id: catch-n-go
     title: Catch N Go
+    media:
+      - type: image
+        src: /assets/images/projects/catchngo_preview1.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview2.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview3.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview4.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview5.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview6.jpg
+      - type: image
+        src: /assets/images/projects/catchngo_preview7.jpg
     description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
     tags:
       - 1st Place Winner
@@ -402,6 +422,9 @@ projects:
 
   - id: ceebs
     title: Ceebs - Food Ordering Platform
+    media:
+      - type: image
+        src: /assets/images/projects/ceebs_preview.png
     description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
     tags:
       - Ecommerce
@@ -426,6 +449,13 @@ projects:
 
   - id: valorpc
     title: ValoRPC
+    media:
+      - type: image
+        src: /assets/images/projects/valorpc_preview1.png
+      - type: image
+        src: /assets/images/projects/valorpc_preview2.png
+      - type: image
+        src: /assets/images/projects/valorpc_preview3.png
     description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
     tags:
       - ★ 26
@@ -445,6 +475,11 @@ projects:
 
   - id: penguinengine
     title: PenguinEngine
+    media:
+    - type: video
+      src: /assets/videos/projects/vehicle_suspension_preview1.webm
+    - type: video
+      src: /assets/videos/projects/vehicle_suspension_preview2.webm
     description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
     tags:
       - Monorepo
@@ -460,7 +495,7 @@ projects:
         href: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
         type: external
       - label: Suspension Demo
-        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.mp4
+        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.webm
         type: external
     link:
       type: external
@@ -468,6 +503,9 @@ projects:
 
   - id: allocateus
     title: AllocateUs
+    media:
+      - type: image
+        src: /assets/images/projects/allocateus_preview.png
     description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
     tags:
       - Hackathon Project
@@ -493,8 +531,13 @@ projects:
 
   - id: roblox-games
     title: Roblox Games Portfolio
-    featured: true
-    previewImage: /assets/images/tech/penguin_headshot.png
+    media:
+    - type: video
+      src: /assets/videos/projects/snowsim_preview.webm
+    - type: video
+      src: /assets/videos/projects/petsim_preview.webm
+    - type: video
+      src: /assets/videos/projects/fishstore_preview.webm
     description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
     tags:
       - 13M+ Plays
@@ -521,6 +564,23 @@ projects:
 
   - id: nissan-silvia
     title: Nissan Silvia S15 3D Model
+    media:
+      - type: image
+        src: /assets/images/projects/s15_preview1.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview2.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview3.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview4.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview5.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview6.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview7.jpg
+      - type: image
+        src: /assets/images/projects/s15_preview8.jpg
     description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
     tags:
       - 3D Art

@@ -28,6 +28,9 @@ const cardStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: 6,
+  textDecoration: 'none',
+  cursor: 'pointer',
+  position: 'relative',
 };
 
 const titleStyle: React.CSSProperties = {
@@ -101,6 +104,13 @@ export function GalleryWallItem({ project, ...groupProps }: GalleryWallItemProps
               <span style={{ fontSize: 11, color: '#999999' }}>+{extraCount}</span>
             )}
           </div>
+          {/* click overlay so taps open the link instead of being swallowed by the canvas */}
+          <a
+            href={project.link.value}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ position: 'absolute', inset: 0 }}
+          />
         </div>
       </Html>
       <ProximityPrompt
