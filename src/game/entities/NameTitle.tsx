@@ -47,11 +47,14 @@ const TOP_TEXT = 'Hi, I\'m';
 const BOTTOM_TEXT = 'or PenguinDevs\nbackend developer \u2022 studying computer science w/ maths minor';
 const TOP_FONT_SIZE = 0.7;
 const BOTTOM_FONT_SIZE = 0.4;
+const SUBTEXT = '(and occasional game dev)';
+const SUBTEXT_FONT_SIZE = 0.28;
+const SUBTEXT_Y = -0.95;
 
 // how far above/below the name the labels sit (local Y)
 const TOP_TEXT_Y = 1;
 const BOTTOM_TEXT_Y = -0.2;
-const SOCIAL_LINKS_Y = -1.55;
+const SOCIAL_LINKS_Y = -1.7;
 
 // seconds after mount before the text labels start fading in
 const TEXT_DELAY = LETTER_DELAY + LETTER_DURATION - 0.3;
@@ -167,6 +170,7 @@ export function NameTitle(props: ThreeElements['group']) {
   // refs for the text labels so we can animate their opacity
   const topTextRef = useRef<any>(null);
   const bottomTextRef = useRef<any>(null);
+  const subtextRef = useRef<any>(null);
   const socialRef = useRef<HTMLDivElement>(null);
   // total elapsed time since mount for the text delay
   const totalElapsedRef = useRef(0);
@@ -300,6 +304,9 @@ export function NameTitle(props: ThreeElements['group']) {
     if (bottomTextRef.current) {
       bottomTextRef.current.fillOpacity = textOpacity;
     }
+    if (subtextRef.current) {
+      subtextRef.current.fillOpacity = textOpacity;
+    }
     if (socialRef.current) {
       socialRef.current.style.opacity = String(textOpacity);
     }
@@ -415,6 +422,20 @@ export function NameTitle(props: ThreeElements['group']) {
             fillOpacity={0}
           >
             {BOTTOM_TEXT}
+          </Text>
+
+          {/* subtext */}
+          <Text
+            ref={subtextRef}
+            font={FONT_PATH}
+            fontSize={SUBTEXT_FONT_SIZE}
+            color={textColour}
+            anchorX="left"
+            anchorY="top"
+            position={[0, SUBTEXT_Y, 0]}
+            fillOpacity={0}
+          >
+            {SUBTEXT}
           </Text>
 
           {/* social links */}
