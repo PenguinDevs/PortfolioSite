@@ -26,5 +26,6 @@ export const SECTION_DISPLAY_ORDER: Section[] = [
 ];
 
 // total loop length of the circular track
-// last project tile ends at ~252, plus buffer space to 282
-export const TRACK_LENGTH = 282;
+// last project tile ends at ~252, plus buffer space to 288.
+// must be a multiple of 12 (tile width) so ground tiles align after wrapping.
+export const TRACK_LENGTH = 288;
