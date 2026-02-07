@@ -127,6 +127,9 @@ const buttonsRowStyle: React.CSSProperties = {
   flexWrap: 'wrap',
 };
 
+// instant tilt applied on hover (alternates direction per button)
+const BUTTON_HOVER_TILT_DEG = 10;
+
 const buttonStyle: React.CSSProperties = {
   display: 'inline-block',
   fontSize: 13,
@@ -438,17 +441,26 @@ export function ProjectMonitor({
 
               {project.buttons.length > 0 && (
                 <div style={buttonsRowStyle}>
-                  {project.buttons.map((btn) => (
-                    <a
-                      key={btn.label}
-                      href={btn.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={buttonStyle}
-                    >
-                      {btn.label} &rarr;
-                    </a>
-                  ))}
+                  {project.buttons.map((btn, i) => {
+                    const tiltDeg = (i % 2 === 0 ? 1 : -1) * BUTTON_HOVER_TILT_DEG;
+                    return (
+                      <a
+                        key={btn.label}
+                        href={btn.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={buttonStyle}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = `rotate(${tiltDeg}deg)`;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = '';
+                        }}
+                      >
+                        {btn.label} &rarr;
+                      </a>
+                    );
+                  })}
                 </div>
               )}
             </div>
