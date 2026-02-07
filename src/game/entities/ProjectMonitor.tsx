@@ -167,6 +167,7 @@ export function ProjectMonitor({
   const groupRef = useRef<Group>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef(new Map<number, HTMLVideoElement>());
 
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef);
   const reveal = useMemo(
@@ -230,6 +231,19 @@ export function ProjectMonitor({
     const timer = setTimeout(advanceSlide, SLIDE_DURATION * 1000);
     return () => clearTimeout(timer);
   }, [hasSlideshow, activeSlide, project.media, advanceSlide]);
+
+  // when the active slide changes, play the active video from the start
+  // and pause all others so they don't run in the background
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (index === activeSlide) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [activeSlide]);
 
   // track elapsed time for crossfade interpolation
   useEffect(() => {
@@ -333,8 +347,12 @@ export function ProjectMonitor({
                     >
                       {item.type === 'video' ? (
                         <video
+                          ref={(el) => {
+                            if (el) videoRefs.current.set(i, el);
+                            else videoRefs.current.delete(i);
+                          }}
                           src={item.src}
-                          autoPlay
+                          autoPlay={i === 0}
                           loop={!hasSlideshow}
                           muted
                           playsInline
