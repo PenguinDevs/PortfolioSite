@@ -450,7 +450,7 @@ projects:
         src: /assets/images/projects/ceebs_preview.webp
         width: 3024
         height: 1598
-    description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
+    description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus using a ledger-based transaction system.
     year: '2025'
     tags:
       - Ecommerce
@@ -543,7 +543,7 @@ projects:
         src: /assets/images/projects/allocateus_preview.webp
         width: 1657
         height: 890
-    description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
+    description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time. Built in 48 hours in a team of 4.
     year: '2025'
     tags:
       - Hackathon Project
@@ -582,7 +582,7 @@ projects:
       src: /assets/videos/projects/fishstore_preview.webm
       width: 640
       height: 360
-    description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
+    description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing and telemetry.
     year: '2018'
     tags:
       - 13M+ Plays
