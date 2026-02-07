@@ -10,6 +10,11 @@ import { useAwardOverlay } from '../contexts/AwardOverlayContext';
 // seconds to wait for the iframe to load before showing the fallback image
 const EMBED_TIMEOUT_MS = 5000;
 
+// a real LinkedIn embed needs to fetch HTML, execute JS, and make API calls,
+// so it always takes well over 500ms. A blocked iframe loads about:blank or an
+// error page almost instantly (<50ms). We use this gap to detect blocked embeds.
+const BLOCKED_LOAD_THRESHOLD_MS = 500;
+
 // spacing between each pedestal along the x axis
 const PEDESTAL_SPACING = 4;
 const PEDESTAL_Z = -2;
@@ -84,23 +89,16 @@ function EmbedWithFallback({
 }) {
   const [useFallback, setUseFallback] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const iframeNodeRef = useRef<HTMLIFrameElement | null>(null);
+  const mountTimeRef = useRef(0);
 
   const handleLoad = useCallback(() => {
-    // when a browser like Brave blocks the embed, the iframe still fires
-    // onLoad but loads same-origin about:blank instead. A real cross-origin
-    // LinkedIn embed makes contentDocument inaccessible (null). If we CAN
-    // read it, the real content was blocked.
-    if (iframeNodeRef.current) {
-      try {
-        const doc = iframeNodeRef.current.contentDocument;
-        if (doc) {
-          setUseFallback(true);
-          return;
-        }
-      } catch {
-        // SecurityError means cross-origin content loaded (the happy path)
-      }
+    // blocked iframes still fire onLoad but resolve almost instantly
+    // (about:blank / browser error page). Real LinkedIn embeds always take
+    // much longer because they need to fetch + execute JS + render.
+    const elapsed = Date.now() - mountTimeRef.current;
+    if (elapsed < BLOCKED_LOAD_THRESHOLD_MS) {
+      setUseFallback(true);
+      return;
     }
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -114,11 +112,13 @@ function EmbedWithFallback({
     }, EMBED_TIMEOUT_MS);
   }, []);
 
-  // start the timeout when the iframe mounts
+  // record mount time and start the backstop timeout
   const iframeRef = useCallback(
     (node: HTMLIFrameElement | null) => {
-      iframeNodeRef.current = node;
-      if (node) startTimer();
+      if (node) {
+        mountTimeRef.current = Date.now();
+        startTimer();
+      }
     },
     [startTimer],
   );
