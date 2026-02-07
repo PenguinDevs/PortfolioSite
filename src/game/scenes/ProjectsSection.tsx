@@ -24,12 +24,12 @@ interface ProjectSlotOverrides {
 // reorder this array to change the presentation order, or remove entries to hide them
 const PROJECT_SLOTS: (string | { id: string } & ProjectSlotOverrides)[] = [
   'valotracker',
-  'catch-n-go',
-  'ceebs',
-  'roblox-games',
   'penguinengine',
+  'roblox-games',
+  'catch-n-go',
   'valorpc',
   'allocateus',
+  'ceebs',
   'nissan-silvia',
 ];
 
