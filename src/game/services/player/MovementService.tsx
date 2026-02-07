@@ -49,9 +49,11 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
   // accumulate scroll delta into velocity
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // scroll up (negative deltaY) moves left, scroll down moves right
-      scrollVelocity.current += e.deltaY * SCROLL_SENSITIVITY;
-      pendingScrollDelta.current += e.deltaY;
+      // vertical: scroll up (negative deltaY) moves left, scroll down moves right
+      // horizontal: deltaX from trackpad horizontal scroll moves in same direction
+      const combined = e.deltaY + e.deltaX;
+      scrollVelocity.current += combined * SCROLL_SENSITIVITY;
+      pendingScrollDelta.current += combined;
     };
     window.addEventListener('wheel', onWheel, { passive: true });
     return () => window.removeEventListener('wheel', onWheel);

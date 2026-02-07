@@ -10,16 +10,8 @@ const HOLD_THRESHOLD_S = 2;
 // fade in/out duration (ms, used for CSS transition)
 const FADE_MS = 400;
 
-// localStorage key so we only nag once
-const STORAGE_KEY = 'scrollHintDismissed';
-
 // z-index sits below SectionNav (40) so it doesn't block nav clicks
 const HINT_Z_INDEX = 35;
-
-function wasAlreadyDismissed(): boolean {
-  if (typeof window === 'undefined') return true;
-  return localStorage.getItem(STORAGE_KEY) === '1';
-}
 
 // the set of key codes that count as "movement keys"
 const MOVEMENT_KEYS = new Set(['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight']);
@@ -28,29 +20,15 @@ export function ScrollHint() {
   const isTouch = useIsTouchDevice();
   const mode = useLightingMode();
 
-  const [dismissed, setDismissed] = useState(() => isTouch || wasAlreadyDismissed());
   const [visible, setVisible] = useState(false);
 
   // track which movement keys are currently held
   const heldKeys = useRef(new Set<string>());
-  // timestamp when continuous hold started (null if no keys held)
-  const holdStart = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const dismiss = useCallback(() => {
-    setDismissed(true);
-    setVisible(false);
-    localStorage.setItem(STORAGE_KEY, '1');
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
 
   // schedule the hint to appear after the hold threshold
   const scheduleShow = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    holdStart.current = performance.now();
     timerRef.current = setTimeout(() => {
       setVisible(true);
     }, HOLD_THRESHOLD_S * 1000);
@@ -62,12 +40,11 @@ export function ScrollHint() {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    holdStart.current = null;
     setVisible(false);
   }, []);
 
   useEffect(() => {
-    if (dismissed) return;
+    if (isTouch) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (!MOVEMENT_KEYS.has(e.code)) return;
@@ -84,22 +61,17 @@ export function ScrollHint() {
       if (heldKeys.current.size === 0) cancelShow();
     };
 
-    // if the user scrolls, they figured it out, dismiss permanently
-    const onWheel = () => dismiss();
-
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('wheel', onWheel, { passive: true });
 
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('wheel', onWheel);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [dismissed, scheduleShow, cancelShow, dismiss]);
+  }, [isTouch, scheduleShow, cancelShow]);
 
-  if (dismissed) return null;
+  if (isTouch) return null;
 
   return (
     <div
