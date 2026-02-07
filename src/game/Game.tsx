@@ -7,8 +7,10 @@ import { HomeScene } from './scenes';
 import { LoadingScreen } from './components/LoadingScreen';
 import { TouchTutorial } from './components/TouchTutorial';
 import { AwardOverlay } from './components/AwardOverlay';
+import { ProjectOverlay } from './components/ProjectOverlay';
 import { AwardOverlayProvider } from './contexts/AwardOverlayContext';
 import type { AwardData } from './contexts/AwardOverlayContext';
+import { ProjectOverlayProvider } from './contexts/ProjectOverlayContext';
 import { SocialLinksProvider } from './contexts/SocialLinksContext';
 import { ProjectsProvider } from './contexts/ProjectsContext';
 import type { SocialLinks, ProjectData } from '@/data/portfolio';
@@ -43,17 +45,20 @@ export function Game({
     <SocialLinksProvider socialLinks={socialLinks}>
       <AwardOverlayProvider awards={awards}>
         <ProjectsProvider projects={projects}>
-          <LoadingScreen />
-          <TouchTutorial />
-          <Canvas
-            shadows
-            gl={{ antialias: true }}
-            style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
-          >
-            <SceneBackground />
-            <HomeScene />
-          </Canvas>
-          <AwardOverlay />
+          <ProjectOverlayProvider>
+            <LoadingScreen />
+            <TouchTutorial />
+            <Canvas
+              shadows
+              gl={{ antialias: true }}
+              style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
+            >
+              <SceneBackground />
+              <HomeScene />
+            </Canvas>
+            <AwardOverlay />
+            <ProjectOverlay />
+          </ProjectOverlayProvider>
         </ProjectsProvider>
       </AwardOverlayProvider>
     </SocialLinksProvider>

@@ -1,13 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Group } from 'three';
+import type { Group, ShaderMaterial } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
 import { ProximityPrompt } from '../components';
 import { useEntityReveal } from '../hooks';
+import { useProjectOverlay } from '../contexts/ProjectOverlayContext';
+import { createToonMaterial } from '../shaders/toonShader';
+import { InkEdgesGroup } from '../shaders/inkEdges';
+import { INK_EDGE_COLOUR } from '../constants';
+import { LightingMode } from '../types';
 import type { TechStackItem, ProjectButton, ProjectMediaItem } from '@/data/portfolio';
 import { phaseFromId } from '../utils';
 
@@ -142,6 +147,66 @@ const buttonStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   cursor: 'pointer',
 };
+
+// ---- wall button (3D cuboid against the wall) ------------------------------
+
+// button dimensions (world units)
+const BUTTON_WIDTH = 0.4;
+const BUTTON_HEIGHT = 0.17;
+const BUTTON_DEPTH = 0.12;
+
+// toon shader colours for the wall button
+const BUTTON_COLOUR = '#8a8888';
+const BUTTON_SHADOW = '#8a7050';
+
+// position relative to the ProjectMonitor group
+// the group sits at y=MONITOR_Y (6.5), so offset down to place button at penguin height (~y=0.8)
+const BUTTON_Y_OFFSET = -4.5;
+// to the right, roughly under the info card / description area
+const BUTTON_X_OFFSET = 6.0;
+// slightly protruding from the wall
+const BUTTON_Z_OFFSET = 0.3;
+// the monitor group sits at z=MONITOR_Z (-11.9), the prompt anchor needs to be
+// near the player's walking path (world z ~ -3) so it can trigger
+const PROMPT_Z_OFFSET = 8.9;
+
+interface WallButtonProps {
+  drawProgress: { value: number };
+  connectMaterial: (material: ShaderMaterial) => void;
+}
+
+// physical 3D button mounted on the wall below the monitor
+function WallButton({ drawProgress, connectMaterial }: WallButtonProps) {
+  const buttonRef = useRef<Group>(null);
+
+  const material = useMemo(
+    () => createToonMaterial({ color: BUTTON_COLOUR, shadowColor: BUTTON_SHADOW }),
+    [],
+  );
+
+  useEffect(() => {
+    connectMaterial(material);
+  }, [material, connectMaterial]);
+
+  return (
+    <group ref={buttonRef}>
+      <mesh castShadow>
+        <boxGeometry args={[BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_DEPTH]} />
+        <primitive object={material} attach="material" />
+      </mesh>
+      <InkEdgesGroup
+        target={buttonRef}
+        colour={INK_EDGE_COLOUR[LightingMode.Light]}
+        darkColour={INK_EDGE_COLOUR[LightingMode.Dark]}
+        seed={77}
+        width={3}
+        gapFreq={10}
+        gapThreshold={0.38}
+        drawProgress={drawProgress}
+      />
+    </group>
+  );
+}
 
 // ---- main entity -----------------------------------------------------------
 
@@ -313,9 +378,10 @@ export function ProjectMonitor({
   const infoCardHalfWidth = (HTML_WIDTH * PX_TO_WORLD) / 2;
   const infoX = frameRightEdge + INFO_GAP + infoCardHalfWidth;
 
-  const openLink = useCallback(() => {
-    window.open(project.link.value, '_blank', 'noopener,noreferrer');
-  }, [project.link.value]);
+  const { showProject } = useProjectOverlay();
+  const handleViewProject = useCallback(() => {
+    showProject(project);
+  }, [showProject, project]);
 
   return (
     <group ref={groupRef} {...groupProps}>
@@ -468,12 +534,22 @@ export function ProjectMonitor({
         </group>
       )}
 
-      <ProximityPrompt
-        onInteract={openLink}
-        actionText="Open"
-        objectText={project.title}
-        maxDistance={4}
-      />
+      {/* 3D wall button against the wall */}
+      <group position={[BUTTON_X_OFFSET, BUTTON_Y_OFFSET, BUTTON_Z_OFFSET]}>
+        <WallButton drawProgress={drawProgress} connectMaterial={connectMaterial} />
+      </group>
+
+      {/* anchor near the player's walking path so the distance check triggers,
+         but offset the billboard back to the wall where the button sits */}
+      <group position={[BUTTON_X_OFFSET, BUTTON_Y_OFFSET, PROMPT_Z_OFFSET]}>
+        <ProximityPrompt
+          onInteract={handleViewProject}
+          actionText="View"
+          objectText={project.title}
+          maxDistance={12}
+          offset={[0, 0, -(PROMPT_Z_OFFSET - BUTTON_Z_OFFSET)]}
+        />
+      </group>
     </group>
   );
 }
