@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://portfolio-site-git-feature-threejs-d7dcfe-penguindevs-projects.vercel.app/'),
+  metadataBase: new URL('https://portfolio-site-ehte2mq60-penguindevs-projects.vercel.app/'),
   title: "Jason Yi (@penguindevs)",
   description: "Backend Developer, Computer Science Student",
   icons: {
