@@ -316,15 +316,20 @@ export function ProjectMonitor({
     slideTimerRef.current = 0;
   }, [activeSlide]);
 
-  // mount the Html info card only once colour starts revealing
+  // mount the Html info card as soon as ink edges start drawing
+  // and fade it in independently over a short duration
+  const CARD_FADE_DURATION = 0.5;
+  const cardFadeRef = useRef(0);
   const [infoMounted, setInfoMounted] = useState(false);
   useFrame((_, delta) => {
-    if (!infoMounted && colourProgress.value > 0.01) {
+    if (!infoMounted && drawProgress.value > -1) {
       setInfoMounted(true);
     }
-    // drive card and media opacity from colour reveal progress
+    if (infoMounted && cardFadeRef.current < 1) {
+      cardFadeRef.current = Math.min(cardFadeRef.current + delta / CARD_FADE_DURATION, 1);
+    }
     if (cardRef.current) {
-      cardRef.current.style.opacity = String(colourProgress.value);
+      cardRef.current.style.opacity = String(cardFadeRef.current);
     }
     // drive slideshow crossfade, HTML container resize, and 3D frame resize
     slideTimerRef.current += delta;
