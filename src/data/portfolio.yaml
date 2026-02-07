@@ -109,7 +109,7 @@ techStack:
       category: Tool
     - id: photogrammetry
       name: Photogrammetry
-      imageUrl: https://cdn-icons-png.flaticon.com/512/2103/2103633.webp
+      imageUrl: /assets/images/tech/photogrammetry_logo.webp
       category: Tool
     - id: postman
       name: Postman
