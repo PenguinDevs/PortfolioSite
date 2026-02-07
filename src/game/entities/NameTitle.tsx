@@ -429,59 +429,95 @@ export function NameTitle(props: ThreeElements['group']) {
               style={{
                 opacity: 0,
                 display: 'flex',
+                flexDirection: 'column',
                 gap: '8px',
-                flexWrap: 'wrap',
                 pointerEvents: 'auto',
                 // drei centres Html content via translate(-50%,-50%) on the wrapper;
                 // shift right by 50% of our own width to left-align with the text above
                 transform: 'translateX(50%)',
               }}
             >
-              {SOCIAL_LINK_CONFIG.map((config, i) => {
-                // alternate tilt direction per icon
-                const tiltDeg = (i % 2 === 0 ? 1 : -1) * SOCIAL_HOVER_TILT_DEG;
-                return (
-                <a
-                  key={config.key}
-                  href={socialLinks[config.key]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '6px 12px',
-                    backgroundColor: config.bgColour,
-                    color: '#ffffff',
-                    borderRadius: '8px',
-                    textDecoration: 'none',
-                    fontFamily: 'system-ui, sans-serif',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    transition: 'background-color 0.2s',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = config.hoverBgColour;
-                    e.currentTarget.style.transform = `rotate(${tiltDeg}deg)`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = config.bgColour;
-                    e.currentTarget.style.transform = '';
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox={config.icon.viewBox}
-                    fill="currentColor"
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {SOCIAL_LINK_CONFIG.map((config, i) => {
+                  // alternate tilt direction per icon
+                  const tiltDeg = (i % 2 === 0 ? 1 : -1) * SOCIAL_HOVER_TILT_DEG;
+                  return (
+                  <a
+                    key={config.key}
+                    href={socialLinks[config.key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      backgroundColor: config.bgColour,
+                      color: '#ffffff',
+                      borderRadius: '8px',
+                      textDecoration: 'none',
+                      fontFamily: 'system-ui, sans-serif',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      transition: 'background-color 0.2s',
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = config.hoverBgColour;
+                      e.currentTarget.style.transform = `rotate(${tiltDeg}deg)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = config.bgColour;
+                      e.currentTarget.style.transform = '';
+                    }}
                   >
-                    <path d={config.icon.path} />
-                  </svg>
-                  <span>{config.label}</span>
-                </a>
-                );
-              })}
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox={config.icon.viewBox}
+                      fill="currentColor"
+                    >
+                      <path d={config.icon.path} />
+                    </svg>
+                    <span>{config.label}</span>
+                  </a>
+                  );
+                })}
+              </div>
+              {/* email on its own row */}
+              <div style={{ display: 'flex' }}>
+              <a
+                href={`mailto:${socialLinks.email}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  transition: 'background-color 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#b91c1c';
+                  e.currentTarget.style.transform = `rotate(${-SOCIAL_HOVER_TILT_DEG}deg)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626';
+                  e.currentTarget.style.transform = '';
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884zM18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                <span>{socialLinks.email}</span>
+              </a>
+              </div>
             </div>
           </Html>
 

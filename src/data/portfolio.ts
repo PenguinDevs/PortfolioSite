@@ -10,6 +10,7 @@ export interface SocialLinks {
   linkedin: string;
   x: string;
   discord: string;
+  email: string;
 }
 
 export interface TechStackItem {
