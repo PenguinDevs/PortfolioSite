@@ -129,12 +129,12 @@ const buttonsRowStyle: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
   display: 'inline-block',
-  fontSize: 11,
+  fontSize: 13,
   color: '#1a1a1a',
   background: '#f5f5f5',
   border: '1px solid #1a1a1a',
-  borderRadius: 10,
-  padding: '3px 10px',
+  borderRadius: 12,
+  padding: '4px 12px',
   textDecoration: 'none',
   whiteSpace: 'nowrap',
   cursor: 'pointer',
