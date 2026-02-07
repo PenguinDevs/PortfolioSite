@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Jason Yi (@penguindevs)",
   description: "My portfolio site",
   icons: {
-    icon: '/profile_picture.gif',
+    icon: '/favicon.ico',
   },
 };
 
