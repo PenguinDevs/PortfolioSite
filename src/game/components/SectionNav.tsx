@@ -128,7 +128,7 @@ export function SectionNav() {
           userSelect: 'none',
         }}
       >
-        &copy; {new Date().getFullYear()} Jason. All rights reserved.
+        &copy; {new Date().getFullYear()} Jason Yi. MIT License.
       </div>
     </nav>
   );
