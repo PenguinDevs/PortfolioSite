@@ -87,7 +87,7 @@ export function ProjectsSection({ baseX }: ProjectsSectionProps) {
       ))}
 
       <CircularSlot baseX={baseX + resolved.length * SLOT_WIDTH}>
-        <ViewMoreButton position={[SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]} />
+        <ViewMoreButton position={[SLOT_WIDTH / 8, MONITOR_Y, MONITOR_Z]} />
       </CircularSlot>
     </>
   );
