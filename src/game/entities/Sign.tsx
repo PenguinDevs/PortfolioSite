@@ -31,7 +31,7 @@ export const Sign = forwardRef<Group, SignProps>(function Sign({ rows, ...props 
   const localRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
   const { cloned, material } = useEntityModel('sign', {
-    texturePath: '/assets/textures/colour_palette.png',
+    texturePath: '/assets/textures/colour_palette.webp',
   });
 
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Sign' });

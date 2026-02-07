@@ -10,7 +10,7 @@ import { AlleyGround, LightSwitch, NameTitle, Sign, WallFrame } from '../entitie
 const PENGUIN_CONTENT_WIDTH = 3;
 const PENGUIN_CONTENT_HEIGHT = 4;
 
-const PENGUIN_IMAGE_PATH = '/assets/images/penguin_fullshot.png';
+const PENGUIN_IMAGE_PATH = '/assets/images/penguin_fullshot.webp';
 
 // fade-in speed (opacity per second)
 const FADE_SPEED = 2;

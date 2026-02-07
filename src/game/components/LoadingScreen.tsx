@@ -58,7 +58,7 @@ export function LoadingScreen() {
         <div className="loading-sprite-clip">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/assets/images/penguin_loading_sprite.png"
+            src="/assets/images/penguin_loading_sprite.webp"
             alt="Loading"
             className="loading-sprite-strip"
           />

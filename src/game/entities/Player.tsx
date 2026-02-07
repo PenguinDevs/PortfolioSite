@@ -46,7 +46,7 @@ export const Player = forwardRef<PlayerHandle>(function Player(_, ref) {
   const moveDir = useRef(0);
 
   const { cloned, animations } = useEntityModel('penguin', {
-    texturePath: '/assets/textures/penguin_texture.png',
+    texturePath: '/assets/textures/penguin_texture.webp',
     skeleton: true,
   });
 

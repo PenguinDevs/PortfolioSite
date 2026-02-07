@@ -31,7 +31,7 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
     const targetAngle = useRef(LEVER_OFF_ANGLE);
 
     const { cloned, material } = useEntityModel('lever', {
-      texturePath: '/assets/textures/colour_palette.png',
+      texturePath: '/assets/textures/colour_palette.webp',
     });
 
     const { drawProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Lever' });
