@@ -12,6 +12,9 @@ const FADE_MS = 250;
 const MEDIA_MAX_WIDTH = 540;
 const MEDIA_MAX_HEIGHT = 340;
 
+// lightbox transition time (ms)
+const LIGHTBOX_FADE_MS = 200;
+
 export function ProjectOverlay() {
   const mode = useLightingMode();
   const { activeProject, hideProject } = useProjectOverlay();
@@ -25,6 +28,21 @@ export function ProjectOverlay() {
   // media slideshow state
   const [activeSlide, setActiveSlide] = useState(0);
 
+  // lightbox (enlarged media) state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxVisible, setLightboxVisible] = useState(false);
+  const lightboxTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const openLightbox = useCallback(() => {
+    setLightboxOpen(true);
+    requestAnimationFrame(() => setLightboxVisible(true));
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxVisible(false);
+    lightboxTimeoutRef.current = setTimeout(() => setLightboxOpen(false), LIGHTBOX_FADE_MS);
+  }, []);
+
   const edgeColour = INK_EDGE_COLOUR[mode];
   const bgColour = BACKGROUND_COLOUR[mode];
   const textColour = edgeColour;
@@ -33,24 +51,35 @@ export function ProjectOverlay() {
   useEffect(() => {
     if (activeProject) {
       setActiveSlide(0);
+      setLightboxOpen(false);
+      setLightboxVisible(false);
       setMounted(true);
       requestAnimationFrame(() => setVisible(true));
     } else {
       setVisible(false);
       timeoutRef.current = setTimeout(() => setMounted(false), FADE_MS);
     }
-    return () => clearTimeout(timeoutRef.current);
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearTimeout(lightboxTimeoutRef.current);
+    };
   }, [activeProject]);
 
-  // close on Escape
+  // close on Escape (lightbox first, then overlay)
   useEffect(() => {
     if (!mounted) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Escape') hideProject();
+      if (e.code === 'Escape') {
+        if (lightboxOpen) {
+          closeLightbox();
+        } else {
+          hideProject();
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [mounted, hideProject]);
+  }, [mounted, lightboxOpen, closeLightbox, hideProject]);
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
@@ -193,9 +222,11 @@ export function ProjectOverlay() {
                 {activeProject.media.map((item, i) => (
                   <div
                     key={item.src}
+                    onClick={openLightbox}
                     style={{
                       display: i === activeSlide ? 'block' : 'none',
                       width: '100%',
+                      cursor: 'zoom-in',
                     }}
                   >
                     {item.type === 'video' ? (
@@ -437,6 +468,149 @@ export function ProjectOverlay() {
           )}
         </div>
       </div>
+
+      {/* Lightbox: enlarged media view */}
+      {lightboxOpen && (() => {
+        const currentItem = activeProject.media[activeSlide];
+        if (!currentItem) return null;
+        return (
+          <div
+            onClick={closeLightbox}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(0, 0, 0, 0.85)',
+              opacity: lightboxVisible ? 1 : 0,
+              transition: `opacity ${LIGHTBOX_FADE_MS}ms ease`,
+              cursor: 'zoom-out',
+            }}
+          >
+            {currentItem.type === 'video' ? (
+              <video
+                src={currentItem.src}
+                autoPlay
+                loop
+                muted
+                playsInline
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: 'block',
+                  maxWidth: 'calc(100vw - 64px)',
+                  maxHeight: 'calc(100vh - 64px)',
+                  objectFit: 'contain',
+                  borderRadius: 4,
+                  cursor: 'default',
+                  transform: lightboxVisible ? 'scale(1)' : 'scale(0.95)',
+                  transition: `transform ${LIGHTBOX_FADE_MS}ms ease`,
+                }}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={currentItem.src}
+                alt={activeProject.title}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: 'block',
+                  maxWidth: 'calc(100vw - 64px)',
+                  maxHeight: 'calc(100vh - 64px)',
+                  objectFit: 'contain',
+                  borderRadius: 4,
+                  cursor: 'default',
+                  transform: lightboxVisible ? 'scale(1)' : 'scale(0.95)',
+                  transition: `transform ${LIGHTBOX_FADE_MS}ms ease`,
+                }}
+              />
+            )}
+
+            {/* Lightbox navigation arrows */}
+            {hasMultipleMedia && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToSlide((activeSlide - 1 + activeProject.media.length) % activeProject.media.length);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: 28,
+                    cursor: 'pointer',
+                    borderRadius: '50%',
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: TEXT_WINDOW_FONT,
+                  }}
+                  aria-label="Previous slide"
+                >
+                  &lt;
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToSlide((activeSlide + 1) % activeProject.media.length);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: 28,
+                    cursor: 'pointer',
+                    borderRadius: '50%',
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: TEXT_WINDOW_FONT,
+                  }}
+                  aria-label="Next slide"
+                >
+                  &gt;
+                </button>
+              </>
+            )}
+
+            {/* Close hint */}
+            <button
+              onClick={closeLightbox}
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                fontSize: 32,
+                cursor: 'pointer',
+                lineHeight: 1,
+                padding: 4,
+                fontFamily: TEXT_WINDOW_FONT,
+                opacity: 0.7,
+              }}
+              aria-label="Close lightbox"
+            >
+              x
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }
