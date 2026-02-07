@@ -85,25 +85,38 @@ const INK_FRAG_MAIN = /* glsl */ `
   }
 `;
 
-// draw-in reveal: vertex passes draw order to fragment, fragment discards
-// edges that haven't been "reached" yet by the advancing wavefront
+// draw-in reveal: each edge extrudes from its BFS-origin vertex to its end
+// vertex as the wavefront advances, rather than fading the entire edge in
 const INK_DRAW_VERT_PARS = /* glsl */ `
 attribute float aDrawOrder;
-varying float vDrawOrder;
+attribute float aIsEnd;
+attribute vec3 aSegmentOrigin;
+uniform float uDrawProgress;
+varying float vSegProgress;
 `;
 
-const INK_DRAW_VERT_MAIN = /* glsl */ `
-vDrawOrder = aDrawOrder;
+// how much draw progress (0..1 normalised space) one edge takes to fully extrude
+const SEGMENT_EXTRUDE_WINDOW = 0.08;
+
+// injected after #include <begin_vertex> so extrusion runs before skinning
+const INK_DRAW_EXTRUDE = /* glsl */ `
+{
+  float segProg = smoothstep(aDrawOrder, aDrawOrder + ${SEGMENT_EXTRUDE_WINDOW.toFixed(2)}, uDrawProgress);
+  vSegProgress = segProg;
+  // end vertices collapse toward the segment origin when not yet drawn.
+  // start vertices have origin == position, so the mix is a no-op.
+  float lerpFactor = mix(1.0, segProg, aIsEnd);
+  transformed = mix(aSegmentOrigin, transformed, lerpFactor);
+}
 `;
 
 const INK_DRAW_FRAG_PARS = /* glsl */ `
-uniform float uDrawProgress;
-varying float vDrawOrder;
+varying float vSegProgress;
 `;
 
 const INK_DRAW_FRAG_MAIN = /* glsl */ `
   {
-    float drawMask = 1.0 - smoothstep(uDrawProgress - 0.05, uDrawProgress, vDrawOrder);
+    float drawMask = smoothstep(0.0, 0.02, vSegProgress);
     diffuseColor.a *= drawMask;
   }
 `;
@@ -271,24 +284,42 @@ function copySkinDataForEdges(
 // ---------------------------------------------------------------------------
 
 // BFS from a random start segment to produce a normalised draw order (0..1)
-// per vertex. Handles disconnected geometry clusters by continuing the BFS
-// from unvisited segments until all are reached.
-function computeDrawOrder(positions: Float32Array): Float32Array {
+// per vertex, plus per-vertex extrusion data so each edge can grow from its
+// BFS-origin vertex to its far vertex. Handles disconnected clusters.
+interface DrawOrderData {
+  drawOrder: Float32Array;      // per vertex (2 per segment), normalised 0..1
+  isEnd: Float32Array;          // per vertex, 0 for start vertex, 1 for end vertex
+  segmentOrigin: Float32Array;  // per vertex, vec3 position of the start vertex
+}
+
+function computeDrawOrder(positions: Float32Array): DrawOrderData {
   const segmentCount = positions.length / 6;
-  if (segmentCount === 0) return new Float32Array(0);
+  if (segmentCount === 0) {
+    return {
+      drawOrder: new Float32Array(0),
+      isEnd: new Float32Array(0),
+      segmentOrigin: new Float32Array(0),
+    };
+  }
 
   // quantise vertex positions to find shared vertices between segments
   const precision = 1e4;
   const quantise = (x: number, y: number, z: number) =>
     `${Math.round(x * precision)},${Math.round(y * precision)},${Math.round(z * precision)}`;
 
-  // map: quantised vertex key -> list of segment indices that share it
-  const vertexSegments = new Map<string, number[]>();
+  // pre-compute quantised vertex keys for each segment's two endpoints
+  const segKeys: [string, string][] = [];
   for (let s = 0; s < segmentCount; s++) {
     const base = s * 6;
-    for (let v = 0; v < 2; v++) {
-      const off = base + v * 3;
-      const key = quantise(positions[off], positions[off + 1], positions[off + 2]);
+    const k0 = quantise(positions[base], positions[base + 1], positions[base + 2]);
+    const k1 = quantise(positions[base + 3], positions[base + 4], positions[base + 5]);
+    segKeys.push([k0, k1]);
+  }
+
+  // map: quantised vertex key -> list of segment indices sharing that vertex
+  const vertexSegments = new Map<string, number[]>();
+  for (let s = 0; s < segmentCount; s++) {
+    for (const key of segKeys[s]) {
       let list = vertexSegments.get(key);
       if (!list) {
         list = [];
@@ -298,36 +329,41 @@ function computeDrawOrder(positions: Float32Array): Float32Array {
     }
   }
 
-  // build segment adjacency (segments sharing a vertex are neighbours)
-  const adj: number[][] = Array.from({ length: segmentCount }, () => []);
-  for (const segments of vertexSegments.values()) {
-    for (let i = 0; i < segments.length; i++) {
-      for (let j = i + 1; j < segments.length; j++) {
-        adj[segments[i]].push(segments[j]);
-        adj[segments[j]].push(segments[i]);
+  // build adjacency with shared vertex info so we know which vertex connects neighbours
+  interface AdjEntry { segment: number; sharedKey: string }
+  const adj: AdjEntry[][] = Array.from({ length: segmentCount }, () => []);
+  for (const [vertexKey, segs] of vertexSegments.entries()) {
+    for (let i = 0; i < segs.length; i++) {
+      for (let j = i + 1; j < segs.length; j++) {
+        adj[segs[i]].push({ segment: segs[j], sharedKey: vertexKey });
+        adj[segs[j]].push({ segment: segs[i], sharedKey: vertexKey });
       }
     }
   }
 
-  // BFS to assign a level (distance from start) to each segment
+  // BFS: assign levels and track which vertex is the entry point (start) for each segment
   const segmentLevel = new Int32Array(segmentCount).fill(-1);
+  // 0 or 1: which of the segment's two vertices is the start (entry from parent)
+  const segStartIdx = new Uint8Array(segmentCount);
   let maxLevel = 0;
 
-  // pick a random start segment
   const startSegment = Math.floor(Math.random() * segmentCount);
-  const queue: number[] = [startSegment];
   segmentLevel[startSegment] = 0;
+  segStartIdx[startSegment] = 0; // arbitrary for root
+
+  const queue: number[] = [startSegment];
   let head = 0;
 
   while (head < queue.length) {
     const current = queue[head++];
     const nextLevel = segmentLevel[current] + 1;
-    for (const neighbour of adj[current]) {
-      if (segmentLevel[neighbour] === -1) {
-        segmentLevel[neighbour] = nextLevel;
-        if (nextLevel > maxLevel) maxLevel = nextLevel;
-        queue.push(neighbour);
-      }
+    for (const { segment: neighbour, sharedKey } of adj[current]) {
+      if (segmentLevel[neighbour] !== -1) continue;
+      segmentLevel[neighbour] = nextLevel;
+      if (nextLevel > maxLevel) maxLevel = nextLevel;
+      // shared vertex is the start (entry) of the neighbour segment
+      segStartIdx[neighbour] = segKeys[neighbour][0] === sharedKey ? 0 : 1;
+      queue.push(neighbour);
     }
   }
 
@@ -336,30 +372,51 @@ function computeDrawOrder(positions: Float32Array): Float32Array {
     if (segmentLevel[s] !== -1) continue;
     const componentStart = maxLevel + 1;
     segmentLevel[s] = componentStart;
+    segStartIdx[s] = 0;
     maxLevel = componentStart;
     queue.push(s);
     while (head < queue.length) {
       const current = queue[head++];
       const nextLevel = segmentLevel[current] + 1;
-      for (const neighbour of adj[current]) {
-        if (segmentLevel[neighbour] === -1) {
-          segmentLevel[neighbour] = nextLevel;
-          if (nextLevel > maxLevel) maxLevel = nextLevel;
-          queue.push(neighbour);
-        }
+      for (const { segment: neighbour, sharedKey } of adj[current]) {
+        if (segmentLevel[neighbour] !== -1) continue;
+        segmentLevel[neighbour] = nextLevel;
+        if (nextLevel > maxLevel) maxLevel = nextLevel;
+        segStartIdx[neighbour] = segKeys[neighbour][0] === sharedKey ? 0 : 1;
+        queue.push(neighbour);
       }
     }
   }
 
-  // normalise to 0..1 and expand to per-vertex (2 verts per segment)
-  const perVertex = new Float32Array(segmentCount * 2);
+  // build per-vertex output arrays
+  const drawOrder = new Float32Array(segmentCount * 2);
+  const isEnd = new Float32Array(segmentCount * 2);
+  const segmentOrigin = new Float32Array(segmentCount * 2 * 3);
+
   for (let s = 0; s < segmentCount; s++) {
     const normalised = maxLevel > 0 ? segmentLevel[s] / maxLevel : 0;
-    perVertex[s * 2] = normalised;
-    perVertex[s * 2 + 1] = normalised;
+    drawOrder[s * 2] = normalised;
+    drawOrder[s * 2 + 1] = normalised;
+
+    const si = segStartIdx[s]; // 0 or 1
+    const ei = 1 - si;
+    isEnd[s * 2 + si] = 0;
+    isEnd[s * 2 + ei] = 1;
+
+    // origin position = start vertex position (stored for both vertices of the segment)
+    const base = s * 6;
+    const ox = positions[base + si * 3];
+    const oy = positions[base + si * 3 + 1];
+    const oz = positions[base + si * 3 + 2];
+    segmentOrigin[(s * 2) * 3] = ox;
+    segmentOrigin[(s * 2) * 3 + 1] = oy;
+    segmentOrigin[(s * 2) * 3 + 2] = oz;
+    segmentOrigin[(s * 2 + 1) * 3] = ox;
+    segmentOrigin[(s * 2 + 1) * 3 + 1] = oy;
+    segmentOrigin[(s * 2 + 1) * 3 + 2] = oz;
   }
 
-  return perVertex;
+  return { drawOrder, isEnd, segmentOrigin };
 }
 
 // ---------------------------------------------------------------------------
@@ -396,8 +453,10 @@ function buildInkLines(
   // when draw progress is provided, compute per-segment draw order for the reveal animation
   const hasDrawReveal = !!params.drawProgress;
   if (hasDrawReveal) {
-    const drawOrder = computeDrawOrder(edgePositions);
-    geo.setAttribute('aDrawOrder', new BufferAttribute(drawOrder, 1));
+    const drawData = computeDrawOrder(edgePositions);
+    geo.setAttribute('aDrawOrder', new BufferAttribute(drawData.drawOrder, 1));
+    geo.setAttribute('aIsEnd', new BufferAttribute(drawData.isEnd, 1));
+    geo.setAttribute('aSegmentOrigin', new BufferAttribute(drawData.segmentOrigin, 3));
     // report segment count so the reveal hook can scale edge duration by complexity
     const segCount = edgePositions.length / 6;
     params.drawProgress!.segmentCount = (params.drawProgress!.segmentCount ?? 0) + segCount;
@@ -439,13 +498,21 @@ function buildInkLines(
     if (hasDrawReveal) {
       shader.uniforms.uDrawProgress = params.drawProgress!;
       vertPars += INK_DRAW_VERT_PARS;
-      vertMain += INK_DRAW_VERT_MAIN;
     }
 
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
       vertPars + 'void main() {',
     );
+
+    // inject edge extrusion after begin_vertex (before skinning) so end
+    // vertices collapse toward their segment origin in rest-pose space
+    if (hasDrawReveal) {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        '#include <begin_vertex>\n' + INK_DRAW_EXTRUDE,
+      );
+    }
 
     // Capture object-space position after skinning (skinning_vertex runs
     // between begin_vertex and project_vertex in the built-in shader)

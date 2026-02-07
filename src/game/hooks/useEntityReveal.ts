@@ -24,9 +24,9 @@ const DEFAULT_COLOUR_DELAY = -0.5;
 // how long the colour/texture fade-in takes
 const DEFAULT_COLOUR_DURATION = 0.5;
 
-// draw progress is driven slightly past 1 so the last edge fully appears
-// (the smoothstep transition zone needs a little headroom)
-const DRAW_PROGRESS_OVERSHOOT = 1.05;
+// draw progress is driven past 1 so the last edges fully extrude
+// (needs to exceed max draw order + the per-segment extrusion window)
+const DRAW_PROGRESS_OVERSHOOT = 1.1;
 
 // delay before reveal starts for entities visible on initial page load (seconds)
 const DEFAULT_INITIAL_DELAY = 2.0;
