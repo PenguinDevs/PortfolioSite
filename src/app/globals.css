@@ -56,7 +56,7 @@ body {
 }
 
 .loading-text {
-  font-family: 'PatrickHand', cursive;
+  font-family: 'PatrickHand', sans-serif;
   font-size: 2.5rem;
   colour: #333333;
   margin: 0;
@@ -170,7 +170,7 @@ body {
 
 /* Shared label style */
 .touch-tutorial-label {
-  font-family: 'PatrickHand', cursive;
+  font-family: 'PatrickHand', sans-serif;
   font-size: 1.5rem;
   text-align: center;
   user-select: none;
