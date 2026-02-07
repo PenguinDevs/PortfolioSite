@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { DirectionalLight, Mesh } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { Player } from '../entities';
+import { AlleyGround, Player } from '../entities';
 import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
 import { useDerivedRef } from '../utils';
@@ -42,6 +42,15 @@ const SHADOW_PLANE_DEPTH = 50;
 const HOME_X = 0;
 const AWARDS_X = 42;
 const PROJECTS_X = 60;
+
+// ground tiles: centred near the track midpoint so a single CircularSlot
+// covers the entire loop. each tile is 12 world units wide (TILE_SCALE * 1m).
+// baseX must be a multiple of 12 so a tile lands exactly at x=0 (player spawn).
+// ±17 tiles = ±204 units, comfortably exceeding the wrap threshold (~153)
+// plus camera view distance in both directions.
+const GROUND_BASE_X = 144;
+const GROUND_START_TILE = -17;
+const GROUND_END_TILE = 17;
 
 export function HomeScene() {
   const inputRef = useInput();
@@ -115,6 +124,11 @@ export function HomeScene() {
         </mesh>
 
         <CircularSceneProvider trackLength={TRACK_LENGTH}>
+          {/* ground tiles in their own slot, covering the full circular track */}
+          <CircularSlot baseX={GROUND_BASE_X}>
+            <AlleyGround startTile={GROUND_START_TILE} endTile={GROUND_END_TILE} />
+          </CircularSlot>
+
           <CircularSlot baseX={HOME_X}>
             <HomeSection />
           </CircularSlot>

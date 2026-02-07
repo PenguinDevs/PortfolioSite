@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MeshBasicMaterial, TextureLoader } from 'three';
 import type { Texture } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { AlleyGround, LightSwitch, NameTitle, Sign, WallFrame } from '../entities';
+import { LightSwitch, NameTitle, Sign } from '../entities';
 
 // penguin frame dimensions (world units)
 const PENGUIN_CONTENT_WIDTH = 3;
@@ -50,8 +50,6 @@ export function HomeSection() {
   return (
     <group>
       <NameTitle position={[0, 8, -4]} />
-
-      <AlleyGround />
 
       <Sign position={[2.5, 0, -4]} rotation={[0, 0, 0]} rows={['', '--->', '', '']} />
 
