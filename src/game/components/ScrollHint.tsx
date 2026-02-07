@@ -6,7 +6,7 @@ import { INK_EDGE_COLOUR } from '../constants';
 import { TEXT_WINDOW_FONT } from './TextWindow';
 
 // how long a movement key must be held before the hint appears (seconds)
-const HOLD_THRESHOLD_S = 3;
+const HOLD_THRESHOLD_S = 2;
 // fade in/out duration (ms, used for CSS transition)
 const FADE_MS = 400;
 

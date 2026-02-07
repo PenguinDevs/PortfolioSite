@@ -76,7 +76,7 @@ export function SectionNav() {
           return (
             <button
               key={sectionId}
-              onClick={() => navigateTo(sectionId)}
+              onClick={() => navigateTo(sectionId, offsets[i] < 0 ? -1 : 1)}
               style={{
                 position: 'absolute',
                 top: 0,

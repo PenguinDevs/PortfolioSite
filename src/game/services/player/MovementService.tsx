@@ -85,11 +85,17 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
         // fall through to normal input processing below
       } else {
         const playerX = player.group.position.x;
-        const dx = circularDelta(playerX, autopilotTarget.targetX, TRACK_LENGTH);
-        const distance = Math.abs(dx);
-        const direction = Math.sign(dx);
+        const shortDelta = circularDelta(playerX, autopilotTarget.targetX, TRACK_LENGTH);
+        const shortDistance = Math.abs(shortDelta);
+        // use the stored direction from the nav button instead of shortest path
+        const direction = autopilotTarget.direction;
+        // if our direction matches the shortest path, use that distance;
+        // otherwise we're going the long way around the circular track
+        const distance = direction === Math.sign(shortDelta)
+          ? shortDistance
+          : TRACK_LENGTH - shortDistance;
 
-        if (distance < ARRIVAL_THRESHOLD) {
+        if (shortDistance < ARRIVAL_THRESHOLD) {
           // close enough -- clear autopilot but keep residual velocity
           // so the normal friction decay brings the penguin to a natural stop
           autopilotTargetRef!.current = null;

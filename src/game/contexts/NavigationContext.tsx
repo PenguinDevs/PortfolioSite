@@ -8,11 +8,11 @@ import { SECTIONS, TRACK_LENGTH } from '../constants';
 import { circularDelta, wrapPosition } from '../scenes/circular/CircularSceneContext';
 
 // null means autopilot is inactive
-export type AutopilotTarget = { targetX: number } | null;
+export type AutopilotTarget = { targetX: number; direction: 1 | -1 } | null;
 
 interface NavigationState {
   currentSection: Section;
-  navigateTo: (section: Section) => void;
+  navigateTo: (section: Section, direction: 1 | -1) => void;
   // shared ref for MovementService to read each frame
   autopilotTargetRef: MutableRefObject<AutopilotTarget>;
   // called once by HomeScene so we can read player position outside the Canvas
@@ -62,7 +62,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  const navigateTo = useCallback((section: Section) => {
+  const navigateTo = useCallback((section: Section, direction: 1 | -1) => {
     const group = playerGroupRefHolder.current.current;
     if (!group) return;
 
@@ -72,7 +72,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const delta = circularDelta(group.position.x, target.x, TRACK_LENGTH);
     if (Math.abs(delta) < MIN_NAVIGATE_DISTANCE) return;
 
-    autopilotTargetRef.current = { targetX: target.x };
+    autopilotTargetRef.current = { targetX: target.x, direction };
   }, []);
 
   return (

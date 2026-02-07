@@ -9,6 +9,7 @@ import { TouchTutorial } from './components/TouchTutorial';
 import { AwardOverlay } from './components/AwardOverlay';
 import { ProjectOverlay } from './components/ProjectOverlay';
 import { SectionNav } from './components/SectionNav';
+import { ScrollHint } from './components/ScrollHint';
 import { NavigationProvider } from './contexts/NavigationContext';
 import { AwardOverlayProvider } from './contexts/AwardOverlayContext';
 import type { AwardData } from './contexts/AwardOverlayContext';
@@ -61,6 +62,7 @@ export function Game({
               </Canvas>
               <AwardOverlay />
               <ProjectOverlay />
+              <ScrollHint />
               <SectionNav />
             </ProjectOverlayProvider>
           </ProjectsProvider>
