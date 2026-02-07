@@ -354,6 +354,7 @@ projects:
         width: 464
         height: 372
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
+    year: '2022'
     tags:
       - Valorant
       - 'Discord Trending #1'
@@ -415,6 +416,7 @@ projects:
         width: 264
         height: 573
     description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
+    year: '2025'
     tags:
       - 1st Place Winner
       - Hackathon
@@ -448,6 +450,7 @@ projects:
         width: 3024
         height: 1598
     description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
+    year: '2025'
     tags:
       - Ecommerce
       - Lead Developer
@@ -482,6 +485,7 @@ projects:
         width: 548
         height: 137
     description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
+    year: '2022'
     tags:
       - ★ 26
       - OCR
@@ -510,6 +514,7 @@ projects:
       width: 720
       height: 480
     description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised, performant and realistic land vehicle components for real-time simulation in Roblox.
+    year: '2025'
     tags:
       - Monorepo
       - Library
@@ -538,6 +543,7 @@ projects:
         width: 1657
         height: 890
     description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
+    year: '2025'
     tags:
       - Hackathon Project
     techStack:
@@ -576,6 +582,7 @@ projects:
       width: 640
       height: 360
     description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
+    year: '2018'
     tags:
       - 13M+ Plays
       - Game Development
@@ -635,6 +642,7 @@ projects:
         width: 936
         height: 756
     description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
+    year: '2025'
     tags:
       - 3D Art
       - Modeling
@@ -643,7 +651,7 @@ projects:
       - Adobe Substance 3D Painter
       - Photogrammetry
     buttons:
-      - label: View Artwork
+      - label: View ArtStation
         href: https://www.artstation.com/artwork/kNdArK
         type: external
     link:

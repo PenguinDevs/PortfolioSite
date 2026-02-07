@@ -314,18 +314,31 @@ export function ProjectOverlay() {
             </div>
           )}
 
-          {/* Title */}
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 30,
-              fontWeight: 700,
-              color: textColour,
-              fontFamily: TEXT_WINDOW_FONT,
-            }}
-          >
-            {activeProject.title}
-          </h2>
+          {/* Title and year */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 30,
+                fontWeight: 700,
+                color: textColour,
+                fontFamily: TEXT_WINDOW_FONT,
+              }}
+            >
+              {activeProject.title}
+            </h2>
+            <span
+              style={{
+                fontSize: 18,
+                color: textColour,
+                opacity: 0.5,
+                fontFamily: TEXT_WINDOW_FONT,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {activeProject.year}
+            </span>
+          </div>
 
           {/* Tags */}
           {activeProject.tags.length > 0 && (

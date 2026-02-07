@@ -33,6 +33,7 @@ export interface ProjectData {
   id: string;
   title: string;
   description: string;
+  year: string;
   tags: string[];
   techStack: TechStackItem[];
   buttons: ProjectButton[];
@@ -74,6 +75,7 @@ interface ProjectYaml {
   id: string;
   title: string;
   description: string;
+  year: string;
   tags?: string[];
   techStack?: string[];
   buttons?: ProjectButton[];
@@ -141,6 +143,7 @@ export function getProjects(): ProjectData[] {
     id: p.id,
     title: p.title,
     description: p.description,
+    year: p.year,
     tags: p.tags ?? [],
     techStack: (p.techStack ?? [])
       .map((name) => lookup.get(name))

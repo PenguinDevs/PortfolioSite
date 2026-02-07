@@ -212,6 +212,7 @@ export type ProjectMonitorProps = ThreeElements['group'] & {
     id: string;
     title: string;
     description: string;
+    year: string;
     tags: string[];
     techStack: TechStackItem[];
     buttons: ProjectButton[];
@@ -500,7 +501,10 @@ export function ProjectMonitor({
         <group position={[infoX, 0, 0]}>
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
             <div ref={cardRef} style={{ ...cardBaseStyle, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
-              <h2 style={titleStyle}>{project.title}</h2>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <h2 style={titleStyle}>{project.title}</h2>
+                <span style={{ fontSize: 14, color: SECONDARY_TEXT_COLOUR[mode], whiteSpace: 'nowrap' }}>{project.year}</span>
+              </div>
               {project.tags.length > 0 && (
                 <div style={tagsRowStyle}>
                   {project.tags.map((tag) => (
