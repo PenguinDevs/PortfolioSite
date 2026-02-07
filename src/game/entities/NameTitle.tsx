@@ -51,7 +51,7 @@ const BOTTOM_FONT_SIZE = 0.4;
 // how far above/below the name the labels sit (local Y)
 const TOP_TEXT_Y = 1;
 const BOTTOM_TEXT_Y = -0.2;
-const SOCIAL_LINKS_Y = -1.4;
+const SOCIAL_LINKS_Y = -1.55;
 
 // seconds after mount before the text labels start fading in
 const TEXT_DELAY = LETTER_DELAY + LETTER_DURATION - 0.3;
