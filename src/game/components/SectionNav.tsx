@@ -39,6 +39,7 @@ export function SectionNav() {
                 position: 'relative',
                 background: 'none',
                 border: 'none',
+                outline: 'none',
                 padding: '8px 20px',
                 fontSize: 20,
                 fontFamily: TEXT_WINDOW_FONT,
