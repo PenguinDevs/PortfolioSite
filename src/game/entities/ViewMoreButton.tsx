@@ -78,7 +78,7 @@ export function ViewMoreButton(props: ViewMoreButtonProps) {
               color: '#ffffff',
               borderRadius: '12px',
               textDecoration: 'none',
-              fontFamily: "'Patrick Hand', cursive",
+              fontFamily: "'PatrickHand', cursive",
               fontSize: '22px',
               fontWeight: 500,
               whiteSpace: 'nowrap',

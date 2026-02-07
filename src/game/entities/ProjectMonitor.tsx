@@ -92,7 +92,7 @@ const BUTTON_BG_COLOUR = {
 
 const cardBaseStyle: React.CSSProperties = {
   width: HTML_WIDTH,
-  fontFamily: "'Patrick Hand', cursive",
+  fontFamily: "'PatrickHand', cursive",
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',

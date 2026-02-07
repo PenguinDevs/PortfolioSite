@@ -22,7 +22,7 @@ const MAX_TECH_ICONS = 6;
 
 const cardStyle: React.CSSProperties = {
   width: HTML_WIDTH,
-  fontFamily: "'Patrick Hand', cursive",
+  fontFamily: "'PatrickHand', cursive",
   color: '#1a1a1a',
   padding: 8,
   display: 'flex',
