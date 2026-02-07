@@ -84,9 +84,24 @@ function EmbedWithFallback({
 }) {
   const [useFallback, setUseFallback] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const iframeNodeRef = useRef<HTMLIFrameElement | null>(null);
 
   const handleLoad = useCallback(() => {
-    // iframe loaded successfully, cancel the fallback timer
+    // when a browser like Brave blocks the embed, the iframe still fires
+    // onLoad but loads same-origin about:blank instead. A real cross-origin
+    // LinkedIn embed makes contentDocument inaccessible (null). If we CAN
+    // read it, the real content was blocked.
+    if (iframeNodeRef.current) {
+      try {
+        const doc = iframeNodeRef.current.contentDocument;
+        if (doc) {
+          setUseFallback(true);
+          return;
+        }
+      } catch {
+        // SecurityError means cross-origin content loaded (the happy path)
+      }
+    }
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -102,6 +117,7 @@ function EmbedWithFallback({
   // start the timeout when the iframe mounts
   const iframeRef = useCallback(
     (node: HTMLIFrameElement | null) => {
+      iframeNodeRef.current = node;
       if (node) startTimer();
     },
     [startTimer],
@@ -133,6 +149,7 @@ function EmbedWithFallback({
         src={embedUrl}
         title={label}
         onLoad={handleLoad}
+        onError={() => setUseFallback(true)}
         style={{
           width: '100%',
           height: '100%',
