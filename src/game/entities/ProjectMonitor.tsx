@@ -7,7 +7,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
 import { ProximityPrompt } from '../components';
-import { useEntityReveal } from '../hooks';
+import { useEntityReveal, useLightingMode } from '../hooks';
 import { useProjectOverlay } from '../contexts/ProjectOverlayContext';
 import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
@@ -56,10 +56,43 @@ function fitWithinBounds(
 
 // ---- styles ----------------------------------------------------------------
 
-const cardStyle: React.CSSProperties = {
+// themed colour palettes for the info card (light / dark)
+const CARD_TEXT_COLOUR = {
+  [LightingMode.Light]: '#1a1a1a',
+  [LightingMode.Dark]: '#e0e0e0',
+};
+const DESCRIPTION_COLOUR = {
+  [LightingMode.Light]: '#333333',
+  [LightingMode.Dark]: '#c0c0c0',
+};
+const SECONDARY_TEXT_COLOUR = {
+  [LightingMode.Light]: '#666666',
+  [LightingMode.Dark]: '#aaaaaa',
+};
+const CHIP_TEXT_COLOUR = {
+  [LightingMode.Light]: '#444444',
+  [LightingMode.Dark]: '#bbbbbb',
+};
+const CHIP_BG_COLOUR = {
+  [LightingMode.Light]: '#e8e8e8',
+  [LightingMode.Dark]: '#333333',
+};
+const TAG_BG_COLOUR = {
+  [LightingMode.Light]: '#f0f0f0',
+  [LightingMode.Dark]: '#333333',
+};
+const BORDER_COLOUR = {
+  [LightingMode.Light]: '#1a1a1a',
+  [LightingMode.Dark]: '#888888',
+};
+const BUTTON_BG_COLOUR = {
+  [LightingMode.Light]: '#f5f5f5',
+  [LightingMode.Dark]: '#333333',
+};
+
+const cardBaseStyle: React.CSSProperties = {
   width: HTML_WIDTH,
   fontFamily: "'Patrick Hand', cursive",
-  color: '#1a1a1a',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
@@ -81,18 +114,8 @@ const titleStyle: React.CSSProperties = {
   lineHeight: 1.2,
 };
 
-const projectTagStyle: React.CSSProperties = {
-  fontSize: 11,
-  color: '#666666',
-  background: '#f0f0f0',
-  border: '1px solid #1a1a1a',
-  borderRadius: 12,
-  padding: '1px 7px',
-};
-
-const descriptionStyle: React.CSSProperties = {
+const descriptionBaseStyle: React.CSSProperties = {
   fontSize: 14,
-  color: '#333333',
   margin: 0,
   lineHeight: 1.3,
   maxWidth: '90%',
@@ -103,19 +126,6 @@ const techRowStyle: React.CSSProperties = {
   justifyContent: 'flex-start',
   gap: 4,
   flexWrap: 'wrap',
-};
-
-const techChipStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 3,
-  fontSize: 11,
-  color: '#444444',
-  background: '#e8e8e8',
-  border: '1px solid #1a1a1a',
-  borderRadius: 10,
-  padding: '2px 7px',
-  whiteSpace: 'nowrap',
 };
 
 const techIconStyle: React.CSSProperties = {
@@ -134,19 +144,6 @@ const buttonsRowStyle: React.CSSProperties = {
 
 // instant tilt applied on hover (alternates direction per button)
 const BUTTON_HOVER_TILT_DEG = 10;
-
-const buttonStyle: React.CSSProperties = {
-  display: 'inline-block',
-  fontSize: 13,
-  color: '#1a1a1a',
-  background: '#f5f5f5',
-  border: '1px solid #1a1a1a',
-  borderRadius: 12,
-  padding: '4px 12px',
-  textDecoration: 'none',
-  whiteSpace: 'nowrap',
-  cursor: 'pointer',
-};
 
 // ---- wall button (3D cuboid against the wall) ------------------------------
 
@@ -236,6 +233,7 @@ export function ProjectMonitor({
   const cardRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef(new Map<number, HTMLVideoElement>());
+  const mode = useLightingMode();
 
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef, { perfLabel: 'ProjectMonitor' });
   const reveal = useMemo(
@@ -480,21 +478,39 @@ export function ProjectMonitor({
       {infoMounted && (
         <group position={[infoX, 0, 0]}>
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div ref={cardRef} style={{ ...cardStyle, opacity: 0 }}>
+            <div ref={cardRef} style={{ ...cardBaseStyle, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
               <h2 style={titleStyle}>{project.title}</h2>
               {project.tags.length > 0 && (
                 <div style={tagsRowStyle}>
                   {project.tags.map((tag) => (
-                    <span key={tag} style={projectTagStyle}>{tag}</span>
+                    <span key={tag} style={{
+                      fontSize: 11,
+                      color: SECONDARY_TEXT_COLOUR[mode],
+                      background: TAG_BG_COLOUR[mode],
+                      border: `1px solid ${BORDER_COLOUR[mode]}`,
+                      borderRadius: 12,
+                      padding: '1px 7px',
+                    }}>{tag}</span>
                   ))}
                 </div>
               )}
 
-              <p style={descriptionStyle}>{project.description}</p>
+              <p style={{ ...descriptionBaseStyle, color: DESCRIPTION_COLOUR[mode] }}>{project.description}</p>
 
               <div style={techRowStyle}>
                 {project.techStack.map((item) => (
-                  <span key={item.id} style={techChipStyle}>
+                  <span key={item.id} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 3,
+                    fontSize: 11,
+                    color: CHIP_TEXT_COLOUR[mode],
+                    background: CHIP_BG_COLOUR[mode],
+                    border: `1px solid ${BORDER_COLOUR[mode]}`,
+                    borderRadius: 10,
+                    padding: '2px 7px',
+                    whiteSpace: 'nowrap',
+                  }}>
                     <img
                       src={item.imageUrl}
                       alt={item.name}
@@ -515,7 +531,18 @@ export function ProjectMonitor({
                         href={btn.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={buttonStyle}
+                        style={{
+                          display: 'inline-block',
+                          fontSize: 13,
+                          color: CARD_TEXT_COLOUR[mode],
+                          background: BUTTON_BG_COLOUR[mode],
+                          border: `1px solid ${BORDER_COLOUR[mode]}`,
+                          borderRadius: 12,
+                          padding: '4px 12px',
+                          textDecoration: 'none',
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer',
+                        }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.transform = `rotate(${tiltDeg}deg)`;
                         }}
