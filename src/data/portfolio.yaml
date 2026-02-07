@@ -462,9 +462,6 @@ projects:
       - label: Visit Site
         href: https://ceebs.site/
         type: external
-      - label: Visit Merchant
-        href: https://merchant.ceebs.site/
-        type: external
     link:
       type: external
       value: https://ceebs.site
@@ -592,8 +589,8 @@ projects:
       - label: View Portfolio
         href: https://create.roblox.com/talent/creators/204152663
         type: external
-      - label: Play PetBattles
-        href: https://www.roblox.com/games/9278437733/Pet-Battles
+      - label: Play Fish Store
+        href: https://www.roblox.com/games/6381681200/Fish-Store-Tycoon
         type: external
       - label: View PetBattles Source
         href: https://github.com/PenguinDevs/PetBattles
