@@ -32,7 +32,7 @@ const HTML_WIDTH = 500;
 
 // mobile scale factor for font sizes, gaps, padding etc.
 // the card stays the same width but text is bigger so it wraps more and gets taller
-const MOBILE_SCALE = 1.6;
+const MOBILE_SCALE = 1.3;
 
 // max pixel bounds for the media embed inside the WallFrame
 const MEDIA_MAX_WIDTH = 640;
@@ -246,6 +246,9 @@ export function ProjectMonitor({
   // on mobile, scale up text/gaps/padding so the card gets taller and easier to read
   const s = isTouch ? MOBILE_SCALE : 1;
 
+  // use viewport width on mobile so the card fills the screen
+  const cardWidth = isTouch && typeof window !== 'undefined' ? window.innerWidth : HTML_WIDTH;
+
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef, { perfLabel: 'ProjectMonitor' });
   const reveal = useMemo(
     () => ({ drawProgress, colourProgress, connectMaterial }),
@@ -405,7 +408,7 @@ export function ProjectMonitor({
 
   // position the info card so its left edge clears the frame's right edge
   const frameRightEdge = FRAME_X_OFFSET + frameWidth / 2 + MONITOR_FRAME_BORDER;
-  const infoCardHalfWidth = (HTML_WIDTH * PX_TO_WORLD) / 2;
+  const infoCardHalfWidth = (cardWidth * PX_TO_WORLD) / 2;
   const infoX = frameRightEdge + INFO_GAP + infoCardHalfWidth;
 
   const { showProject } = useProjectOverlay();
@@ -510,46 +513,46 @@ export function ProjectMonitor({
       {infoMounted && (
         <group position={[infoX, 0, 0]}>
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div ref={cardRef} style={{ ...cardBaseStyle, gap: 6 * s, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 * s }}>
-                <h2 style={{ ...titleStyle, fontSize: 26 * s }}>{project.title}</h2>
-                <span style={{ fontSize: 14 * s, color: SECONDARY_TEXT_COLOUR[mode], whiteSpace: 'nowrap' }}>{project.year}</span>
+            <div ref={cardRef} style={{ ...cardBaseStyle, width: cardWidth, gap: 8 * s, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 * s, flexWrap: 'wrap' }}>
+                <h2 style={{ ...titleStyle, fontSize: 32 * s }}>{project.title}</h2>
+                <span style={{ fontSize: 18 * s, color: SECONDARY_TEXT_COLOUR[mode], whiteSpace: 'nowrap' }}>{project.year}</span>
               </div>
               {project.tags.length > 0 && (
-                <div style={{ ...tagsRowStyle, gap: 6 * s }}>
+                <div style={{ ...tagsRowStyle, gap: 8 * s }}>
                   {project.tags.map((tag) => (
                     <span key={tag} style={{
-                      fontSize: 11 * s,
+                      fontSize: 14 * s,
                       color: SECONDARY_TEXT_COLOUR[mode],
                       background: TAG_BG_COLOUR[mode],
                       boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                       borderRadius: 12,
-                      padding: `${1 * s}px ${7 * s}px`,
+                      padding: `${2 * s}px ${9 * s}px`,
                     }}>{tag}</span>
                   ))}
                 </div>
               )}
 
-              <p style={{ ...descriptionBaseStyle, fontSize: 14 * s, color: DESCRIPTION_COLOUR[mode] }}>{project.description}</p>
+              <p style={{ ...descriptionBaseStyle, fontSize: 18 * s, color: DESCRIPTION_COLOUR[mode] }}>{project.description}</p>
 
-              <div style={{ ...techRowStyle, gap: 4 * s }}>
+              <div style={{ ...techRowStyle, gap: 5 * s }}>
                 {project.techStack.map((item) => (
                   <span key={item.id} style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 3 * s,
-                    fontSize: 11 * s,
+                    gap: 4 * s,
+                    fontSize: 14 * s,
                     color: CHIP_TEXT_COLOUR[mode],
                     background: CHIP_BG_COLOUR[mode],
                     boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                     borderRadius: 10,
-                    padding: `${2 * s}px ${7 * s}px`,
+                    padding: `${2 * s}px ${9 * s}px`,
                     whiteSpace: 'nowrap',
                   }}>
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      style={{ ...techIconStyle, width: 12 * s, height: 12 * s }}
+                      style={{ ...techIconStyle, width: 15 * s, height: 15 * s }}
                     />
                     {item.name}
                   </span>
@@ -557,7 +560,7 @@ export function ProjectMonitor({
               </div>
 
               {project.buttons.length > 0 && (
-                <div style={{ ...buttonsRowStyle, gap: 6 * s }}>
+                <div style={{ ...buttonsRowStyle, gap: 8 * s }}>
                   {project.buttons.map((btn, i) => {
                     const tiltDeg = (i % 2 === 0 ? 1 : -1) * BUTTON_HOVER_TILT_DEG;
                     return (
@@ -568,12 +571,12 @@ export function ProjectMonitor({
                         rel="noopener noreferrer"
                         style={{
                           display: 'inline-block',
-                          fontSize: 13 * s,
+                          fontSize: 16 * s,
                           color: CARD_TEXT_COLOUR[mode],
                           background: BUTTON_BG_COLOUR[mode],
                           boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                           borderRadius: 12,
-                          padding: `${4 * s}px ${12 * s}px`,
+                          padding: `${5 * s}px ${14 * s}px`,
                           textDecoration: 'none',
                           whiteSpace: 'nowrap',
                           cursor: 'pointer',
