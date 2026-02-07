@@ -55,14 +55,14 @@ export function HomeSection() {
 
       <Sign position={[2.5, 0, -4]} rotation={[0, 0, 0]} rows={['', '--->', '', '']} />
 
-      <WallFrame
+      {/* <WallFrame
         position={[24, 6, -12]}
         contentWidth={PENGUIN_CONTENT_WIDTH}
         contentHeight={PENGUIN_CONTENT_HEIGHT}
         seed={42}
       >
         <PenguinImage />
-      </WallFrame>
+      </WallFrame> */}
 
       <Sign position={[24, 0, -4]} rotation={[0, 0, 0]} rows={['Only if it', 'really hurts', '|', '∀']} />
       <LightSwitch position={[24, 0, -2]} rotation={[0, Math.PI / 2, 0]} />
