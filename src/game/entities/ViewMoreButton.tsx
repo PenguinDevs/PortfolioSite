@@ -5,7 +5,7 @@ import type { Group } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
-import { useEntityReveal, useLightingMode } from '../hooks';
+import { useEntityReveal, useLightingMode, useIsTouchDevice } from '../hooks';
 import { useSocialLinks } from '../contexts';
 import { LightingMode } from '../types';
 
@@ -32,6 +32,9 @@ const BUTTON_HOVER_BG = {
 // hover tilt matching NameTitle social link style
 const HOVER_TILT_DEG = 10;
 
+// mobile scale factor for font/icon sizes
+const MOBILE_SCALE = 1.6;
+
 export type ViewMoreButtonProps = ThreeElements['group'];
 
 export function ViewMoreButton(props: ViewMoreButtonProps) {
@@ -39,6 +42,8 @@ export function ViewMoreButton(props: ViewMoreButtonProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const mode = useLightingMode();
   const socialLinks = useSocialLinks();
+  const isTouch = useIsTouchDevice();
+  const s = isTouch ? MOBILE_SCALE : 1;
 
   // reveal with no ink edges, just a direct fade-in
   const { colourProgress } = useEntityReveal(groupRef, {
@@ -72,14 +77,14 @@ export function ViewMoreButton(props: ViewMoreButtonProps) {
               opacity: 0,
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              padding: '10px 20px',
+              gap: `${10 * s}px`,
+              padding: `${10 * s}px ${20 * s}px`,
               backgroundColor: BUTTON_BG[mode],
               color: '#ffffff',
               borderRadius: '12px',
               textDecoration: 'none',
               fontFamily: "'PatrickHand', sans-serif",
-              fontSize: '22px',
+              fontSize: `${22 * s}px`,
               fontWeight: 500,
               whiteSpace: 'nowrap',
               cursor: 'pointer',
@@ -95,8 +100,8 @@ export function ViewMoreButton(props: ViewMoreButtonProps) {
             }}
           >
             <svg
-              width="22"
-              height="22"
+              width={22 * s}
+              height={22 * s}
               viewBox={GITHUB_ICON_VIEWBOX}
               fill="currentColor"
             >

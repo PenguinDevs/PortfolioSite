@@ -7,7 +7,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
 import { ProximityPrompt } from '../components';
-import { useEntityReveal, useLightingMode } from '../hooks';
+import { useEntityReveal, useLightingMode, useIsTouchDevice } from '../hooks';
 import { useProjectOverlay } from '../contexts/ProjectOverlayContext';
 import { createToonMaterial } from '../shaders/toonShader';
 import { InkEdgesGroup } from '../shaders/inkEdges';
@@ -29,6 +29,10 @@ const INFO_GAP = 0.5;
 
 // html pixel width for the info card (scaled by distanceFactor in 3D)
 const HTML_WIDTH = 500;
+
+// mobile scale factor for font sizes, gaps, padding etc.
+// the card stays the same width but text is bigger so it wraps more and gets taller
+const MOBILE_SCALE = 1.6;
 
 // max pixel bounds for the media embed inside the WallFrame
 const MEDIA_MAX_WIDTH = 640;
@@ -159,6 +163,8 @@ const BUTTON_SHADOW = '#8a7050';
 // position relative to the ProjectMonitor group
 // the group sits at y=MONITOR_Y (6.5), so offset down to place button at penguin height (~y=0.8)
 const BUTTON_Y_OFFSET = -4.5;
+// extra downward nudge on touch devices so the prompt doesn't overlap the taller info card
+const BUTTON_Y_OFFSET_MOBILE = -6.0;
 // to the right, roughly under the info card / description area
 const BUTTON_X_OFFSET = 6.0;
 // slightly protruding from the wall
@@ -235,6 +241,10 @@ export function ProjectMonitor({
   const mediaRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef(new Map<number, HTMLVideoElement>());
   const mode = useLightingMode();
+  const isTouch = useIsTouchDevice();
+
+  // on mobile, scale up text/gaps/padding so the card gets taller and easier to read
+  const s = isTouch ? MOBILE_SCALE : 1;
 
   const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef, { perfLabel: 'ProjectMonitor' });
   const reveal = useMemo(
@@ -500,46 +510,46 @@ export function ProjectMonitor({
       {infoMounted && (
         <group position={[infoX, 0, 0]}>
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div ref={cardRef} style={{ ...cardBaseStyle, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <h2 style={titleStyle}>{project.title}</h2>
-                <span style={{ fontSize: 14, color: SECONDARY_TEXT_COLOUR[mode], whiteSpace: 'nowrap' }}>{project.year}</span>
+            <div ref={cardRef} style={{ ...cardBaseStyle, gap: 6 * s, color: CARD_TEXT_COLOUR[mode], opacity: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 * s }}>
+                <h2 style={{ ...titleStyle, fontSize: 26 * s }}>{project.title}</h2>
+                <span style={{ fontSize: 14 * s, color: SECONDARY_TEXT_COLOUR[mode], whiteSpace: 'nowrap' }}>{project.year}</span>
               </div>
               {project.tags.length > 0 && (
-                <div style={tagsRowStyle}>
+                <div style={{ ...tagsRowStyle, gap: 6 * s }}>
                   {project.tags.map((tag) => (
                     <span key={tag} style={{
-                      fontSize: 11,
+                      fontSize: 11 * s,
                       color: SECONDARY_TEXT_COLOUR[mode],
                       background: TAG_BG_COLOUR[mode],
                       boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                       borderRadius: 12,
-                      padding: '1px 7px',
+                      padding: `${1 * s}px ${7 * s}px`,
                     }}>{tag}</span>
                   ))}
                 </div>
               )}
 
-              <p style={{ ...descriptionBaseStyle, color: DESCRIPTION_COLOUR[mode] }}>{project.description}</p>
+              <p style={{ ...descriptionBaseStyle, fontSize: 14 * s, color: DESCRIPTION_COLOUR[mode] }}>{project.description}</p>
 
-              <div style={techRowStyle}>
+              <div style={{ ...techRowStyle, gap: 4 * s }}>
                 {project.techStack.map((item) => (
                   <span key={item.id} style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 3,
-                    fontSize: 11,
+                    gap: 3 * s,
+                    fontSize: 11 * s,
                     color: CHIP_TEXT_COLOUR[mode],
                     background: CHIP_BG_COLOUR[mode],
                     boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                     borderRadius: 10,
-                    padding: '2px 7px',
+                    padding: `${2 * s}px ${7 * s}px`,
                     whiteSpace: 'nowrap',
                   }}>
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      style={techIconStyle}
+                      style={{ ...techIconStyle, width: 12 * s, height: 12 * s }}
                     />
                     {item.name}
                   </span>
@@ -547,7 +557,7 @@ export function ProjectMonitor({
               </div>
 
               {project.buttons.length > 0 && (
-                <div style={buttonsRowStyle}>
+                <div style={{ ...buttonsRowStyle, gap: 6 * s }}>
                   {project.buttons.map((btn, i) => {
                     const tiltDeg = (i % 2 === 0 ? 1 : -1) * BUTTON_HOVER_TILT_DEG;
                     return (
@@ -558,12 +568,12 @@ export function ProjectMonitor({
                         rel="noopener noreferrer"
                         style={{
                           display: 'inline-block',
-                          fontSize: 13,
+                          fontSize: 13 * s,
                           color: CARD_TEXT_COLOUR[mode],
                           background: BUTTON_BG_COLOUR[mode],
                           boxShadow: `0 0 0 1px ${BORDER_COLOUR[mode]}`,
                           borderRadius: 12,
-                          padding: '4px 12px',
+                          padding: `${4 * s}px ${12 * s}px`,
                           textDecoration: 'none',
                           whiteSpace: 'nowrap',
                           cursor: 'pointer',
@@ -593,7 +603,7 @@ export function ProjectMonitor({
 
       {/* anchor near the player's walking path so the distance check triggers,
          but offset the billboard back to the wall where the button sits */}
-      <group position={[BUTTON_X_OFFSET, BUTTON_Y_OFFSET, PROMPT_Z_OFFSET]}>
+      <group position={[BUTTON_X_OFFSET, isTouch ? BUTTON_Y_OFFSET_MOBILE : BUTTON_Y_OFFSET, PROMPT_Z_OFFSET]}>
         <ProximityPrompt
           onInteract={handleViewProject}
           actionText="View"
