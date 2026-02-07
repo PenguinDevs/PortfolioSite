@@ -12,24 +12,42 @@ import type { TechStackItem, ProjectButton, ProjectMediaItem } from '@/data/port
 import { phaseFromId } from '../utils';
 
 // monitor screen dimensions (world units)
-const MONITOR_CONTENT_WIDTH = 8;
-const MONITOR_CONTENT_HEIGHT = 5;
+const MONITOR_CONTENT_WIDTH = 10;
+const MONITOR_CONTENT_HEIGHT = 7;
 const MONITOR_FRAME_BORDER = 0.2;
 
-// info card sits just below the frame bottom edge
-const INFO_Y_OFFSET = 0.3;
+// horizontal offset: frame sits left of centre, info card sits to the right
+const FRAME_X_OFFSET = -3.5;
+
+// gap between the frame's right edge and the info card's left edge (world units)
+const INFO_GAP = 0.5;
 
 // html pixel width for the info card (scaled by distanceFactor in 3D)
 const HTML_WIDTH = 500;
 
-// pixel dimensions for the media embed inside the WallFrame
-const MEDIA_WIDTH = 640;
-const MEDIA_HEIGHT = 400;
+// max pixel bounds for the media embed inside the WallFrame
+const MEDIA_MAX_WIDTH = 640;
+const MEDIA_MAX_HEIGHT = 550;
+
+// drei Html transform maps CSS pixels to world units at: distanceFactor / 400
+const MEDIA_DISTANCE_FACTOR = 8;
+const PX_TO_WORLD = MEDIA_DISTANCE_FACTOR / 400;
 
 // how long each slide is shown before crossfading to the next (seconds)
 const SLIDE_DURATION = 5;
 // crossfade transition time (seconds)
 const SLIDE_FADE_DURATION = 0.8;
+
+// fit natural dimensions within max bounds while preserving aspect ratio
+function fitWithinBounds(
+  naturalW: number,
+  naturalH: number,
+  maxW: number,
+  maxH: number,
+): [number, number] {
+  const scale = Math.min(maxW / naturalW, maxH / naturalH, 1);
+  return [Math.round(naturalW * scale), Math.round(naturalH * scale)];
+}
 
 // ---- styles ----------------------------------------------------------------
 
@@ -39,14 +57,14 @@ const cardStyle: React.CSSProperties = {
   color: '#1a1a1a',
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   gap: 6,
-  textAlign: 'center',
+  textAlign: 'left',
 };
 
 const tagsRowStyle: React.CSSProperties = {
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   gap: 6,
   flexWrap: 'wrap',
 };
@@ -77,7 +95,7 @@ const descriptionStyle: React.CSSProperties = {
 
 const techRowStyle: React.CSSProperties = {
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   gap: 4,
   flexWrap: 'wrap',
 };
@@ -104,7 +122,7 @@ const techIconStyle: React.CSSProperties = {
 
 const buttonsRowStyle: React.CSSProperties = {
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   gap: 6,
   flexWrap: 'wrap',
 };
@@ -159,10 +177,48 @@ export function ProjectMonitor({
   // slideshow state for multiple media items
   const hasSlideshow = project.media.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
+  const activeSlideRef = useRef(0);
+  activeSlideRef.current = activeSlide;
   const slideTimerRef = useRef(0);
+  const prevSlideRef = useRef(0);
+  // natural dimensions of each media item, pre-populated from static data
+  // so the frame starts at the correct size before any media loads
+  const naturalDimsRef = useRef(new Map<number, { width: number; height: number }>());
+  useMemo(() => {
+    project.media.forEach((item, i) => {
+      naturalDimsRef.current.set(i, { width: item.width, height: item.height });
+    });
+  }, [project.media]);
+
+  // WallFrame dimensions driven by the active slide's media aspect ratio,
+  // initialised from the first media's known dimensions
+  const firstFit = project.media.length > 0
+    ? fitWithinBounds(project.media[0].width, project.media[0].height, MEDIA_MAX_WIDTH, MEDIA_MAX_HEIGHT)
+    : [MEDIA_MAX_WIDTH, MEDIA_MAX_HEIGHT] as [number, number];
+  const [frameWidth, setFrameWidth] = useState(firstFit[0] * PX_TO_WORLD);
+  const [frameHeight, setFrameHeight] = useState(firstFit[1] * PX_TO_WORLD);
+
+  // compute world-unit frame dimensions for a given media index by fitting
+  // pixel dimensions within MEDIA_MAX bounds, then converting to world units
+  // using the drei Html transform ratio (distanceFactor / 400)
+  const getFrameDimsForSlide = useCallback((index: number): [number, number] => {
+    const dims = naturalDimsRef.current.get(index);
+    if (!dims) return [MEDIA_MAX_WIDTH * PX_TO_WORLD, MEDIA_MAX_HEIGHT * PX_TO_WORLD];
+    const [fitW, fitH] = fitWithinBounds(dims.width, dims.height, MEDIA_MAX_WIDTH, MEDIA_MAX_HEIGHT);
+    return [fitW * PX_TO_WORLD, fitH * PX_TO_WORLD];
+  }, []);
+
+  const getFittedDims = useCallback((index: number): [number, number] => {
+    const dims = naturalDimsRef.current.get(index);
+    if (!dims) return [MEDIA_MAX_WIDTH, MEDIA_MAX_HEIGHT];
+    return fitWithinBounds(dims.width, dims.height, MEDIA_MAX_WIDTH, MEDIA_MAX_HEIGHT);
+  }, []);
 
   const advanceSlide = useCallback(() => {
-    setActiveSlide((prev) => (prev + 1) % project.media.length);
+    setActiveSlide((prev) => {
+      prevSlideRef.current = prev;
+      return (prev + 1) % project.media.length;
+    });
   }, [project.media.length]);
 
   // for image slides, auto-advance after SLIDE_DURATION seconds;
@@ -190,96 +246,153 @@ export function ProjectMonitor({
     if (cardRef.current) {
       cardRef.current.style.opacity = String(colourProgress.value);
     }
-    // drive slideshow crossfade
+    // drive slideshow crossfade, HTML container resize, and 3D frame resize
     slideTimerRef.current += delta;
+    const rawT = Math.min(slideTimerRef.current / SLIDE_FADE_DURATION, 1);
+    // easeInOut cubic
+    const t = rawT < 0.5
+      ? 4 * rawT * rawT * rawT
+      : 1 - Math.pow(-2 * rawT + 2, 3) / 2;
+
+    // animate the 3D frame dimensions between prev and current slide
+    const [prevFW, prevFH] = getFrameDimsForSlide(prevSlideRef.current);
+    const [currFW, currFH] = getFrameDimsForSlide(activeSlide);
+    const fw = prevFW + (currFW - prevFW) * t;
+    const fh = prevFH + (currFH - prevFH) * t;
+    if (Math.abs(fw - frameWidth) > 0.01 || Math.abs(fh - frameHeight) > 0.01) {
+      setFrameWidth(fw);
+      setFrameHeight(fh);
+    }
+
+    // animate the HTML media container dimensions between prev and current slide
     if (mediaRef.current) {
+      const [prevW, prevH] = getFittedDims(prevSlideRef.current);
+      const [currW, currH] = getFittedDims(activeSlide);
+      const w = prevW + (currW - prevW) * t;
+      const h = prevH + (currH - prevH) * t;
+      mediaRef.current.style.width = `${w}px`;
+      mediaRef.current.style.height = `${h}px`;
+
+      // crossfade slide opacities
       const children = mediaRef.current.children;
       for (let i = 0; i < children.length; i++) {
         const child = children[i] as HTMLElement;
-        const isActive = i === activeSlide;
-        // crossfade: ramp opacity up/down over SLIDE_FADE_DURATION
-        const t = Math.min(slideTimerRef.current / SLIDE_FADE_DURATION, 1);
-        const slideOpacity = isActive ? t : (1 - t);
+        if (child.tagName === 'A') continue; // skip click overlay
+        let slideOpacity: number;
+        if (i === activeSlide) {
+          slideOpacity = t;
+        } else if (i === prevSlideRef.current) {
+          slideOpacity = 1 - t;
+        } else {
+          slideOpacity = 0;
+        }
         child.style.opacity = String(slideOpacity * colourProgress.value);
       }
     }
   });
 
+  // position the info card so its left edge clears the frame's right edge
+  const frameRightEdge = FRAME_X_OFFSET + frameWidth / 2 + MONITOR_FRAME_BORDER;
+  const infoCardHalfWidth = (HTML_WIDTH * PX_TO_WORLD) / 2;
+  const infoX = frameRightEdge + INFO_GAP + infoCardHalfWidth;
+
   const openLink = useCallback(() => {
     window.open(project.link.value, '_blank', 'noopener,noreferrer');
   }, [project.link.value]);
 
-  // position the info card just below the frame bottom edge
-  const infoY = -(contentHeight / 2) - INFO_Y_OFFSET;
-
   return (
     <group ref={groupRef} {...groupProps}>
-      {/* monitor screen with optional media */}
-      <WallFrame
-        contentWidth={contentWidth}
-        contentHeight={contentHeight}
-        frameBorder={MONITOR_FRAME_BORDER}
-        showBacking
-        seed={Math.abs(phaseFromId(project.id) * 100 | 0)}
-        reveal={reveal}
-      >
-        {project.media.length > 0 && (
-          <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            <div
-              ref={mediaRef}
-              style={{ position: 'relative', width: MEDIA_WIDTH, height: MEDIA_HEIGHT }}
-            >
-              {project.media.map((item, i) => (
+      {/* monitor screen on the left, dimensions driven by active slide */}
+      <group position={[FRAME_X_OFFSET, 0, 0]}>
+          <WallFrame
+            contentWidth={frameWidth}
+            contentHeight={frameHeight}
+            frameBorder={MONITOR_FRAME_BORDER}
+            showBacking
+            seed={Math.abs(phaseFromId(project.id) * 100 | 0)}
+            reveal={reveal}
+          >
+            {project.media.length > 0 && (
+              <Html transform distanceFactor={MEDIA_DISTANCE_FACTOR} zIndexRange={[0, 0]}>
                 <div
-                  key={item.src}
+                  ref={mediaRef}
                   style={{
-                    position: i === 0 ? 'relative' : 'absolute',
-                    inset: 0,
-                    opacity: 0,
-                    transition: hasSlideshow ? undefined : 'none',
+                    position: 'relative',
+                    width: MEDIA_MAX_WIDTH,
+                    height: MEDIA_MAX_HEIGHT,
                   }}
                 >
-                  {item.type === 'video' ? (
-                    <video
-                      src={item.src}
-                      width={MEDIA_WIDTH}
-                      height={MEDIA_HEIGHT}
-                      autoPlay
-                      loop={!hasSlideshow}
-                      muted
-                      playsInline
-                      onEnded={hasSlideshow ? advanceSlide : undefined}
-                      style={{ display: 'block', objectFit: 'cover', borderRadius: 4 }}
-                    />
-                  ) : (
-                    <img
-                      src={item.src}
-                      alt={project.title}
-                      width={MEDIA_WIDTH}
-                      height={MEDIA_HEIGHT}
-                      style={{ display: 'block', objectFit: 'cover', borderRadius: 4 }}
-                    />
-                  )}
+                  {project.media.map((item, i) => (
+                    <div
+                      key={item.src}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: 0,
+                      }}
+                    >
+                      {item.type === 'video' ? (
+                        <video
+                          src={item.src}
+                          autoPlay
+                          loop={!hasSlideshow}
+                          muted
+                          playsInline
+                          onEnded={hasSlideshow ? advanceSlide : undefined}
+                          onLoadedMetadata={(e) => {
+                            const v = e.currentTarget;
+                            naturalDimsRef.current.set(i, {
+                              width: v.videoWidth,
+                              height: v.videoHeight,
+                            });
+                          }}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: 4,
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={item.src}
+                          alt={project.title}
+                          onLoad={(e) => {
+                            const img = e.currentTarget;
+                            naturalDimsRef.current.set(i, {
+                              width: img.naturalWidth,
+                              height: img.naturalHeight,
+                            });
+                          }}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: 4,
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                  {/* click overlay so taps open the link instead of being swallowed by the canvas */}
+                  <a
+                    href={project.link.value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+                  />
                 </div>
-              ))}
-              {/* click overlay so taps open the link instead of being swallowed by the canvas */}
-              <a
-                href={project.link.value}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
-              />
-            </div>
-          </Html>
-        )}
-      </WallFrame>
+              </Html>
+            )}
+          </WallFrame>
+      </group>
 
-      {/* compact info card below the frame */}
+      {/* info card to the right of the frame */}
       {infoMounted && (
-        <group position={[0, infoY, 0]}>
+        <group position={[infoX, 0, 0]}>
           <Html transform distanceFactor={8} zIndexRange={[0, 0]}>
-            {/* shift down 50% to counteract drei's default centering, so the card hangs below the anchor */}
-            <div style={{ transform: 'translateY(50%)' }}>
             <div ref={cardRef} style={{ ...cardStyle, opacity: 0 }}>
               <h2 style={titleStyle}>{project.title}</h2>
               {project.tags.length > 0 && (
@@ -320,7 +433,6 @@ export function ProjectMonitor({
                   ))}
                 </div>
               )}
-            </div>
             </div>
           </Html>
         </group>

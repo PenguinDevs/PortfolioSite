@@ -26,8 +26,8 @@ export interface ProjectButton {
 }
 
 export type ProjectMediaItem =
-  | { type: 'image'; src: string }
-  | { type: 'video'; src: string };
+  | { type: 'image'; src: string; width: number; height: number }
+  | { type: 'video'; src: string; width: number; height: number };
 
 export interface ProjectData {
   id: string;
@@ -78,7 +78,7 @@ interface ProjectYaml {
   techStack?: string[];
   buttons?: ProjectButton[];
   link: { type: string; value: string };
-  media?: { type: 'image' | 'video'; src: string }[];
+  media?: { type: 'image' | 'video'; src: string; width: number; height: number }[];
 }
 
 interface PortfolioData {

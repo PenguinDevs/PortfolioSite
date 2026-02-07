@@ -566,9 +566,12 @@ function mergeOpts(opts: InkEdgesOptions): ResolvedInkEdgesOptions {
 
 export interface InkEdgesProps extends InkEdgesOptions {
   target: React.RefObject<Mesh | null>;
+  // optional: pass the geometry object so the effect re-runs when it changes
+  // (the target ref identity stays the same across geometry rebuilds)
+  geometry?: BufferGeometry;
 }
 
-export function InkEdges({ target, ...opts }: InkEdgesProps) {
+export function InkEdges({ target, geometry: geometryDep, ...opts }: InkEdgesProps) {
   const o = mergeOpts(opts);
 
   useEffect(() => {
@@ -613,7 +616,7 @@ export function InkEdges({ target, ...opts }: InkEdgesProps) {
       lineObj.geometry.dispose();
       (lineObj.material as LineBasicMaterial).dispose();
     };
-  }, [target, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
+  }, [target, geometryDep, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
       o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress]);
 
   return null;

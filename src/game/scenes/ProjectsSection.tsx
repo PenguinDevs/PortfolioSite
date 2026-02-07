@@ -6,9 +6,9 @@ import { Sign, ProjectMonitor } from '../entities';
 import { useProjects } from '../contexts/ProjectsContext';
 import type { ProjectData } from '@/data/portfolio';
 
-// each monitor sits centred within one alley tile (12 world units wide)
-const TILE_WIDTH = 12;
-const MONITOR_Y = 8;
+// each monitor spans two alley tiles (24 world units wide)
+const SLOT_WIDTH = 24;
+const MONITOR_Y = 6.5;
 const MONITOR_Z = -11.9;
 
 // sign sits just before the first monitor
@@ -71,7 +71,7 @@ export function ProjectsSection(props: ProjectsSectionProps) {
         <ProjectMonitor
           key={project.id}
           project={project}
-          position={[i * TILE_WIDTH, MONITOR_Y, MONITOR_Z]}
+          position={[i * SLOT_WIDTH + SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]}
           contentWidth={overrides.contentWidth}
           contentHeight={overrides.contentHeight}
         />

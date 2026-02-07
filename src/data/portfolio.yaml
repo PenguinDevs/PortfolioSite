@@ -343,10 +343,16 @@ projects:
     media:
       - type: video
         src: /assets/videos/projects/valotracker_banner.webm
+        width: 720
+        height: 480
       - type: image
         src: /assets/images/projects/valotracker_preview1.png
+        width: 538
+        height: 506
       - type: image
         src: /assets/images/projects/valotracker_preview2.png
+        width: 464
+        height: 372
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
     tags:
       - Valorant
@@ -382,18 +388,32 @@ projects:
     media:
       - type: image
         src: /assets/images/projects/catchngo_preview1.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview2.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview3.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview4.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview5.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview6.jpg
+        width: 264
+        height: 573
       - type: image
         src: /assets/images/projects/catchngo_preview7.jpg
+        width: 264
+        height: 573
     description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
     tags:
       - 1st Place Winner
@@ -425,6 +445,8 @@ projects:
     media:
       - type: image
         src: /assets/images/projects/ceebs_preview.png
+        width: 3024
+        height: 1598
     description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
     tags:
       - Ecommerce
@@ -452,10 +474,16 @@ projects:
     media:
       - type: image
         src: /assets/images/projects/valorpc_preview1.png
+        width: 603
+        height: 708
       - type: image
         src: /assets/images/projects/valorpc_preview2.png
+        width: 567
+        height: 147
       - type: image
         src: /assets/images/projects/valorpc_preview3.png
+        width: 548
+        height: 137
     description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
     tags:
       - ★ 26
@@ -478,8 +506,12 @@ projects:
     media:
     - type: video
       src: /assets/videos/projects/vehicle_suspension_preview1.webm
+      width: 720
+      height: 480
     - type: video
       src: /assets/videos/projects/vehicle_suspension_preview2.webm
+      width: 720
+      height: 480
     description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
     tags:
       - Monorepo
@@ -506,6 +538,8 @@ projects:
     media:
       - type: image
         src: /assets/images/projects/allocateus_preview.png
+        width: 1657
+        height: 890
     description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
     tags:
       - Hackathon Project
@@ -534,10 +568,16 @@ projects:
     media:
     - type: video
       src: /assets/videos/projects/snowsim_preview.webm
+      width: 640
+      height: 360
     - type: video
       src: /assets/videos/projects/petsim_preview.webm
+      width: 640
+      height: 360
     - type: video
       src: /assets/videos/projects/fishstore_preview.webm
+      width: 640
+      height: 360
     description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
     tags:
       - 13M+ Plays
@@ -567,20 +607,36 @@ projects:
     media:
       - type: image
         src: /assets/images/projects/s15_preview1.jpg
+        width: 930
+        height: 1452
       - type: image
         src: /assets/images/projects/s15_preview2.jpg
+        width: 816
+        height: 1242
       - type: image
         src: /assets/images/projects/s15_preview3.jpg
+        width: 790
+        height: 611
       - type: image
         src: /assets/images/projects/s15_preview4.jpg
+        width: 735
+        height: 461
       - type: image
         src: /assets/images/projects/s15_preview5.jpg
+        width: 965
+        height: 492
       - type: image
         src: /assets/images/projects/s15_preview6.jpg
+        width: 1748
+        height: 946
       - type: image
         src: /assets/images/projects/s15_preview7.jpg
+        width: 905
+        height: 779
       - type: image
         src: /assets/images/projects/s15_preview8.jpg
+        width: 936
+        height: 756
     description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
     tags:
       - 3D Art

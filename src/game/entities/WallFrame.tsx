@@ -200,6 +200,7 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
 
         <InkEdges
           target={frameMeshRef}
+          geometry={frameGeo}
           colour={INK_EDGE_COLOUR[LightingMode.Light]}
           darkColour={INK_EDGE_COLOUR[LightingMode.Dark]}
           seed={seed}
