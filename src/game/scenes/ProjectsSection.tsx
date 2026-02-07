@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Sign, ProjectMonitor } from '../entities';
+import { Sign, ProjectMonitor, ViewMoreButton } from '../entities';
 import { useProjects } from '../contexts/ProjectsContext';
 import { CircularSlot } from './circular';
 import type { ProjectData } from '@/data/portfolio';
@@ -85,6 +85,10 @@ export function ProjectsSection({ baseX }: ProjectsSectionProps) {
           />
         </CircularSlot>
       ))}
+
+      <CircularSlot baseX={baseX + resolved.length * SLOT_WIDTH}>
+        <ViewMoreButton position={[SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]} />
+      </CircularSlot>
     </>
   );
 }

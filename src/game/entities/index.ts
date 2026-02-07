@@ -18,3 +18,5 @@ export { ProjectMonitor } from './ProjectMonitor';
 export type { ProjectMonitorProps } from './ProjectMonitor';
 export { GalleryWallItem } from './GalleryWallItem';
 export type { GalleryWallItemProps } from './GalleryWallItem';
+export { ViewMoreButton } from './ViewMoreButton';
+export type { ViewMoreButtonProps } from './ViewMoreButton';
