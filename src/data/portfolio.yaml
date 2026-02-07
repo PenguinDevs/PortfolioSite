@@ -512,7 +512,7 @@ projects:
       src: /assets/videos/projects/vehicle_suspension_preview2.webm
       width: 720
       height: 480
-    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
+    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised, performant and realistic land vehicle components for real-time simulation in Roblox.
     tags:
       - Monorepo
       - Library

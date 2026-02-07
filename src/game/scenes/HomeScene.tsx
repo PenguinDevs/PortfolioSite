@@ -43,7 +43,8 @@ const HOME_X = 0;
 const AWARDS_X = 42;
 const PROJECTS_X = 60;
 // total loop length -- after this distance the scene wraps back to the start
-const TRACK_LENGTH = 240;
+// last project tile ends at PROJECTS_X + 8*SLOT_WIDTH = 252, plus 2 tiles of buffer
+const TRACK_LENGTH = 264;
 
 export function HomeScene() {
   const inputRef = useInput();
@@ -116,9 +117,7 @@ export function HomeScene() {
           <CircularSlot baseX={AWARDS_X}>
             <AwardsSection />
           </CircularSlot>
-          <CircularSlot baseX={PROJECTS_X}>
-            <ProjectsSection />
-          </CircularSlot>
+          <ProjectsSection baseX={PROJECTS_X} />
         </CircularSceneProvider>
 
         <Player ref={playerRef} />

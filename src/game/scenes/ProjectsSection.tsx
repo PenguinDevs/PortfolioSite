@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { ThreeElements } from '@react-three/fiber';
 import { Sign, ProjectMonitor } from '../entities';
 import { useProjects } from '../contexts/ProjectsContext';
+import { CircularSlot } from './circular';
 import type { ProjectData } from '@/data/portfolio';
 
 // each monitor spans two alley tiles (24 world units wide)
@@ -38,9 +38,12 @@ function normaliseSlot(slot: (typeof PROJECT_SLOTS)[number]): { id: string } & P
   return typeof slot === 'string' ? { id: slot } : slot;
 }
 
-type ProjectsSectionProps = ThreeElements['group'];
+interface ProjectsSectionProps {
+  // absolute X position on the circular track where the projects section begins
+  baseX: number;
+}
 
-export function ProjectsSection(props: ProjectsSectionProps) {
+export function ProjectsSection({ baseX }: ProjectsSectionProps) {
   const allProjects = useProjects();
 
   // build a lookup so we can find projects by id
@@ -63,19 +66,25 @@ export function ProjectsSection(props: ProjectsSectionProps) {
     return result;
   }, [projectMap]);
 
+  // each monitor and the sign get their own CircularSlot so they wrap
+  // independently -- this prevents the whole section from teleporting
+  // when the player reaches the far end of the projects
   return (
-    <group {...props}>
-      <Sign position={[SIGN_X, 0, -4]} rotation={[0, 0, 0]} rows={['', 'Projects', '---->', '']} />
+    <>
+      <CircularSlot baseX={baseX + SIGN_X}>
+        <Sign position={[0, 0, -4]} rotation={[0, 0, 0]} rows={['', 'Projects', '---->', '']} />
+      </CircularSlot>
 
       {resolved.map(({ project, overrides }, i) => (
-        <ProjectMonitor
-          key={project.id}
-          project={project}
-          position={[i * SLOT_WIDTH + SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]}
-          contentWidth={overrides.contentWidth}
-          contentHeight={overrides.contentHeight}
-        />
+        <CircularSlot key={project.id} baseX={baseX + i * SLOT_WIDTH}>
+          <ProjectMonitor
+            project={project}
+            position={[SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]}
+            contentWidth={overrides.contentWidth}
+            contentHeight={overrides.contentHeight}
+          />
+        </CircularSlot>
       ))}
-    </group>
+    </>
   );
 }
