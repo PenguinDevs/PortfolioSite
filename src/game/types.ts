@@ -11,6 +11,12 @@ export enum Sound {
   Button = '/assets/sounds/button.ogg',
 }
 
+export enum Section {
+  Home = 'home',
+  Awards = 'awards',
+  Projects = 'projects',
+}
+
 export enum LightingMode {
   Light = 'light',
   Dark = 'dark',

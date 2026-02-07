@@ -5,3 +5,5 @@ export { ProximityPromptProvider, useProximityPromptManager } from './ProximityP
 export { SocialLinksProvider, useSocialLinks } from './SocialLinksContext';
 export { ProjectsProvider, useProjects } from './ProjectsContext';
 export { ProjectOverlayProvider, useProjectOverlay } from './ProjectOverlayContext';
+export { NavigationProvider, useNavigation } from './NavigationContext';
+export type { AutopilotTarget } from './NavigationContext';

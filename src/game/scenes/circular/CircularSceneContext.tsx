@@ -34,6 +34,13 @@ export function useCircularScene(): CircularSceneConfig {
   return config;
 }
 
+// Signed shortest-path delta from `from` to `to` on a circular track.
+// Positive means `to` is ahead (to the right), negative means behind.
+export function circularDelta(from: number, to: number, trackLength: number): number {
+  const raw = to - from;
+  return raw - trackLength * Math.round(raw / trackLength);
+}
+
 // Wraps x into [0, length)
 export function wrapPosition(x: number, length: number): number {
   return ((x % length) + length) % length;

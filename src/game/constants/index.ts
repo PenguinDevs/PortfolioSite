@@ -10,3 +10,6 @@ export {
   AMBIENT_INTENSITY,
   DIRECTIONAL_INTENSITY,
 } from './colours';
+
+export { SECTIONS, SECTION_DISPLAY_ORDER, TRACK_LENGTH } from './sections';
+export type { SectionDefinition } from './sections';

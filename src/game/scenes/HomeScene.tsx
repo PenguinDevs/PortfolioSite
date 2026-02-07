@@ -7,7 +7,7 @@ import { Player } from '../entities';
 import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
 import { useDerivedRef } from '../utils';
-import { PlayerProvider } from '../contexts';
+import { PlayerProvider, useNavigation } from '../contexts';
 import { ProximityPromptProvider } from '../contexts/ProximityPromptContext';
 import { MovementService, PerspectiveCameraService, TutorialService } from '../services';
 import { useLightingMode } from '../hooks';
@@ -54,6 +54,13 @@ export function HomeScene() {
   const getGroup = useCallback(() => playerRef.current?.group ?? null, []);
   const groupRef = useDerivedRef(getGroup);
   const mode = useLightingMode();
+  const { autopilotTargetRef, setPlayerGroupRef } = useNavigation();
+
+  // register the player group ref with the navigation context so
+  // the section tracker can read the position outside the Canvas
+  useEffect(() => {
+    setPlayerGroupRef(groupRef);
+  }, [groupRef, setPlayerGroupRef]);
 
   // add the light target to the scene so its world matrix updates, and
   // call updateProjectionMatrix after R3F has applied the dash props
@@ -121,7 +128,7 @@ export function HomeScene() {
         </CircularSceneProvider>
 
         <Player ref={playerRef} />
-        <MovementService inputRef={inputRef} playerRef={playerRef} />
+        <MovementService inputRef={inputRef} playerRef={playerRef} autopilotTargetRef={autopilotTargetRef} />
         <PerspectiveCameraService targetRef={groupRef} inputRef={inputRef} />
         <TutorialService inputRef={inputRef} />
       </ProximityPromptProvider>

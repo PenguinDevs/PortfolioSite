@@ -5,3 +5,4 @@ export { ProximityPrompt } from './ProximityPrompt';
 export type { ProximityPromptProps } from './ProximityPrompt';
 export { TextWindow } from './TextWindow';
 export type { TextWindowProps } from './TextWindow';
+export { SectionNav } from './SectionNav';

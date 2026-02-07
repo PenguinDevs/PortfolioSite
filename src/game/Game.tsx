@@ -8,6 +8,8 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { TouchTutorial } from './components/TouchTutorial';
 import { AwardOverlay } from './components/AwardOverlay';
 import { ProjectOverlay } from './components/ProjectOverlay';
+import { SectionNav } from './components/SectionNav';
+import { NavigationProvider } from './contexts/NavigationContext';
 import { AwardOverlayProvider } from './contexts/AwardOverlayContext';
 import type { AwardData } from './contexts/AwardOverlayContext';
 import { ProjectOverlayProvider } from './contexts/ProjectOverlayContext';
@@ -42,25 +44,28 @@ export function Game({
 }) {
   PerfLogger.mark('game-mount');
   return (
-    <SocialLinksProvider socialLinks={socialLinks}>
-      <AwardOverlayProvider awards={awards}>
-        <ProjectsProvider projects={projects}>
-          <ProjectOverlayProvider>
-            <LoadingScreen />
-            <TouchTutorial />
-            <Canvas
-              shadows
-              gl={{ antialias: true }}
-              style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
-            >
-              <SceneBackground />
-              <HomeScene />
-            </Canvas>
-            <AwardOverlay />
-            <ProjectOverlay />
-          </ProjectOverlayProvider>
-        </ProjectsProvider>
-      </AwardOverlayProvider>
-    </SocialLinksProvider>
+    <NavigationProvider>
+      <SocialLinksProvider socialLinks={socialLinks}>
+        <AwardOverlayProvider awards={awards}>
+          <ProjectsProvider projects={projects}>
+            <ProjectOverlayProvider>
+              <LoadingScreen />
+              <TouchTutorial />
+              <Canvas
+                shadows
+                gl={{ antialias: true }}
+                style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
+              >
+                <SceneBackground />
+                <HomeScene />
+              </Canvas>
+              <AwardOverlay />
+              <ProjectOverlay />
+              <SectionNav />
+            </ProjectOverlayProvider>
+          </ProjectsProvider>
+        </AwardOverlayProvider>
+      </SocialLinksProvider>
+    </NavigationProvider>
   );
 }
