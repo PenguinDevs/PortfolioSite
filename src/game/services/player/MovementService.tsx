@@ -18,6 +18,10 @@ const SCROLL_FRICTION = 4;
 // swipe pixels to game-world velocity conversion (higher than scroll
 // because touch move deltas arrive in smaller increments than wheel events)
 const SWIPE_SENSITIVITY = 0.3;
+// converts fling velocity (px/s) to game-world velocity
+const FLING_SENSITIVITY = 0.06;
+// friction for touch fling momentum (lower than SCROLL_FRICTION for longer coast)
+const TOUCH_MOMENTUM_FRICTION = 2.5;
 
 // autopilot tuning
 const AUTOPILOT_MAX_SPEED = 100;
@@ -37,6 +41,8 @@ interface MovementServiceProps {
 
 export function MovementService({ inputRef, playerRef, autopilotTargetRef }: MovementServiceProps) {
   const scrollVelocity = useRef(0);
+  // touch fling momentum (separate from scrollVelocity for lower friction coast)
+  const touchMomentum = useRef(0);
   // tracks raw scroll delta so we can detect user scroll during autopilot
   const pendingScrollDelta = useRef(0);
 
@@ -63,6 +69,7 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
     pendingScrollDelta.current = 0;
     const userKeyed = input[InputAction.Left] || input[InputAction.Right];
     const swipeDx = handle.touch.consumeSwipeDelta();
+    const flingVelocity = handle.touch.consumeFlingVelocity();
     const userSwiped = swipeDx !== 0;
 
     // autopilot mode: drive toward a target position
@@ -105,6 +112,7 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
           }
 
           scrollVelocity.current = direction * desiredSpeed;
+          touchMomentum.current = 0;
           player.group.position.x += scrollVelocity.current * delta;
 
           const speed = Math.abs(scrollVelocity.current);
@@ -129,9 +137,27 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
     // consume swipe delta from touch controller and add it as velocity
     if (swipeDx !== 0) {
       scrollVelocity.current += swipeDx * SWIPE_SENSITIVITY;
+      // active swiping overrides any existing fling coast
+      touchMomentum.current = 0;
     }
 
-    const totalVelocity = keyboardDx * MOVE_SPEED + scrollVelocity.current;
+    // on touch release, transfer momentum to the low-friction coast channel
+    if (flingVelocity !== 0) {
+      const flingGameVel = flingVelocity * FLING_SENSITIVITY;
+      // use whichever is larger to avoid a speed drop on release
+      const sign = Math.sign(flingGameVel) || Math.sign(scrollVelocity.current);
+      touchMomentum.current = sign * Math.max(
+        Math.abs(flingGameVel),
+        Math.abs(scrollVelocity.current),
+      );
+      scrollVelocity.current = 0;
+    }
+
+    // decay touch fling momentum with lower friction for longer coast
+    touchMomentum.current *= Math.exp(-TOUCH_MOMENTUM_FRICTION * delta);
+    if (Math.abs(touchMomentum.current) < 0.01) touchMomentum.current = 0;
+
+    const totalVelocity = keyboardDx * MOVE_SPEED + scrollVelocity.current + touchMomentum.current;
     player.group.position.x += totalVelocity * delta;
 
     const speed = Math.abs(totalVelocity);

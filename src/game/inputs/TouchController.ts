@@ -8,6 +8,14 @@ const SWIPE_THRESHOLD = 8;
 // e.g. 0.2 means the leftmost 20% and rightmost 20% are hold zones
 const HOLD_REGION_EDGE = 0.2;
 
+// time window for sampling velocity to compute fling momentum on release
+const FLING_SAMPLE_WINDOW = 100; // ms
+
+interface VelocitySample {
+  dx: number;
+  time: number;
+}
+
 interface TrackedTouch {
   id: number;
   startX: number;
@@ -28,6 +36,10 @@ export class TouchController {
   private touches: TrackedTouch[] = [];
   private target: HTMLElement | null = null;
 
+  // velocity tracking for fling momentum on touch release
+  private velocitySamples: VelocitySample[] = [];
+  private flingVelocity = 0;
+
   // recalculate hold state from all active non-swiping touches
   private refreshHoldState() {
     let left = false;
@@ -42,6 +54,12 @@ export class TouchController {
   }
 
   private handleTouchStart = (e: TouchEvent) => {
+    // clear velocity samples when starting a fresh touch sequence
+    if (this.touches.length === 0) {
+      this.velocitySamples = [];
+      this.flingVelocity = 0;
+    }
+
     const w = window.innerWidth;
     const leftEdge = w * HOLD_REGION_EDGE;
     const rightEdge = w * (1 - HOLD_REGION_EDGE);
@@ -76,6 +94,9 @@ export class TouchController {
       e.preventDefault();
     }
 
+    const now = performance.now();
+    let eventDelta = 0;
+
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const tracked = this.touches.find((t) => t.id === touch.identifier);
@@ -97,7 +118,19 @@ export class TouchController {
       }
 
       // invert both axes: swipe left = move right, swipe up = move right
-      this.swipeDeltaX += -dx - dy;
+      const contribution = -dx - dy;
+      this.swipeDeltaX += contribution;
+      eventDelta += contribution;
+    }
+
+    // record velocity sample for fling detection
+    if (eventDelta !== 0) {
+      this.velocitySamples.push({ dx: eventDelta, time: now });
+      // prune samples older than the window
+      const cutoff = now - FLING_SAMPLE_WINDOW;
+      while (this.velocitySamples.length > 0 && this.velocitySamples[0].time < cutoff) {
+        this.velocitySamples.shift();
+      }
     }
   };
 
@@ -108,6 +141,21 @@ export class TouchController {
       if (idx !== -1) this.touches.splice(idx, 1);
     }
     this.refreshHoldState();
+
+    // when all fingers are up, compute fling velocity from recent samples
+    if (this.touches.length === 0 && this.velocitySamples.length >= 2) {
+      const now = performance.now();
+      const cutoff = now - FLING_SAMPLE_WINDOW;
+      const recent = this.velocitySamples.filter((s) => s.time >= cutoff);
+      if (recent.length >= 2) {
+        const totalDx = recent.reduce((sum, s) => sum + s.dx, 0);
+        const timeSpan = (recent[recent.length - 1].time - recent[0].time) / 1000;
+        if (timeSpan > 0.001) {
+          this.flingVelocity = totalDx / timeSpan; // px/s
+        }
+      }
+      this.velocitySamples = [];
+    }
   };
 
   // attach touch listeners scoped to a specific element (e.g. the canvas)
@@ -136,5 +184,12 @@ export class TouchController {
     const delta = this.swipeDeltaX;
     this.swipeDeltaX = 0;
     return delta;
+  }
+
+  // consume the fling velocity computed on touch release (call once per frame)
+  consumeFlingVelocity(): number {
+    const v = this.flingVelocity;
+    this.flingVelocity = 0;
+    return v;
   }
 }
