@@ -188,7 +188,7 @@ export function PedestalAward({ award, ...props }: PedestalAwardProps) {
   const elapsed = useRef(0);
   const { showAward } = useAwardOverlay();
 
-  const { drawProgress, connectMaterial } = useEntityReveal(groupRef);
+  const { drawProgress, connectMaterial } = useEntityReveal(groupRef, { perfLabel: 'PedestalAward' });
 
   const handleInteract = useCallback(() => {
     showAward(award);

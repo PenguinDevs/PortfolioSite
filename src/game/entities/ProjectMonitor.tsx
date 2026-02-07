@@ -169,7 +169,7 @@ export function ProjectMonitor({
   const mediaRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef(new Map<number, HTMLVideoElement>());
 
-  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef);
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(groupRef, { perfLabel: 'ProjectMonitor' });
   const reveal = useMemo(
     () => ({ drawProgress, colourProgress, connectMaterial }),
     [drawProgress, colourProgress, connectMaterial],

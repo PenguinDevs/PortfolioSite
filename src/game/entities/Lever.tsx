@@ -34,7 +34,7 @@ export const Lever = forwardRef<LeverHandle, ThreeElements['group']>(
       texturePath: '/assets/textures/colour_palette.png',
     });
 
-    const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+    const { drawProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Lever' });
 
     useEffect(() => {
       connectMaterial(material);

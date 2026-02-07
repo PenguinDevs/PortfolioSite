@@ -15,6 +15,7 @@ import type { SocialLinks, ProjectData } from '@/data/portfolio';
 
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
+import { PerfLogger } from './debug/PerfLogger';
 
 // Updates the WebGL clear colour when the lighting mode changes
 function SceneBackground() {
@@ -37,6 +38,7 @@ export function Game({
   socialLinks: SocialLinks;
   projects: ProjectData[];
 }) {
+  PerfLogger.mark('game-mount');
   return (
     <SocialLinksProvider socialLinks={socialLinks}>
       <AwardOverlayProvider awards={awards}>

@@ -39,7 +39,7 @@ export const AlleyGround = forwardRef<Group, AlleyGroundProps>(function AlleyGro
 
   useThemedToonMaterial(material, GROUND_COLOUR, GROUND_SHADOW);
 
-  const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+  const { drawProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'AlleyGround' });
 
   useEffect(() => {
     connectMaterial(material);

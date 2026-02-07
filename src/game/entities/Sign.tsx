@@ -34,7 +34,7 @@ export const Sign = forwardRef<Group, SignProps>(function Sign({ rows, ...props 
     texturePath: '/assets/textures/colour_palette.png',
   });
 
-  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef);
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Sign' });
 
   // refs for the text rows so we can drive their opacity during the colour reveal
   const textRefs = useRef<any[]>([]);

@@ -13,6 +13,7 @@ import { useLightingMode } from '../hooks';
 import { useSocialLinks } from '../contexts';
 import type { SocialLinks } from '@/data/portfolio';
 import { quadraticBezier, easeInOutCubic, easeOutBack } from '../math';
+import { PerfLogger } from '../debug/PerfLogger';
 
 // how long each letter takes to reach its destination (seconds)
 const LETTER_DURATION = 2.2;
@@ -169,6 +170,8 @@ export function NameTitle(props: ThreeElements['group']) {
   const socialRef = useRef<HTMLDivElement>(null);
   // total elapsed time since mount for the text delay
   const totalElapsedRef = useRef(0);
+  // perf logging flags (only used when ?perf is in the URL)
+  const perfMarksRef = useRef({ letters: false, text: false, done: false });
 
   // centroid of the letter positions in outer-group space, used to centre the scale pivot
   const centreOffsetRef = useRef(new Vector3());
@@ -286,6 +289,10 @@ export function NameTitle(props: ThreeElements['group']) {
       0,
       1,
     );
+    if (textProgress > 0 && !perfMarksRef.current.text) {
+      perfMarksRef.current.text = true;
+      PerfLogger.mark('nametitle:text-start');
+    }
     const textOpacity = easeInOutCubic(textProgress);
     if (topTextRef.current) {
       topTextRef.current.fillOpacity = textOpacity;
@@ -299,6 +306,11 @@ export function NameTitle(props: ThreeElements['group']) {
 
     // wait for the scene to load before starting the letter animation
     if (totalElapsedRef.current < LETTER_DELAY) return;
+
+    if (!perfMarksRef.current.letters) {
+      perfMarksRef.current.letters = true;
+      PerfLogger.mark('nametitle:letters-start');
+    }
 
     // tick the jitter clock and pick new random targets at 3fps
     jitterClockRef.current += clampedDelta;
@@ -355,6 +367,11 @@ export function NameTitle(props: ThreeElements['group']) {
       if (shouldJitter) {
         state.object.quaternion.copy(state.jitterTarget);
       }
+    }
+
+    if (textProgress >= 1 && !perfMarksRef.current.done) {
+      perfMarksRef.current.done = true;
+      PerfLogger.mark('nametitle:complete');
     }
   });
 

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProgress } from '@react-three/drei';
+import { PerfLogger } from '../debug/PerfLogger';
 
 // Minimum time to show the loading screen so it doesn't flash
 const MIN_DISPLAY_MS = 1500;
@@ -12,16 +13,30 @@ export function LoadingScreen() {
   const { progress, active } = useProgress();
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
+  const markedShown = useRef(false);
+  const markedAssetsComplete = useRef(false);
+
+  if (!markedShown.current) {
+    markedShown.current = true;
+    PerfLogger.mark('loading-screen:shown');
+  }
 
   useEffect(() => {
     // Don't start fading until loading is complete and minimum time has passed
     if (progress < 100 || active) return;
 
+    if (!markedAssetsComplete.current) {
+      markedAssetsComplete.current = true;
+      PerfLogger.mark('loading-screen:assets-complete');
+    }
+
     const minTimer = setTimeout(() => {
+      PerfLogger.mark('loading-screen:fade-start');
       setFading(true);
 
       // Remove from DOM after the fade out animation completes
       const fadeTimer = setTimeout(() => {
+        PerfLogger.mark('loading-screen:gone');
         setVisible(false);
       }, FADE_OUT_MS);
 

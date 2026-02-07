@@ -134,7 +134,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       shadowColor: DEFAULT_SHADOW,
     });
 
-    const { drawProgress, connectMaterial } = useEntityReveal(localRef);
+    const { drawProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Keycap' });
 
     // reusable vector for world position lookups
     const worldPos = useMemo(() => new Vector3(), []);

@@ -7,6 +7,7 @@ import { useFrame } from '@react-three/fiber';
 import { easeOutCubic } from '../math';
 import { LightingService } from '../services';
 import { GROUND_COLOUR } from '../constants';
+import { PerfLogger } from '../debug/PerfLogger';
 
 // fallback edge duration when segment count isn't available yet (seconds)
 const DEFAULT_EDGE_DURATION = 1.2;
@@ -52,6 +53,8 @@ export interface EntityRevealOptions {
   delay?: number;
   // skip viewport detection and reveal immediately (useful for testing)
   immediate?: boolean;
+  // label for perf logging (only used when ?perf is in the URL)
+  perfLabel?: string;
 }
 
 // draw progress uniform extended with segment count for complexity-based duration.
@@ -90,6 +93,7 @@ export function useEntityReveal(
     opacityFadeDuration = DEFAULT_OPACITY_FADE_DURATION,
     delay = DEFAULT_INITIAL_DELAY,
     immediate = false,
+    perfLabel,
   } = options;
 
   // shared uniform objects that persist across renders.
@@ -159,6 +163,7 @@ export function useEntityReveal(
       if (frustum.containsPoint(worldPos)) {
         // entity was already in view on initial page load -- apply the delay
         const isInitialLoad = waitingFramesRef.current <= INITIAL_LOAD_FRAME_THRESHOLD;
+        if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:visible`);
         if (isInitialLoad && delay > 0) {
           phaseRef.current = RevealPhase.Delaying;
           timerRef.current = 0;
@@ -168,6 +173,7 @@ export function useEntityReveal(
           phaseRef.current = RevealPhase.Revealing;
           timerRef.current = 0;
           drawProgress.value = 0;
+          if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:reveal-start`);
         }
       }
       return;
@@ -185,6 +191,7 @@ export function useEntityReveal(
           phaseRef.current = RevealPhase.Revealing;
           timerRef.current = 0;
           drawProgress.value = 0;
+          if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:reveal-start`);
         }
         break;
       }
@@ -219,6 +226,7 @@ export function useEntityReveal(
         const colourEnd = colourStart + colourDuration;
         if (t >= dur && t >= colourEnd) {
           phaseRef.current = RevealPhase.Done;
+          if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:done`);
           // ensure final values are exact
           colourProgress.value = 1;
           for (const mat of materialsRef.current) {
