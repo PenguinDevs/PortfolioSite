@@ -19,7 +19,7 @@ import type { InputHandle } from '../../inputs';
 import { InputAction } from '../../types';
 
 // world-space position of the tutorial group
-const TUTORIAL_POSITION: [number, number, number] = [0, 0, 6];
+const TUTORIAL_POSITION: [number, number, number] = [0, 0, 5];
 
 // rotate keycaps
 const KEYCAP_ROTATION: [number, number, number] = [Math.PI * 0.05, 0, 0];
