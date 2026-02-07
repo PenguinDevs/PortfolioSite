@@ -316,12 +316,28 @@ export function ProjectMonitor({
     slideTimerRef.current = 0;
   }, [activeSlide]);
 
+  // prefetch media as soon as ink edges start drawing so assets are
+  // cached by the time the WallFrame mounts its Html children
+  const prefetchedRef = useRef(false);
+
   // mount the Html info card as soon as ink edges start drawing
   // and fade it in independently over a short duration
   const CARD_FADE_DURATION = 0.5;
   const cardFadeRef = useRef(0);
   const [infoMounted, setInfoMounted] = useState(false);
   useFrame((_, delta) => {
+    if (!prefetchedRef.current && drawProgress.value > -1) {
+      prefetchedRef.current = true;
+      for (const item of project.media) {
+        if (item.type === 'image') {
+          const img = new Image();
+          img.src = item.src;
+        } else {
+          // fire a fetch to prime the browser cache for videos
+          fetch(item.src).catch(() => {});
+        }
+      }
+    }
     if (!infoMounted && drawProgress.value > -1) {
       setInfoMounted(true);
     }
