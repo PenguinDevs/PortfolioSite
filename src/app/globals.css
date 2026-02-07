@@ -1,104 +1,198 @@
 @import 'tailwindcss';
 
-:root {
-  --background: #0f1729;
-  --foreground: #e2e8f0;
+@font-face {
+  font-family: 'PatrickHand';
+  src: url('/assets/fonts/patrackhand_regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0c1426;
-    --foreground: #f1f5f9;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family:
-    var(--font-sans),
-    system-ui,
-    -apple-system,
-    sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100dvh;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* Loading screen */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  transition: opacity 600ms ease-out;
+  pointer-events: none;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+/* Clipping container shows one 128px frame of the sprite strip */
+.loading-sprite-clip {
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: #4b5563;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
-  }
-}
-
-/* Page transitions */
-html {
-  overflow-x: hidden;
-}
-
-/* Only add transitions to specific interactive elements to avoid performance issues */
-button,
-a,
-.hover-transition {
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    transform 0.15s ease;
-}
-
-/* Optimize for animations */
-.will-change-transform {
+/* The full sprite strip slides left via transform (compositor-driven, won't freeze) */
+.loading-sprite-strip {
+  display: block;
+  min-width: 768px;
+  max-width: 768px;
+  height: 128px;
+  flex-shrink: 0;
+  animation: sprite-play 2s steps(6) infinite;
   will-change: transform;
 }
 
-.will-change-opacity {
+.loading-text {
+  font-family: 'PatrickHand', cursive;
+  font-size: 2.5rem;
+  colour: #333333;
+  margin: 0;
+  text-align: center;
+}
+
+/* Fixed-width spacers so the dots don't shift the text off centre */
+.loading-dots-spacer,
+.loading-dots {
+  display: inline-block;
+  width: 1.5em;
+}
+
+.loading-dots {
+  text-align: left;
+}
+
+/* Each dot fades in/out independently via compositor-driven opacity */
+.loading-dot {
+  display: inline-block;
+  animation: dot-blink 1.8s steps(1) infinite;
   will-change: opacity;
 }
 
-/* Custom utilities for shiny button */
-.bg-size-200 {
-  background-size: 200%;
+.loading-dot-1 { animation-delay: 0s; }
+.loading-dot-2 { animation-delay: 0.3s; }
+.loading-dot-3 { animation-delay: 0.6s; }
+
+/* Slide the strip left through all 6 frames */
+@keyframes sprite-play {
+  from { transform: translateX(0); }
+  to { transform: translateX(-768px); }
 }
 
-.bg-pos-0 {
-  background-position: 0%;
+@keyframes dot-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0; }
 }
 
-.bg-pos-100 {
-  background-position: 100%;
+/* Touch tutorial overlay */
+.touch-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  transition: opacity 500ms ease-out;
 }
 
-/* Custom award card hover effect */
-.award-card-hover {
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+/* Left and right tap zone highlights */
+.touch-tutorial-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+  border-style: dashed;
+  border-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: zone-pulse 2s ease-in-out infinite;
 }
 
-.award-card-hover:hover {
-  transform: translateY(-2px) !important;
+.touch-tutorial-zone-left {
+  left: 0;
+  border-right-width: 2px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.touch-tutorial-zone-right {
+  right: 0;
+  border-left-width: 2px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent);
+}
+
+.touch-tutorial-zone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Centre swipe indicator */
+.touch-tutorial-swipe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.touch-tutorial-swipe-icon {
+  overflow: visible;
+}
+
+/* Finger bobbing up and down */
+.touch-tutorial-finger {
+  animation: finger-bob 1.6s ease-in-out infinite;
+}
+
+/* Chevrons bobbing in opposite direction to hint movement */
+.touch-tutorial-chevron-up {
+  animation: chevron-bob-up 1.6s ease-in-out infinite;
+}
+
+.touch-tutorial-chevron-down {
+  animation: chevron-bob-down 1.6s ease-in-out infinite;
+}
+
+/* Shared label style */
+.touch-tutorial-label {
+  font-family: 'PatrickHand', cursive;
+  font-size: 1.5rem;
+  text-align: center;
+  user-select: none;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes finger-bob {
+  0%, 100% { transform: translateY(-10px); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes chevron-bob-up {
+  0%, 100% { transform: translateY(2px); opacity: 0.6; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes chevron-bob-down {
+  0%, 100% { transform: translateY(-2px); opacity: 0.6; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+@keyframes zone-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }

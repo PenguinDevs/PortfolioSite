@@ -1,3 +1,8 @@
+social:
+  github: https://github.com/PenguinDevs
+  linkedin: https://www.linkedin.com/in/jason-yi-penguindevs/
+  x: https://x.com/penguindevs
+  discord: https://discord.com/invite/xq25Exwf3X
 techStack:
   languages:
     - id: python
@@ -38,7 +43,7 @@ techStack:
       category: Language
     - id: luau
       name: Luau
-      imageUrl: /luau_logo.png
+      imageUrl: /assets/images/tech/luau_logo.webp
       category: Language
 
   frameworks:
@@ -60,7 +65,7 @@ techStack:
       category: Framework
     - id: discordpy
       name: Discord.py
-      imageUrl: /discord_py_logo.png
+      imageUrl: /assets/images/tech/discord_py_logo.webp
       category: Framework
 
   databases:
@@ -104,7 +109,7 @@ techStack:
       category: Tool
     - id: photogrammetry
       name: Photogrammetry
-      imageUrl: https://cdn-icons-png.flaticon.com/512/2103/2103633.png
+      imageUrl: /assets/images/tech/photogrammetry_logo.webp
       category: Tool
     - id: postman
       name: Postman
@@ -130,7 +135,7 @@ techStack:
       category: API
     - id: riotgamesapi
       name: Riot Games API
-      imageUrl: /riot_games_logo.png
+      imageUrl: /assets/images/tech/riot_games_logo.webp
       category: API
     - id: openaiapi
       name: OpenAI API
@@ -138,7 +143,7 @@ techStack:
       category: API
     - id: lingohub
       name: LingoHub
-      imageUrl: /lingohub_logo.png
+      imageUrl: /assets/images/tech/lingohub_logo.webp
       category: API
 
   os:
@@ -166,7 +171,7 @@ techStack:
       category: Data File
     - id: toml
       name: TOML
-      imageUrl: /toml_logo.png
+      imageUrl: /assets/images/tech/toml_logo.webp
       category: Data File
     - id: latex
       name: LaTeX
@@ -191,6 +196,9 @@ awards:
       bgColor: bg-amber-500/20 dark:bg-amber-500/30
       textColor: text-amber-700 dark:text-amber-300
       icon: '▲'
+      iconColour: '#f59e0b'
+      model: 'geometries/home/macathon_award.glb'
+      model_texture: 'textures/colour_palette.webp'
     stats:
       - value: '$1.8K'
         label: PRIZE
@@ -216,6 +224,9 @@ awards:
       bgColor: bg-purple-500/20 dark:bg-purple-500/30
       textColor: text-purple-700 dark:text-purple-300
       icon: '●'
+      iconColour: '#a855f7'
+      model: 'geometries/home/valotracker_award.glb'
+      model_texture: 'textures/colour_palette.webp'
     stats:
       - value: '40K+'
         label: SERVERS
@@ -241,6 +252,9 @@ awards:
       bgColor: bg-slate-500/20 dark:bg-slate-500/30
       textColor: text-slate-700 dark:text-slate-300
       icon: '■'
+      iconColour: '#64748b'
+      model: 'geometries/home/maps_award.glb'
+      model_texture: 'textures/colour_palette.webp'
     theme:
       borderColor: border-slate-200/50 dark:border-slate-700/50
       bgColor: bg-white dark:bg-gray-900
@@ -261,6 +275,9 @@ awards:
       bgColor: bg-emerald-500/20 dark:bg-emerald-500/30
       textColor: text-emerald-700 dark:text-emerald-300
       icon: '◆'
+      iconColour: '#10b981'
+      model: 'geometries/home/maps_award.glb'
+      model_texture: 'textures/colour_palette.webp'
     theme:
       borderColor: border-emerald-200/50 dark:border-emerald-700/50
       bgColor: bg-white dark:bg-gray-900
@@ -271,7 +288,7 @@ awards:
       accentBar: bg-gradient-to-b from-emerald-500 to-teal-500
 
   - id: adf-2024
-    title: ADF Future Innovators
+    title: 2024 ADF Future Innovators
     secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
@@ -281,6 +298,8 @@ awards:
       bgColor: bg-blue-500/20 dark:bg-blue-500/30
       textColor: text-blue-700 dark:text-blue-300
       icon: '★'
+      iconColour: '#3b82f6'
+      imageIcon: 'images/awards/adf_future_innovators.webp'
     stats:
       - value: '1/5K'
         label: SELECTED
@@ -294,7 +313,7 @@ awards:
       accentBar: bg-gradient-to-b from-blue-500 to-cyan-500
 
   - id: adf-2022
-    title: ADF Future Innovators
+    title: 2022 ADF Future Innovators
     secondaryText: National STEM Recognition
     description: Nominated as one of the 5000 year 10 & 12 recipients across the whole of Australia in recognition of STEM.
     href: https://www.linkedin.com/in/jason-yi-penguindevs/details/honors/
@@ -304,6 +323,8 @@ awards:
       bgColor: bg-indigo-500/20 dark:bg-indigo-500/30
       textColor: text-indigo-700 dark:text-indigo-300
       icon: '✦'
+      iconColour: '#6366f1'
+      imageIcon: 'images/awards/adf_future_innovators.webp'
     stats:
       - value: '1/5K'
         label: SELECTED
@@ -319,7 +340,21 @@ awards:
 projects:
   - id: valotracker
     title: ValoTracker
+    media:
+      - type: video
+        src: /assets/videos/projects/valotracker_banner.webm
+        width: 720
+        height: 480
+      - type: image
+        src: /assets/images/projects/valotracker_preview1.webp
+        width: 538
+        height: 506
+      - type: image
+        src: /assets/images/projects/valotracker_preview2.webp
+        width: 464
+        height: 372
     description: "Founded and maintained Discord's July 2024 #1 trending bot with 40,000+ servers. Valorant statistics and insights. Fetching up to 9 million matches weekly using pull-based workers."
+    year: '2022'
     tags:
       - Valorant
       - 'Discord Trending #1'
@@ -351,7 +386,37 @@ projects:
 
   - id: catch-n-go
     title: Catch N Go
+    media:
+      - type: image
+        src: /assets/images/projects/catchngo_preview1.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview2.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview3.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview4.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview5.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview6.webp
+        width: 264
+        height: 573
+      - type: image
+        src: /assets/images/projects/catchngo_preview7.webp
+        width: 264
+        height: 573
     description: MACATHON 2025 first place winner ($1800 prize). Social mobile app inspired by Pokémon Go built in 48 hours in a team of 4.
+    year: '2025'
     tags:
       - 1st Place Winner
       - Hackathon
@@ -379,7 +444,13 @@ projects:
 
   - id: ceebs
     title: Ceebs - Food Ordering Platform
+    media:
+      - type: image
+        src: /assets/images/projects/ceebs_preview.webp
+        width: 3024
+        height: 1598
     description: Lead developer for merchant website integration alongside Discord bot for food ordering on Monash Clayton campus.
+    year: '2025'
     tags:
       - Ecommerce
       - Lead Developer
@@ -394,16 +465,27 @@ projects:
       - label: Visit Site
         href: https://ceebs.site/
         type: external
-      - label: Visit Merchant
-        href: https://merchant.ceebs.site/
-        type: external
     link:
       type: external
       value: https://ceebs.site
 
   - id: valorpc
     title: ValoRPC
+    media:
+      - type: image
+        src: /assets/images/projects/valorpc_preview1.webp
+        width: 603
+        height: 708
+      - type: image
+        src: /assets/images/projects/valorpc_preview2.webp
+        width: 567
+        height: 147
+      - type: image
+        src: /assets/images/projects/valorpc_preview3.webp
+        width: 548
+        height: 137
     description: Discord rich presence for Valorant, leveraging screen reading and Tesseract OCR to read live game state.
+    year: '2022'
     tags:
       - ★ 26
       - OCR
@@ -422,7 +504,17 @@ projects:
 
   - id: penguinengine
     title: PenguinEngine
-    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised and realistic land vehicle components for real-time simulation in Roblox.
+    media:
+    - type: video
+      src: /assets/videos/projects/vehicle_suspension_preview1.webm
+      width: 720
+      height: 480
+    - type: video
+      src: /assets/videos/projects/vehicle_suspension_preview2.webm
+      width: 720
+      height: 480
+    description: A monorepo of my reusable modules for development on Roblox, as an extension of Quenty's Nevermore Engine (in-works). Currently developing a highly modularised, performant and realistic land vehicle components for real-time simulation in Roblox.
+    year: '2025'
     tags:
       - Monorepo
       - Library
@@ -437,7 +529,7 @@ projects:
         href: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
         type: external
       - label: Suspension Demo
-        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.mp4
+        href: https://assets.penguindevs.me/Vehicle_suspension_demo_portrait.webm
         type: external
     link:
       type: external
@@ -445,7 +537,13 @@ projects:
 
   - id: allocateus
     title: AllocateUs
+    media:
+      - type: image
+        src: /assets/images/projects/allocateus_preview.webp
+        width: 1657
+        height: 890
     description: UniHack 2025 hackathon project. Web app helping university students coordinate group activities based on shared free time.
+    year: '2025'
     tags:
       - Hackathon Project
     techStack:
@@ -470,7 +568,21 @@ projects:
 
   - id: roblox-games
     title: Roblox Games Portfolio
+    media:
+    - type: video
+      src: /assets/videos/projects/snowsim_preview.webm
+      width: 640
+      height: 360
+    - type: video
+      src: /assets/videos/projects/petsim_preview.webm
+      width: 640
+      height: 360
+    - type: video
+      src: /assets/videos/projects/fishstore_preview.webm
+      width: 640
+      height: 360
     description: Amassed tens of millions of players across multiple games since the age of 11, through programming, modelling, texturing, animating, character rigging, graphic design, user interface design, testing.
+    year: '2018'
     tags:
       - 13M+ Plays
       - Game Development
@@ -484,8 +596,8 @@ projects:
       - label: View Portfolio
         href: https://create.roblox.com/talent/creators/204152663
         type: external
-      - label: Play PetBattles
-        href: https://www.roblox.com/games/9278437733/Pet-Battles
+      - label: Play Fish Store
+        href: https://www.roblox.com/games/6381681200/Fish-Store-Tycoon
         type: external
       - label: View PetBattles Source
         href: https://github.com/PenguinDevs/PetBattles
@@ -496,7 +608,41 @@ projects:
 
   - id: nissan-silvia
     title: Nissan Silvia S15 3D Model
+    media:
+      - type: image
+        src: /assets/images/projects/s15_preview1.webp
+        width: 930
+        height: 1452
+      - type: image
+        src: /assets/images/projects/s15_preview2.webp
+        width: 816
+        height: 1242
+      - type: image
+        src: /assets/images/projects/s15_preview3.webp
+        width: 790
+        height: 611
+      - type: image
+        src: /assets/images/projects/s15_preview4.webp
+        width: 735
+        height: 461
+      - type: image
+        src: /assets/images/projects/s15_preview5.webp
+        width: 965
+        height: 492
+      - type: image
+        src: /assets/images/projects/s15_preview6.webp
+        width: 1748
+        height: 946
+      - type: image
+        src: /assets/images/projects/s15_preview7.webp
+        width: 905
+        height: 779
+      - type: image
+        src: /assets/images/projects/s15_preview8.webp
+        width: 936
+        height: 756
     description: First car modeling project using Blender and Adobe Substance 3D Painter with photogrammetry-assisted modeling using ImageModeler 2009.
+    year: '2025'
     tags:
       - 3D Art
       - Modeling
@@ -505,7 +651,7 @@ projects:
       - Adobe Substance 3D Painter
       - Photogrammetry
     buttons:
-      - label: View Artwork
+      - label: View ArtStation
         href: https://www.artstation.com/artwork/kNdArK
         type: external
     link:

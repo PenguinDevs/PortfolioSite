@@ -1,0 +1,1 @@
+export { MovementService } from './MovementService';

@@ -1,0 +1,94 @@
+'use client';
+
+import { useMemo } from 'react';
+import { Sign, ProjectMonitor, ViewMoreButton } from '../entities';
+import { useProjects } from '../contexts/ProjectsContext';
+import { CircularSlot } from './circular';
+import type { ProjectData } from '@/data/portfolio';
+
+// each monitor spans two alley tiles (24 world units wide)
+const SLOT_WIDTH = 24;
+const MONITOR_Y = 6.5;
+const MONITOR_Z = -11.9;
+
+// sign sits just before the first monitor
+const SIGN_X = -3;
+
+// per-project overrides (all optional)
+interface ProjectSlotOverrides {
+  contentWidth?: number;
+  contentHeight?: number;
+}
+
+// ordered list of project IDs to display, with optional per-project customisation
+// reorder this array to change the presentation order, or remove entries to hide them
+const PROJECT_SLOTS: (string | { id: string } & ProjectSlotOverrides)[] = [
+  'valotracker',
+  'penguinengine',
+  'roblox-games',
+  'catch-n-go',
+  'valorpc',
+  'allocateus',
+  'ceebs',
+  'nissan-silvia',
+];
+
+// normalise each slot into { id, ...overrides }
+function normaliseSlot(slot: (typeof PROJECT_SLOTS)[number]): { id: string } & ProjectSlotOverrides {
+  return typeof slot === 'string' ? { id: slot } : slot;
+}
+
+interface ProjectsSectionProps {
+  // absolute X position on the circular track where the projects section begins
+  baseX: number;
+}
+
+export function ProjectsSection({ baseX }: ProjectsSectionProps) {
+  const allProjects = useProjects();
+
+  // build a lookup so we can find projects by id
+  const projectMap = useMemo(() => {
+    const map = new Map<string, ProjectData>();
+    for (const p of allProjects) map.set(p.id, p);
+    return map;
+  }, [allProjects]);
+
+  // resolve ordered slots to project data, skipping any missing IDs
+  const resolved = useMemo(() => {
+    const result: { project: ProjectData; overrides: ProjectSlotOverrides }[] = [];
+    for (const raw of PROJECT_SLOTS) {
+      const slot = normaliseSlot(raw);
+      const project = projectMap.get(slot.id);
+      if (!project) continue;
+      const { id: _, ...overrides } = slot;
+      result.push({ project, overrides });
+    }
+    return result;
+  }, [projectMap]);
+
+  // each monitor and the sign get their own CircularSlot so they wrap
+  // independently -- this prevents the whole section from teleporting
+  // when the player reaches the far end of the projects
+  return (
+    <>
+      <CircularSlot baseX={baseX + SIGN_X}>
+        <Sign position={[0, 0, -4]} rotation={[0, 0, 0]} rows={['', 'Projects', '---->', '']} />
+      </CircularSlot>
+
+      {resolved.map(({ project, overrides }, i) => (
+        <CircularSlot key={project.id} baseX={baseX + i * SLOT_WIDTH}>
+          <ProjectMonitor
+            project={project}
+            position={[SLOT_WIDTH / 4, MONITOR_Y, MONITOR_Z]}
+            contentWidth={overrides.contentWidth}
+            contentHeight={overrides.contentHeight}
+          />
+        </CircularSlot>
+      ))}
+
+      <CircularSlot baseX={baseX + resolved.length * SLOT_WIDTH}>
+        <ViewMoreButton position={[SLOT_WIDTH / 8, MONITOR_Y, MONITOR_Z]} />
+      </CircularSlot>
+    </>
+  );
+}

@@ -1,53 +1,37 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import Navigation from '@/components/Navigation';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
-  title: 'Jason Yi (@penguindevs)',
-  keywords: [
-    'Jason Yi',
-    'PenguinDevs',
-    'full-stack developer',
-    'ValoTracker',
-    'Discord bot',
-    'Python',
-    'Next.js',
-    'hackathon winner',
-    'Monash University',
-    'competitive programming',
-  ],
-  authors: [{ name: 'Jason Yi', url: 'https://github.com/PenguinDevs' }],
-  creator: 'Jason Yi (@penguindevs)',
+  metadataBase: new URL('https://penguindevs.me/'),
+  title: "Jason Yi (@penguindevs)",
+  description: "Backend Developer, Computer Science Student",
+  icons: {
+    icon: '/favicon.ico',
+  },
+  openGraph: {
+    title: "Jason Yi (@penguindevs)",
+    description: "Backend Developer, Computer Science Student",
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Jason Yi (@penguindevs)",
+    description: "Backend Developer, Computer Science Student",
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <Analytics />
-      <SpeedInsights />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navigation />
-        <main className="pt-16">{children}</main>
-      </body>
+      <head>
+        <meta name="darkreader-lock" />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
