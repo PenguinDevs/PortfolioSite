@@ -25,5 +25,6 @@ export const SECTION_DISPLAY_ORDER: Section[] = [
   Section.Projects,
 ];
 
-// total loop length of the circular track (must match HomeScene.tsx)
-export const TRACK_LENGTH = 264;
+// total loop length of the circular track
+// last project tile ends at ~252, plus buffer space to 282
+export const TRACK_LENGTH = 282;

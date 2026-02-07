@@ -11,7 +11,7 @@ import { PlayerProvider, useNavigation } from '../contexts';
 import { ProximityPromptProvider } from '../contexts/ProximityPromptContext';
 import { MovementService, PerspectiveCameraService, TutorialService } from '../services';
 import { useLightingMode } from '../hooks';
-import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY } from '../constants';
+import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY, TRACK_LENGTH } from '../constants';
 import { HomeSection } from './HomeSection';
 import { AwardsSection } from './AwardsSection';
 import { ProjectsSection } from './ProjectsSection';
@@ -42,9 +42,6 @@ const SHADOW_PLANE_DEPTH = 50;
 const HOME_X = 0;
 const AWARDS_X = 42;
 const PROJECTS_X = 60;
-// total loop length -- after this distance the scene wraps back to the start
-// last project tile ends at PROJECTS_X + 8*SLOT_WIDTH = 252, plus 2 tiles of buffer
-const TRACK_LENGTH = 282;
 
 export function HomeScene() {
   const inputRef = useInput();
