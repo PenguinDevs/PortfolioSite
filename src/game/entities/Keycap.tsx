@@ -156,6 +156,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
     const modelRef = useRef<Group>(null);
     const capRef = useRef<Group>(null);
     const burstRef = useRef<LineSegments>(null);
+    const textRef = useRef<any>(null);
 
     const elapsed = useRef(0);
     const lastCycle = useRef(-1);
@@ -165,7 +166,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       shadowColor: DEFAULT_SHADOW,
     });
 
-    const { drawProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Keycap' });
+    const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(localRef, { perfLabel: 'Keycap' });
 
     // reusable vector for world position lookups
     const worldPos = useMemo(() => new Vector3(), []);
@@ -213,6 +214,11 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       root.getWorldPosition(worldPos);
       material.uniforms.uClipY.value = worldPos.y;
 
+      // fade label text in with the reveal colour phase
+      if (textRef.current) {
+        textRef.current.fillOpacity = colourProgress.value * opacity;
+      }
+
       // skip the auto-press cycle when autoPress is disabled
       if (!autoPress) return;
 
@@ -250,10 +256,11 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
           </group>
           {label && (
             <Text
+              ref={textRef}
               font={FONT_PATH}
               fontSize={LABEL_FONT_SIZE}
               color={LABEL_COLOUR}
-              fillOpacity={opacity}
+              fillOpacity={0}
               anchorX="center"
               anchorY="middle"
               position={LABEL_OFFSET}
