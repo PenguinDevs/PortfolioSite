@@ -56,6 +56,7 @@ export function AwardOverlay() {
   return (
     <div
       onClick={handleBackdropClick}
+      data-block-game-touch
       style={{
         position: 'fixed',
         inset: 0,

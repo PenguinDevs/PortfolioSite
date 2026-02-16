@@ -11,6 +11,10 @@ const HOLD_REGION_EDGE = 0.2;
 // time window for sampling velocity to compute fling momentum on release
 const FLING_SAMPLE_WINDOW = 100; // ms
 
+// data attribute marking overlay containers (modals, lightboxes) that
+// should block game touch input entirely
+const OVERLAY_ATTR = 'data-block-game-touch';
+
 interface VelocitySample {
   dx: number;
   time: number;
@@ -53,6 +57,17 @@ export class TouchController {
     this.state[InputAction.Right] = right;
   }
 
+  // check if the touch target is inside an overlay modal that should
+  // block game input entirely (e.g. ProjectOverlay, AwardOverlay)
+  private isInsideOverlay(el: HTMLElement): boolean {
+    let node: HTMLElement | null = el;
+    while (node) {
+      if (node.hasAttribute(OVERLAY_ATTR)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
   private handleTouchStart = (e: TouchEvent) => {
     // clear velocity samples when starting a fresh touch sequence
     if (this.touches.length === 0) {
@@ -66,6 +81,11 @@ export class TouchController {
 
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
+
+      // fully ignore touches inside overlay modals
+      const target = touch.target as HTMLElement | null;
+      if (target && this.isInsideOverlay(target)) continue;
+
       const x = touch.clientX;
 
       // only touches in the outer edges count as hold regions
@@ -89,8 +109,10 @@ export class TouchController {
   };
 
   private handleTouchMove = (e: TouchEvent) => {
-    // only block browser gestures if we are tracking touches from the canvas
-    if (this.touches.length > 0) {
+    // only preventDefault when at least one touch has been promoted to
+    // swiping. This lets taps on interactive elements (links, buttons)
+    // fire their native click when the finger doesn't move.
+    if (this.touches.some((t) => t.isSwiping)) {
       e.preventDefault();
     }
 
@@ -158,22 +180,22 @@ export class TouchController {
     }
   };
 
-  // attach touch listeners scoped to a specific element (e.g. the canvas)
-  attach(element: HTMLElement) {
-    this.target = element;
-    // only capture touches that start on the target element
-    element.addEventListener('touchstart', this.handleTouchStart, { passive: true });
-    // move/end/cancel stay on window so we keep tracking if the finger drifts off
+  // listen on window so touches on drei Html portal overlays still drive
+  // scrolling. Overlay modals are filtered out in handleTouchStart.
+  // Interactive elements (links, buttons) are tracked normally but
+  // preventDefault is deferred until a swipe is detected, so taps still
+  // fire native clicks.
+  attach(_element: HTMLElement) {
+    this.target = _element;
+    window.addEventListener('touchstart', this.handleTouchStart, { passive: true });
     window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     window.addEventListener('touchend', this.handleTouchEnd);
     window.addEventListener('touchcancel', this.handleTouchEnd);
   }
 
   dispose() {
-    if (this.target) {
-      this.target.removeEventListener('touchstart', this.handleTouchStart);
-      this.target = null;
-    }
+    this.target = null;
+    window.removeEventListener('touchstart', this.handleTouchStart);
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleTouchEnd);
     window.removeEventListener('touchcancel', this.handleTouchEnd);

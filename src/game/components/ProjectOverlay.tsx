@@ -99,6 +99,7 @@ export function ProjectOverlay() {
   return (
     <div
       onClick={handleBackdropClick}
+      data-block-game-touch
       style={{
         position: 'fixed',
         inset: 0,

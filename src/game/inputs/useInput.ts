@@ -35,6 +35,13 @@ export function useInput(): React.MutableRefObject<InputHandle> {
     keyboard.attach();
     touch.attach(gl.domElement);
 
+    // drei Html appends portal divs as siblings of the canvas inside
+    // this parent div. Without touch-action: none the browser can claim
+    // touches on those portals for native pan/scroll, which cancels our
+    // touchmove events mid-gesture.
+    const parent = gl.domElement.parentElement;
+    if (parent) parent.style.touchAction = 'none';
+
     // merge keyboard + touch states at 60fps so the game loop always
     // sees a single unified input state
     const interval = setInterval(() => {
