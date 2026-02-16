@@ -30,17 +30,50 @@ const HOLD_DURATION = 0.3;
 const RELEASE_DURATION = 0.15;
 const PRESS_DEPTH = -0.3;
 
+// total duration of one complete press cycle
+const CYCLE_DURATION = PRESS_INTERVAL + PRESS_DURATION + HOLD_DURATION + RELEASE_DURATION;
+
+// phase boundaries within a cycle
+const PHASE_PRESS = PRESS_INTERVAL;
+const PHASE_HOLD = PHASE_PRESS + PRESS_DURATION;
+const PHASE_RELEASE = PHASE_HOLD + HOLD_DURATION;
+
 // confetti burst settings
 const LINE_COUNT = 14;
 const MIN_RADIUS = 0.6;
 const MAX_RADIUS = 0.75;
 const LINE_LENGTH = 0.06;
 
-const enum PressState {
-  Idle,
-  Pressing,
-  Held,
-  Releasing,
+// compute the cap Y position as a pure function of elapsed time and offset
+function computeCapY(elapsed: number, offset: number): number {
+  const local = elapsed - offset;
+  if (local < 0) return 0;
+
+  const phase = local % CYCLE_DURATION;
+  if (phase < PHASE_PRESS) return 0;
+  if (phase < PHASE_HOLD) {
+    const t = (phase - PHASE_PRESS) / PRESS_DURATION;
+    return MathUtils.lerp(0, PRESS_DEPTH, t);
+  }
+  if (phase < PHASE_RELEASE) return PRESS_DEPTH;
+
+  const t = (phase - PHASE_RELEASE) / RELEASE_DURATION;
+  return MathUtils.lerp(PRESS_DEPTH, 0, t);
+}
+
+// whether the burst should be visible (during the held phase)
+function isBurstPhase(elapsed: number, offset: number): boolean {
+  const local = elapsed - offset;
+  if (local < 0) return false;
+  const phase = local % CYCLE_DURATION;
+  return phase >= PHASE_HOLD && phase < PHASE_RELEASE;
+}
+
+// which cycle index the keycap is in (used to detect new presses for burst regeneration)
+function getCycleIndex(elapsed: number, offset: number): number {
+  const local = elapsed - offset;
+  if (local < 0) return -1;
+  return Math.floor(local / CYCLE_DURATION);
 }
 
 // label text settings
@@ -99,8 +132,8 @@ export type KeycapProps = ThreeElements['group'] & {
   shadowColour?: string;
   // when false the keycap sits idle instead of auto-pressing on a timer (default true)
   autoPress?: boolean;
-  // delay in seconds before the first press cycle starts, useful for wave effects
-  pressDelay?: number;
+  // time offset in seconds into the press cycle, used to stagger keycaps in a wave
+  pressOffset?: number;
   // material opacity 0-1, enables transparency when < 1
   opacity?: number;
 };
@@ -115,7 +148,7 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
     colour = DEFAULT_COLOUR,
     shadowColour = DEFAULT_SHADOW,
     autoPress = true,
-    pressDelay = 0,
+    pressOffset = 0,
     opacity = 1,
     ...props
   }, ref) {
@@ -124,10 +157,8 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
     const capRef = useRef<Group>(null);
     const burstRef = useRef<LineSegments>(null);
 
-    const pressState = useRef<PressState>(PressState.Idle);
-    const stateTimer = useRef(0);
-    // negative initial value delays the first press cycle
-    const idleTimer = useRef(-pressDelay);
+    const elapsed = useRef(0);
+    const lastCycle = useRef(-1);
 
     const { cloned, material } = useEntityModel('keycap', {
       color: DEFAULT_COLOUR,
@@ -185,55 +216,23 @@ export const Keycap = forwardRef<KeycapHandle, KeycapProps>(
       // skip the auto-press cycle when autoPress is disabled
       if (!autoPress) return;
 
-      stateTimer.current += delta;
+      elapsed.current += delta;
 
-      switch (pressState.current) {
-        case PressState.Idle: {
-          idleTimer.current += delta;
-          if (idleTimer.current >= PRESS_INTERVAL) {
-            pressState.current = PressState.Pressing;
-            stateTimer.current = 0;
-            idleTimer.current = 0;
-          }
-          break;
-        }
+      // derive position and burst state from the formula
+      cap.position.y = computeCapY(elapsed.current, pressOffset);
 
-        case PressState.Pressing: {
-          const t = Math.min(stateTimer.current / PRESS_DURATION, 1);
-          cap.position.y = MathUtils.lerp(0, PRESS_DEPTH, t);
-          if (t >= 1) {
-            pressState.current = PressState.Held;
-            stateTimer.current = 0;
-            // regenerate burst lines for variation
-            const newGeo = generateBurstGeometry();
-            burst.geometry.dispose();
-            burst.geometry = newGeo;
-            burst.visible = true;
-          }
-          break;
-        }
+      const showBurst = isBurstPhase(elapsed.current, pressOffset);
+      const cycle = getCycleIndex(elapsed.current, pressOffset);
 
-        case PressState.Held: {
-          cap.position.y = PRESS_DEPTH;
-          if (stateTimer.current >= HOLD_DURATION) {
-            pressState.current = PressState.Releasing;
-            stateTimer.current = 0;
-            burst.visible = false;
-          }
-          break;
-        }
-
-        case PressState.Releasing: {
-          const t = Math.min(stateTimer.current / RELEASE_DURATION, 1);
-          cap.position.y = MathUtils.lerp(PRESS_DEPTH, 0, t);
-          if (t >= 1) {
-            cap.position.y = 0;
-            pressState.current = PressState.Idle;
-            stateTimer.current = 0;
-          }
-          break;
-        }
+      // regenerate burst geometry when entering a new cycle's held phase
+      if (showBurst && cycle !== lastCycle.current) {
+        lastCycle.current = cycle;
+        const newGeo = generateBurstGeometry();
+        burst.geometry.dispose();
+        burst.geometry = newGeo;
       }
+
+      burst.visible = showBurst;
     });
 
     useImperativeHandle(ref, () => ({

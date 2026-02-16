@@ -299,7 +299,7 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
         shadowColour={leftShadow}
         position={[X_A, 0, 0]}
         rotation={KEYCAP_ROTATION}
-        pressDelay={WAVE_STEP * 0}
+        pressOffset={WAVE_STEP * 0}
       />
 
       {/* D key */}
@@ -309,7 +309,7 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
         shadowColour={rightShadow}
         position={[X_D, 0, 0]}
         rotation={KEYCAP_ROTATION}
-        pressDelay={WAVE_STEP * 1}
+        pressOffset={WAVE_STEP * 1}
       />
 
       {/* / separator */}
@@ -331,7 +331,7 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
         shadowColour={leftShadow}
         position={[X_LEFT_ARROW, 0, 0]}
         rotation={KEYCAP_ROTATION}
-        pressDelay={WAVE_STEP * 2}
+        pressOffset={WAVE_STEP * 2}
       />
 
       {/* right arrow key */}
@@ -341,7 +341,7 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
         shadowColour={rightShadow}
         position={[X_RIGHT_ARROW, 0, 0]}
         rotation={KEYCAP_ROTATION}
-        pressDelay={WAVE_STEP * 3}
+        pressOffset={WAVE_STEP * 3}
       />
 
       {/* OR separator */}
