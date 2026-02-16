@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
-import { Color, Frustum, Matrix4, Vector3 } from 'three';
+import { Color, Frustum, Matrix4, Mesh, ShaderMaterial as ShaderMat, Vector3 } from 'three';
 import type { Group, ShaderMaterial } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeOutCubic } from '../math';
@@ -127,6 +127,44 @@ export function useEntityReveal(
     });
   }, []);
 
+  // shadow fade: custom depth material that discards fragments via a noise
+  // threshold, giving a dissolve-in effect as uShadowReveal goes from 0 to 1.
+  // at 0 all fragments are discarded (no shadow), at 1 none are (full shadow).
+  const shadowDepthMat = useMemo(() => {
+    const mat = new ShaderMat({
+      uniforms: {
+        uShadowReveal: { value: 0 },
+      },
+      vertexShader: /* glsl */ `
+        varying vec2 vHighPrecisionZW;
+        varying vec3 vWorldPos;
+        void main() {
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mvPos;
+          vHighPrecisionZW = gl_Position.zw;
+          vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        #include <common>
+        #include <packing>
+        uniform float uShadowReveal;
+        varying vec2 vHighPrecisionZW;
+        varying vec3 vWorldPos;
+        void main() {
+          // hash world position to get a stable per-fragment noise value
+          float n = fract(sin(dot(vWorldPos.xy, vec2(12.9898, 78.233))) * 43758.5453);
+          if (n > uShadowReveal) discard;
+          float fragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;
+          gl_FragColor = packDepthToRGBA(fragCoordZ);
+        }
+      `,
+    });
+    return mat;
+  }, []);
+  const shadowMeshesRef = useRef<Mesh[]>([]);
+  const shadowsCollected = useRef(false);
+
   // animation state stored in refs to avoid re-renders
   const phaseRef = useRef(immediate ? RevealPhase.Revealing : RevealPhase.Waiting);
   const timerRef = useRef(0);
@@ -149,6 +187,18 @@ export function useEntityReveal(
   useFrame(({ camera }, delta) => {
     const group = groupRef.current;
     if (!group) return;
+
+    // on the first frame, collect all shadow-casting meshes and attach the
+    // custom depth material so shadows start fully discarded
+    if (!shadowsCollected.current) {
+      shadowsCollected.current = true;
+      group.traverse((child) => {
+        if ((child as Mesh).isMesh && (child as Mesh).castShadow) {
+          shadowMeshesRef.current.push(child as Mesh);
+          (child as Mesh).customDepthMaterial = shadowDepthMat;
+        }
+      });
+    }
 
     const phase = phaseRef.current;
     if (phase === RevealPhase.Done) return;
@@ -220,6 +270,8 @@ export function useEntityReveal(
           for (const mat of materialsRef.current) {
             mat.uniforms.uRevealProgress.value = progress;
           }
+          // dissolve shadow in alongside the colour fill
+          shadowDepthMat.uniforms.uShadowReveal.value = progress;
         }
 
         // done when both edges and colour are complete
@@ -229,6 +281,7 @@ export function useEntityReveal(
           if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:done`);
           // ensure final values are exact
           colourProgress.value = 1;
+          shadowDepthMat.uniforms.uShadowReveal.value = 1;
           for (const mat of materialsRef.current) {
             mat.uniforms.uRevealProgress.value = 1;
             mat.transparent = false;
