@@ -444,11 +444,9 @@ export function ProjectMonitor({
                       )}
                     </div>
                   ))}
-                  {/* click overlay so taps open the link instead of being swallowed by the canvas */}
-                  <a
-                    href={project.link.value}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  {/* click overlay so taps open the project overlay instead of being swallowed by the canvas */}
+                  <div
+                    onClick={handleViewProject}
                     style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
                   />
                 </div>
