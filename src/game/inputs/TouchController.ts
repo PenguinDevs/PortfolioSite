@@ -37,6 +37,11 @@ export class TouchController {
   // accumulated swipe delta since last frame (consumed by MovementService)
   swipeDeltaX = 0;
 
+  // set true when a fresh touch sequence begins (all fingers were up,
+  // now one went down). MovementService reads and clears this to kill
+  // residual momentum from the previous gesture.
+  freshTouchDown = false;
+
   private touches: TrackedTouch[] = [];
   private target: HTMLElement | null = null;
 
@@ -73,6 +78,7 @@ export class TouchController {
     if (this.touches.length === 0) {
       this.velocitySamples = [];
       this.flingVelocity = 0;
+      this.freshTouchDown = true;
     }
 
     const w = window.innerWidth;
@@ -162,6 +168,14 @@ export class TouchController {
       const idx = this.touches.findIndex((t) => t.id === touch.identifier);
       if (idx !== -1) this.touches.splice(idx, 1);
     }
+
+    // safety net: if the browser says zero fingers remain but we still
+    // have tracked touches, force-clear them. This prevents a stuck hold
+    // state when a touchend event is missed (common on mobile).
+    if (e.touches.length === 0 && this.touches.length > 0) {
+      this.touches.length = 0;
+    }
+
     this.refreshHoldState();
 
     // when all fingers are up, compute fling velocity from recent samples

@@ -74,6 +74,14 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
     const flingVelocity = handle.touch.consumeFlingVelocity();
     const userSwiped = swipeDx !== 0;
 
+    // when a new touch gesture begins, kill leftover momentum from the
+    // previous swipe/fling so the new gesture starts clean
+    if (handle.touch.freshTouchDown) {
+      handle.touch.freshTouchDown = false;
+      scrollVelocity.current = 0;
+      touchMomentum.current = 0;
+    }
+
     // autopilot mode: drive toward a target position
     const autopilotTarget = autopilotTargetRef?.current ?? null;
     if (autopilotTarget) {
