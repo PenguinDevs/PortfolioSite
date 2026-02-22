@@ -165,6 +165,11 @@ export function useEntityReveal(
   const shadowMeshesRef = useRef<Mesh[]>([]);
   const shadowsCollected = useRef(false);
 
+  // dispose GPU resources on unmount
+  useEffect(() => {
+    return () => { shadowDepthMat.dispose(); };
+  }, [shadowDepthMat]);
+
   // animation state stored in refs to avoid re-renders
   const phaseRef = useRef(immediate ? RevealPhase.Revealing : RevealPhase.Waiting);
   const timerRef = useRef(0);

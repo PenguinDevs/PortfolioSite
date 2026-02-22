@@ -83,13 +83,17 @@ export function SpeedLines({ activeRef, directionRef }: SpeedLinesProps) {
     });
   }, []);
 
-  // subscribe to theme changes
+  // subscribe to theme changes and dispose GPU resources on unmount
   useEffect(() => {
     const unsub = LightingService.subscribe((mode) => {
       material.color.set(SPEED_LINE_COLOUR[mode]);
     });
-    return unsub;
-  }, [material]);
+    return () => {
+      unsub();
+      geometry.dispose();
+      material.dispose();
+    };
+  }, [geometry, material]);
 
   // spawn a single line with random placement
   function spawnLine(dir: number): SpeedLine {
