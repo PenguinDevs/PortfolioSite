@@ -5,7 +5,8 @@ import type { ReactNode, MutableRefObject } from 'react';
 import type { Group } from 'three';
 import { Section } from '../types';
 import { SECTIONS, TRACK_LENGTH } from '../constants';
-import { circularDelta, wrapPosition } from '../scenes/circular/CircularSceneContext';
+import { circularDelta } from '../scenes/circular/CircularSceneContext';
+import { section$ } from '../services/section';
 
 // null means autopilot is inactive
 export type AutopilotTarget = { targetX: number; direction: 1 | -1 } | null;
@@ -21,24 +22,8 @@ interface NavigationState {
 
 const NavigationContext = createContext<NavigationState | null>(null);
 
-// how often we poll the player position for active-section updates (ms)
-const POLL_INTERVAL = 200;
 // if the player is already this close to the target, skip navigation
 const MIN_NAVIGATE_DISTANCE = 0.5;
-
-// find which section the player is in using range boundaries.
-// SECTIONS is sorted by rangeStart ascending. the last entry whose
-// rangeStart <= wrappedX wins; if none match, wrap around to the last entry.
-function activeSection(x: number): Section {
-  const wrapped = wrapPosition(x, TRACK_LENGTH);
-  let result = SECTIONS[SECTIONS.length - 1];
-  for (const section of SECTIONS) {
-    if (section.rangeStart <= wrapped) {
-      result = section;
-    }
-  }
-  return result.id;
-}
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [currentSection, setCurrentSection] = useState<Section>(Section.Home);
@@ -49,17 +34,10 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     playerGroupRefHolder.current = ref;
   }, []);
 
-  // poll player position at a low frequency to update the active section indicator
+  // subscribe to section changes pushed by MovementService
   useEffect(() => {
-    const interval = setInterval(() => {
-      const group = playerGroupRefHolder.current.current;
-      if (!group) return;
-
-      const section = activeSection(group.position.x);
-      setCurrentSection(section);
-    }, POLL_INTERVAL);
-
-    return () => clearInterval(interval);
+    const sub = section$.subscribe(setCurrentSection);
+    return () => sub.unsubscribe();
   }, []);
 
   const navigateTo = useCallback((section: Section, direction: 1 | -1) => {

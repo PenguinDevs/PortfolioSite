@@ -9,6 +9,7 @@ import type { AutopilotTarget } from '../../contexts/NavigationContext';
 import { InputAction } from '../../types';
 import { TRACK_LENGTH } from '../../constants';
 import { circularDelta } from '../../scenes/circular/CircularSceneContext';
+import { SectionService } from '../section';
 
 const MOVE_SPEED = 5;
 // how much velocity each pixel of scroll delta adds
@@ -133,6 +134,7 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
 
           const speed = Math.abs(scrollVelocity.current);
           player.setMoving(speed > 0.01, direction, speed);
+          SectionService.update(player.group.position.x);
           return;
         }
       }
@@ -179,6 +181,7 @@ export function MovementService({ inputRef, playerRef, autopilotTargetRef }: Mov
     const speed = Math.abs(totalVelocity);
     const direction = Math.sign(totalVelocity);
     player.setMoving(speed > 0.01, direction, speed);
+    SectionService.update(player.group.position.x);
   });
 
   return null;
