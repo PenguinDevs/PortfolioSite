@@ -15,6 +15,7 @@ import {
 import { Keycap } from '../../entities';
 import { LightingService } from '../lighting';
 import { INK_EDGE_COLOUR } from '../../constants';
+import { useIsTouchDevice } from '../../hooks';
 import type { InputHandle } from '../../inputs';
 import { InputAction } from '../../types';
 
@@ -198,21 +199,13 @@ function ScrollIcon({ colour, position }: {
   );
 }
 
-function isDesktop(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(pointer: fine)').matches;
-}
-
 interface TutorialServiceProps {
   inputRef: RefObject<InputHandle>;
 }
 
 export function TutorialService({ inputRef }: TutorialServiceProps) {
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    if (!isDesktop()) return true;
-    return false;
-  });
+  const isTouch = useIsTouchDevice();
+  const [completed, setCompleted] = useState(false);
 
   const leftDone = useRef(false);
   const rightDone = useRef(false);
@@ -232,14 +225,14 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
   }, []);
 
   useEffect(() => {
-    if (dismissed) return;
+    if (isTouch || completed) return;
     window.addEventListener('wheel', onWheel, { passive: true });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [dismissed, onWheel]);
+  }, [isTouch, completed, onWheel]);
 
   // poll keyboard input each frame and handle fade animation
   useFrame((_, delta) => {
-    if (dismissed) return;
+    if (isTouch || completed) return;
     const handle = inputRef.current;
     if (!handle) return;
 
@@ -276,13 +269,13 @@ export function TutorialService({ inputRef }: TutorialServiceProps) {
         containerRef.current.position.y = TUTORIAL_POSITION[1] - FADE_DISTANCE * eased;
 
         if (t >= 1) {
-          setDismissed(true);
+          setCompleted(true);
         }
       }
     }
   });
 
-  if (dismissed) return null;
+  if (isTouch || completed) return null;
 
   const leftColour = leftDone.current ? CONFIRMED_COLOUR : undefined;
   const leftShadow = leftDone.current ? CONFIRMED_SHADOW : undefined;

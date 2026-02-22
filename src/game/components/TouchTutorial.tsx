@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsTouchDevice } from '../hooks';
 
 // fraction of screen width that counts as a tap zone (matches TouchController)
 const TAP_ZONE_EDGE = 0.2;
@@ -21,18 +22,9 @@ enum TutorialStep {
   Right = 'right',
 }
 
-function isTouchDevice(): boolean {
-  if (typeof window === 'undefined') return false;
-  return !window.matchMedia('(pointer: fine)').matches;
-}
-
 export function TouchTutorial() {
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    if (!isTouchDevice()) return true;
-    return false;
-  });
-
+  const isTouch = useIsTouchDevice();
+  const [completed, setCompleted] = useState(false);
   const [fading, setFading] = useState(false);
 
   const swipeDone = useRef(false);
@@ -46,13 +38,13 @@ export function TouchTutorial() {
   const checkAllDone = useCallback(() => {
     if (swipeDone.current && leftDone.current && rightDone.current) {
       setFading(true);
-      setTimeout(() => setDismissed(true), FADE_OUT_MS);
+      setTimeout(() => setCompleted(true), FADE_OUT_MS);
     }
   }, []);
 
   // listen for touch events to detect tutorial completion
   useEffect(() => {
-    if (dismissed) return;
+    if (!isTouch || completed) return;
 
     const w = window.innerWidth;
     const leftEdge = w * TAP_ZONE_EDGE;
@@ -112,9 +104,9 @@ export function TouchTutorial() {
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [dismissed, checkAllDone]);
+  }, [isTouch, completed, checkAllDone]);
 
-  if (dismissed) return null;
+  if (!isTouch || completed) return null;
 
   const swipeColour = swipeDone.current ? CONFIRMED_COLOUR : DEFAULT_COLOUR;
   const leftColour = leftDone.current ? CONFIRMED_COLOUR : DEFAULT_COLOUR;
