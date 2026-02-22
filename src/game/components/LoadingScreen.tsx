@@ -13,14 +13,13 @@ export function LoadingScreen() {
   const { progress, active } = useProgress();
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
-  const markedShown = useRef(false);
   const markedAssetsComplete = useRef(false);
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  if (!markedShown.current) {
-    markedShown.current = true;
+  // mark when the loading screen first mounts (once only)
+  useEffect(() => {
     PerfLogger.mark('loading-screen:shown');
-  }
+  }, []);
 
   useEffect(() => {
     // Don't start fading until loading is complete and minimum time has passed
