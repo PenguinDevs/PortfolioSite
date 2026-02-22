@@ -8,8 +8,8 @@ import type { PlayerHandle } from '../entities/Player';
 import { useInput } from '../inputs';
 import { useDerivedRef } from '../utils';
 import { PlayerProvider, useNavigation } from '../contexts';
-import { ProximityPromptProvider } from '../contexts/ProximityPromptContext';
 import { MovementService, PerspectiveCameraService, TutorialService } from '../services';
+import { ProximityUpdater } from '../services/proximity';
 import { useLightingMode } from '../hooks';
 import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY, TRACK_LENGTH } from '../constants';
 import { HomeSection } from './HomeSection';
@@ -99,7 +99,7 @@ export function HomeScene() {
 
   return (
     <PlayerProvider groupRef={groupRef}>
-      <ProximityPromptProvider>
+      <ProximityUpdater />
         <ambientLight intensity={AMBIENT_INTENSITY[mode]} />
         <directionalLight
           ref={lightRef}
@@ -142,7 +142,6 @@ export function HomeScene() {
         <MovementService inputRef={inputRef} playerRef={playerRef} autopilotTargetRef={autopilotTargetRef} />
         <PerspectiveCameraService targetRef={groupRef} inputRef={inputRef} />
         <TutorialService inputRef={inputRef} />
-      </ProximityPromptProvider>
     </PlayerProvider>
   );
 }

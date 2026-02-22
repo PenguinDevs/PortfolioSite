@@ -3,15 +3,11 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
-import { Group, MathUtils, Vector3 } from 'three';
-import { usePlayerRef } from '../contexts/PlayerContext';
-import { useProximityPromptManager } from '../contexts/ProximityPromptContext';
+import { Group, MathUtils } from 'three';
+import { ProximityService } from '../services/proximity';
 import { useLightingMode } from '../hooks';
 import { INK_EDGE_COLOUR } from '../constants';
 import { TextWindow } from './TextWindow';
-
-const _playerPos = new Vector3();
-const _anchorPos = new Vector3();
 
 const FADE_SPEED = 12;
 const RING_R = 22;
@@ -44,8 +40,6 @@ export function ProximityPrompt({
   const mode = useLightingMode();
   const textColour = INK_EDGE_COLOUR[mode];
   const isTouch = useMemo(() => typeof window !== 'undefined' && 'ontouchstart' in window, []);
-  const playerRef = usePlayerRef();
-  const manager = useProximityPromptManager();
   const anchorRef = useRef<Group>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<SVGCircleElement>(null);
@@ -56,38 +50,32 @@ export function ProximityPrompt({
 
   const [visible, setVisible] = useState(false);
   const inRangeRef = useRef(false);
+  const isClosestRef = useRef(false);
   const opacityRef = useRef(0);
 
   const holdingRef = useRef(false);
   const holdProgressRef = useRef(0);
 
-  // Unregister from the manager when this prompt unmounts
+  // Register with ProximityService; subscription updates refs synchronously
+  // each frame (before this prompt's useFrame runs)
   useEffect(() => {
-    return () => manager.clear(promptId);
-  }, [manager, promptId]);
+    const sub = ProximityService.register(promptId, anchorRef, maxDistance)
+      .subscribe((state) => {
+        inRangeRef.current = state.inRange;
+        isClosestRef.current = state.isClosest;
+      });
+    return () => {
+      sub.unsubscribe();
+      ProximityService.unregister(promptId);
+    };
+  }, [promptId, maxDistance]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
+    if (!anchorRef.current) return;
 
-    const playerGroup = playerRef.current;
-    const anchor = anchorRef.current;
-    if (!playerGroup || !anchor) return;
-
-    playerGroup.getWorldPosition(_playerPos);
-    anchor.getWorldPosition(_anchorPos);
-    const dist = _playerPos.distanceTo(_anchorPos);
-
-    inRangeRef.current = dist <= maxDistance;
-
-    // Report distance to the manager so only the closest prompt shows
-    if (inRangeRef.current) {
-      manager.report(promptId, dist);
-    } else {
-      manager.clear(promptId);
-    }
-
-    // Only show if in range AND closest to the player
-    const target = inRangeRef.current && manager.isClosest(promptId) ? 1 : 0;
+    // state is pushed by ProximityService -- just read the refs
+    const target = inRangeRef.current && isClosestRef.current ? 1 : 0;
     opacityRef.current = MathUtils.lerp(opacityRef.current, target, FADE_SPEED * delta);
 
     // Snap to 0 when close enough so we can unmount the Html
