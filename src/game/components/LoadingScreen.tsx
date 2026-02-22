@@ -15,6 +15,7 @@ export function LoadingScreen() {
   const [fading, setFading] = useState(false);
   const markedShown = useRef(false);
   const markedAssetsComplete = useRef(false);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   if (!markedShown.current) {
     markedShown.current = true;
@@ -35,15 +36,16 @@ export function LoadingScreen() {
       setFading(true);
 
       // Remove from DOM after the fade out animation completes
-      const fadeTimer = setTimeout(() => {
+      fadeTimerRef.current = setTimeout(() => {
         PerfLogger.mark('loading-screen:gone');
         setVisible(false);
       }, FADE_OUT_MS);
-
-      return () => clearTimeout(fadeTimer);
     }, MIN_DISPLAY_MS);
 
-    return () => clearTimeout(minTimer);
+    return () => {
+      clearTimeout(minTimer);
+      clearTimeout(fadeTimerRef.current);
+    };
   }, [progress, active]);
 
   if (!visible) return null;
