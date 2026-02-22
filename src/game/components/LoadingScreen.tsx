@@ -14,7 +14,7 @@ export function LoadingScreen() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   const markedAssetsComplete = useRef(false);
-  const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // mark when the loading screen first mounts (once only)
   useEffect(() => {
