@@ -116,20 +116,6 @@ export function SectionNav() {
           );
         })}
       </div>
-
-      {/* copyright footer */}
-      <div
-        style={{
-          textAlign: 'center',
-          fontSize: 11,
-          color: edgeColour,
-          opacity: 0.4,
-          marginTop: 4,
-          userSelect: 'none',
-        }}
-      >
-        &copy; {new Date().getFullYear()} Jason Yi. MIT License.
-      </div>
     </nav>
   );
 }
