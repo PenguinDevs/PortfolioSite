@@ -16,7 +16,7 @@ import { quadraticBezier, easeInOutCubic, easeOutBack } from '../math';
 import { PerfLogger } from '../debug/PerfLogger';
 
 // how long each letter takes to reach its destination (seconds)
-const LETTER_DURATION = 2.2;
+const LETTER_DURATION = 1.8;
 
 // how far the bezier control point dips below the midpoint
 const CURVE_DIP = 0.5;
@@ -40,6 +40,9 @@ const ROTATION_DURATION_SCALE = 1.3;
 
 // seconds to wait after mount before the letter animation begins
 const LETTER_DELAY = 1;
+
+// seconds between each letter starting its animation (left-to-right stagger)
+const LETTER_STAGGER = 0.2;
 
 // text label config
 const FONT_PATH = '/assets/fonts/justanotherhand_regular.ttf';
@@ -136,6 +139,8 @@ interface LetterAnimState {
   spinAxis: Vector3;
   spinAngle: number;
   elapsed: number;
+  // per-letter delay offset for the stagger effect
+  staggerDelay: number;
   // current jitter target rotation for idle wobble
   jitterTarget: Quaternion;
 }
@@ -174,6 +179,8 @@ export function NameTitle(props: ThreeElements['group']) {
   const socialRef = useRef<HTMLDivElement>(null);
   // total elapsed time since mount for the text delay
   const totalElapsedRef = useRef(0);
+  // adjusted text delay accounting for letter stagger (computed once during state init)
+  const textDelayRef = useRef(TEXT_DELAY);
   // perf logging flags (only used when ?perf is in the URL)
   const perfMarksRef = useRef({ letters: false, text: false, done: false });
 
@@ -202,6 +209,10 @@ export function NameTitle(props: ThreeElements['group']) {
       });
     });
 
+    // sort by GLB Z descending so the stagger runs left-to-right in world space
+    // (the model is rotated -PI/2 around Y, so outer X = -GLB Z)
+    letterChildren.sort((a, b) => b.restPosition.z - a.restPosition.z);
+
     // compute the centroid of all letter rest positions
     const centre = new Vector3();
     for (const { restPosition } of letterChildren) {
@@ -213,6 +224,7 @@ export function NameTitle(props: ThreeElements['group']) {
 
     // second pass: build animation states using the centroid as the shared start
     const states: LetterAnimState[] = [];
+    let letterIndex = 0;
     for (const { child, restPosition } of letterChildren) {
       const startPosition = centre.clone();
 
@@ -269,11 +281,17 @@ export function NameTitle(props: ThreeElements['group']) {
         spinAxis,
         spinAngle,
         elapsed: 0,
+        staggerDelay: letterIndex * LETTER_STAGGER,
         jitterTarget: new Quaternion(),
       });
+      letterIndex++;
     }
 
     animRef.current = states;
+
+    // push text fade to after the last staggered letter finishes
+    const totalStagger = Math.max(0, (letterChildren.length - 1)) * LETTER_STAGGER;
+    textDelayRef.current = LETTER_DELAY + totalStagger + LETTER_DURATION - 0.3;
 
     // transform the GLB-space centroid through the model rotation (-PI/2 around Y)
     // so it's in the outer group's coordinate space for centring the scale pivot
@@ -287,9 +305,9 @@ export function NameTitle(props: ThreeElements['group']) {
     const clampedDelta = Math.min(delta, MAX_DELTA);
     totalElapsedRef.current += clampedDelta;
 
-    // fade in the text labels after the delay
+    // fade in the text labels after the delay (adjusted for stagger)
     const textProgress = MathUtils.clamp(
-      (totalElapsedRef.current - TEXT_DELAY) / TEXT_FADE_DURATION,
+      (totalElapsedRef.current - textDelayRef.current) / TEXT_FADE_DURATION,
       0,
       1,
     );
@@ -311,10 +329,7 @@ export function NameTitle(props: ThreeElements['group']) {
       socialRef.current.style.opacity = String(textOpacity);
     }
 
-    // wait for the scene to load before starting the letter animation
-    if (totalElapsedRef.current < LETTER_DELAY) return;
-
-    if (!perfMarksRef.current.letters) {
+    if (!perfMarksRef.current.letters && totalElapsedRef.current >= LETTER_DELAY) {
       perfMarksRef.current.letters = true;
       PerfLogger.mark('nametitle:letters-start');
     }
@@ -338,6 +353,9 @@ export function NameTitle(props: ThreeElements['group']) {
     const rotationDuration = LETTER_DURATION * ROTATION_DURATION_SCALE;
 
     for (const state of states) {
+      // wait for this letter's staggered start time
+      if (totalElapsedRef.current < LETTER_DELAY + state.staggerDelay) continue;
+
       // still playing the intro animation (rotation outlasts position)
       if (state.elapsed < rotationDuration) {
         state.elapsed += clampedDelta;
