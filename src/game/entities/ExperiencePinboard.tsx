@@ -71,7 +71,7 @@ const RELATED_STRING_COLOUR = '#27ae60';
 const STRING_SAG_PX = 18;
 const STRING_SAG_PER_PX = 0.08;
 // related strings droop further so they stay visible where they share pins with the timeline
-const RELATED_EXTRA_SAG_PX = 16;
+const RELATED_EXTRA_SAG_PX = 40;
 
 // instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
