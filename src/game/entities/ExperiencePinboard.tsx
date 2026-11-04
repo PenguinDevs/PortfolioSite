@@ -46,7 +46,8 @@ const CARD_PHOTO_HEIGHT_PX = 64;
 // hex alpha appended to the accent colour for the strip behind the logo
 const ACCENT_TINT_ALPHA = '33';
 
-const NOTE_WIDTH_PX = 176;
+// wide enough for a logo, name, tick and "accepted" on one line
+const NOTE_WIDTH_PX = 186;
 const NOTE_HEIGHT_PX = 150;
 
 // hand-pinned look: every item gets a stable tilt and vertical nudge from its id

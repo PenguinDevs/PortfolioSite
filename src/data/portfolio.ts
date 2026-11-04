@@ -78,6 +78,8 @@ export interface ExperienceData {
 
 export interface InternshipOffer {
   company: string;
+  // path under public/, shown beside the company on the offers note
+  logo?: string;
   accepted: boolean;
 }
 
@@ -147,6 +149,7 @@ interface ExperienceYaml {
 
 interface InternshipOfferYaml {
   company: string;
+  logo?: string;
   accepted?: boolean;
 }
 
@@ -296,6 +299,7 @@ export function getExperience(): ExperienceData[] {
 export function getInternshipOffers(): InternshipOffer[] {
   return (portfolio.internshipOffers ?? []).map((o) => ({
     company: o.company,
+    logo: o.logo,
     accepted: o.accepted ?? false,
   }));
 }

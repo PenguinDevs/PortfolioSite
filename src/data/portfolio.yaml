@@ -345,9 +345,12 @@ experience:
 # shown as a note in the experience section
 internshipOffers:
   - company: Google
+    logo: /assets/images/experience/google.webp
     accepted: true
   - company: TikTok
+    logo: /assets/images/experience/tiktok.webp
   - company: KPMG
+    logo: /assets/images/experience/kpmg.webp
 
 awards:
   - id: macathon-2025

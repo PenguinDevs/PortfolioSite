@@ -8,6 +8,9 @@ import { TextWindow } from './TextWindow';
 const NOTE_TITLE = 'internship offers';
 const ACCEPTED_LABEL = 'accepted';
 const NOTE_PADDING = 14;
+// company logos sit just under the text height, rounded like the experience logos
+const LOGO_HEIGHT = 18;
+const LOGO_CORNER_RADIUS_RATIO = 0.22;
 
 export interface OffersNoteProps {
   offers: InternshipOffer[];
@@ -17,12 +20,13 @@ export interface OffersNoteProps {
   fontScale?: number;
 }
 
-// sticky note listing internship offers, with a tick next to the accepted one.
+// sticky note listing internship offers with their logos, and a tick next to the accepted one.
 // the pin or peg holding it up is drawn by whatever it hangs on
 export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteProps) {
   const mode = useLightingMode();
   const ink = INK_EDGE_COLOUR[mode];
   const tickSize = 16 * fontScale;
+  const logoHeight = LOGO_HEIGHT * fontScale;
 
   return (
     <TextWindow
@@ -40,6 +44,22 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
             key={offer.company}
             style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 18 * fontScale, lineHeight: 1.15 }}
           >
+            {offer.logo && (
+              // decorative, the company name sits right beside it
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={offer.logo}
+                alt=""
+                draggable={false}
+                style={{
+                  display: 'block',
+                  height: logoHeight,
+                  width: 'auto',
+                  borderRadius: logoHeight * LOGO_CORNER_RADIUS_RATIO,
+                  flexShrink: 0,
+                }}
+              />
+            )}
             <span>{offer.company}</span>
             {offer.accepted && (
               <>
