@@ -5,6 +5,7 @@ import type { ReactNode, MutableRefObject } from 'react';
 import type { Group } from 'three';
 import { Section } from '../types';
 import { SECTIONS, TRACK_LENGTH } from '../constants';
+import { useIsTouchDevice } from '../hooks/useIsTouchDevice';
 import { circularDelta } from '../scenes/circular/CircularSceneContext';
 import { section$ } from '../services/section';
 
@@ -30,6 +31,11 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const autopilotTargetRef = useRef<AutopilotTarget>(null);
   const playerGroupRefHolder = useRef<{ readonly current: Group | null }>({ current: null });
 
+  // read through a ref so navigateTo keeps a stable identity
+  const isTouch = useIsTouchDevice();
+  const isTouchRef = useRef(isTouch);
+  isTouchRef.current = isTouch;
+
   const setPlayerGroupRef = useCallback((ref: { readonly current: Group | null }) => {
     playerGroupRefHolder.current = ref;
   }, []);
@@ -47,10 +53,11 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const target = SECTIONS.find((s) => s.id === section);
     if (!target) return;
 
-    const delta = circularDelta(group.position.x, target.x, TRACK_LENGTH);
+    const targetX = isTouchRef.current ? target.touchX ?? target.x : target.x;
+    const delta = circularDelta(group.position.x, targetX, TRACK_LENGTH);
     if (Math.abs(delta) < MIN_NAVIGATE_DISTANCE) return;
 
-    autopilotTargetRef.current = { targetX: target.x, direction };
+    autopilotTargetRef.current = { targetX, direction };
   }, []);
 
   return (

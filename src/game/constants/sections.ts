@@ -5,6 +5,8 @@ export interface SectionDefinition {
   label: string;
   // navigation target position on the circular track (must match HomeScene.tsx)
   x: number;
+  // navigation target on touch devices, for sections laid out differently there
+  touchX?: number;
   // start of the region where this section is considered active (wrapping clockwise).
   // used for the section indicator in the navbar. sorted ascending by rangeStart,
   // the last entry whose rangeStart <= wrappedPlayerX wins (with wrap-around).
