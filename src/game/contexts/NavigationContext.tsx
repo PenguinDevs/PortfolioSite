@@ -14,7 +14,7 @@ export type AutopilotTarget = { targetX: number; direction: 1 | -1 } | null;
 
 interface NavigationState {
   currentSection: Section;
-  navigateTo: (section: Section, direction: 1 | -1) => void;
+  navigateTo: (section: Section) => void;
   // shared ref for MovementService to read each frame
   autopilotTargetRef: MutableRefObject<AutopilotTarget>;
   // called once by HomeScene so we can read player position outside the Canvas
@@ -46,7 +46,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     return () => sub.unsubscribe();
   }, []);
 
-  const navigateTo = useCallback((section: Section, direction: 1 | -1) => {
+  const navigateTo = useCallback((section: Section) => {
     const group = playerGroupRefHolder.current.current;
     if (!group) return;
 
@@ -57,7 +57,8 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const delta = circularDelta(group.position.x, targetX, TRACK_LENGTH);
     if (Math.abs(delta) < MIN_NAVIGATE_DISTANCE) return;
 
-    autopilotTargetRef.current = { targetX, direction };
+    // take the shorter way round the loop
+    autopilotTargetRef.current = { targetX, direction: delta > 0 ? 1 : -1 };
   }, []);
 
   return (
