@@ -11,9 +11,10 @@ const NOTE_PADDING = 14;
 const LOGO_HEIGHT = 18;
 const LOGO_CORNER_RADIUS_RATIO = 0.22;
 
-// red pen loop around the accepted offer, left open at the top right like a quick scribble
+// red pen loop around the accepted offer. it never closes: the end overshoots past
+// where it started, passing just above it, like a quick scribble
 const CIRCLE_COLOUR = '#d63031';
-const CIRCLE_PATH = 'M60 2C30 0 6 4 4 18C2 32 30 39 55 38C82 37 98 29 96 18C95 13 92 10 88 8';
+const CIRCLE_PATH = 'M60 2C30 0 6 4 4 18C2 32 30 39 55 38C82 37 98 29 96 18C95 8 80 -1 46 -6';
 // how far the loop reaches past the row on each side
 const CIRCLE_OVERHANG_X = 10;
 const CIRCLE_OVERHANG_Y = 6;
