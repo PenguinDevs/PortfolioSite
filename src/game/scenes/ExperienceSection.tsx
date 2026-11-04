@@ -5,8 +5,8 @@ import { useIsTouchDevice } from '../hooks';
 
 // the section's CircularSlot sits at the middle of the pinboard, which is the
 // desktop nav target in constants/sections.ts
-const SIGN_X = -24;
-// touch devices get a row of hanging badges instead, starting just after the sign.
+const SIGN_X = -18;
+// touch devices get a row of hanging badges instead, starting by the sign.
 // the touch nav target in constants/sections.ts frames the first two of them
 const LANYARDS_X = -19;
 
