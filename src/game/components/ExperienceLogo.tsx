@@ -10,14 +10,17 @@ const INITIAL_COLOUR = '#ffffff';
 
 export interface ExperienceLogoProps {
   entry: ExperienceData;
+  // logo height, and the width of the square fallback
   size: number;
+  // room for wide wordmark logos, defaults to a square
+  maxWidth?: number;
 }
 
-// company logo, or the first letter on the accent colour when the entry has no logo
-export function ExperienceLogo({ entry, size }: ExperienceLogoProps) {
+// company logo, or the first letter on the accent colour when the entry has no logo.
+// logos keep their own aspect ratio, so wordmarks can run wider than they are tall
+export function ExperienceLogo({ entry, size, maxWidth = size }: ExperienceLogoProps) {
   const name = entry.shortName ?? entry.company;
   const shape: React.CSSProperties = {
-    width: size,
     height: size,
     borderRadius: size * CORNER_RADIUS_RATIO,
     flexShrink: 0,
@@ -30,7 +33,7 @@ export function ExperienceLogo({ entry, size }: ExperienceLogoProps) {
         src={entry.logo}
         alt={`${name} logo`}
         draggable={false}
-        style={{ ...shape, display: 'block', objectFit: 'contain' }}
+        style={{ ...shape, width: 'auto', maxWidth, display: 'block', objectFit: 'contain' }}
       />
     );
   }
@@ -39,6 +42,7 @@ export function ExperienceLogo({ entry, size }: ExperienceLogoProps) {
     <div
       style={{
         ...shape,
+        width: size,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -19,6 +19,8 @@ import { TextWindow, TEXT_WINDOW_FONT } from './TextWindow';
 const FADE_MS = 250;
 const CARD_WIDTH = 500;
 const LOGO_SIZE = 64;
+// wordmark logos get a little more room than square ones
+const LOGO_MAX_WIDTH = 160;
 const VISIT_LABEL = 'Visit';
 
 // middle dot between the parts of the meta and date lines
@@ -147,7 +149,7 @@ export function ExperienceOverlay() {
 
             {/* Logo, company and role */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingRight: 24 }}>
-              <ExperienceLogo entry={entry} size={LOGO_SIZE} />
+              <ExperienceLogo entry={entry} size={LOGO_SIZE} maxWidth={LOGO_MAX_WIDTH} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <h2 style={{ margin: 0, fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>{entry.company}</h2>
                 <div style={{ fontSize: 20, opacity: 0.8, lineHeight: 1.2 }}>

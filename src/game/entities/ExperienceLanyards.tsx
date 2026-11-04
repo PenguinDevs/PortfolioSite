@@ -51,6 +51,8 @@ const BADGE_CARD_HEIGHT_PX = 246;
 const BADGE_HEIGHT_PX = STRAP_HEIGHT_PX + BADGE_CARD_HEIGHT_PX;
 const BADGE_PADDING_PX = 12;
 const BADGE_LOGO_SIZE_PX = 64;
+// wordmark logos can use nearly the full width of the badge
+const BADGE_LOGO_MAX_WIDTH_PX = 148;
 const CLIP_COLOUR = '#9aa0a6';
 
 const NOTE_WIDTH_PX = 176;
@@ -276,7 +278,7 @@ function LanyardBadge({ entry, now, onOpen }: LanyardBadgeProps) {
             {/* punched slot the clip goes through */}
             <div style={{ width: 36, height: 8, borderRadius: 4, border: `2px solid ${ink}`, opacity: 0.6 }} />
             <div style={{ marginTop: 10 }}>
-              <ExperienceLogo entry={entry} size={BADGE_LOGO_SIZE_PX} />
+              <ExperienceLogo entry={entry} size={BADGE_LOGO_SIZE_PX} maxWidth={BADGE_LOGO_MAX_WIDTH_PX} />
             </div>
             <div
               style={{

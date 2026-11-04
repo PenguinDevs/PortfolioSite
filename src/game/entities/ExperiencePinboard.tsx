@@ -40,6 +40,8 @@ const CARD_WIDTH_PX = 196;
 const CARD_HEIGHT_PX = 188;
 const CARD_PADDING_PX = 10;
 const CARD_LOGO_SIZE_PX = 48;
+// wordmark logos can use nearly the full width of the photo strip
+const CARD_LOGO_MAX_WIDTH_PX = 168;
 const CARD_PHOTO_HEIGHT_PX = 64;
 // hex alpha appended to the accent colour for the strip behind the logo
 const ACCENT_TINT_ALPHA = '33';
@@ -168,7 +170,7 @@ function PinboardCard({ entry, now, onOpen }: PinboardCardProps) {
               background: `${entry.accentColour}${ACCENT_TINT_ALPHA}`,
             }}
           >
-            <ExperienceLogo entry={entry} size={CARD_LOGO_SIZE_PX} />
+            <ExperienceLogo entry={entry} size={CARD_LOGO_SIZE_PX} maxWidth={CARD_LOGO_MAX_WIDTH_PX} />
           </div>
           <div
             style={{
