@@ -12,7 +12,7 @@ import { useExperienceOverlay } from '../contexts/ExperienceOverlayContext';
 import { useLightingMode } from '../hooks';
 import { CORK_BOARD_COLOUR, INK_EDGE_COLOUR } from '../constants';
 import { ExperienceItemKind } from '../types';
-import { OFFERS_ITEM_ID, buildExperienceItems, formatMonthRange, getExperienceStatus } from '../experience';
+import { OFFERS_ITEM_ID, buildExperienceItems, formatMonthRange, getExperienceStatus, monthIndex } from '../experience';
 import type { ExperienceItem } from '../experience';
 import { phaseFromId } from '../utils';
 import type { ExperienceData, InternshipOffer } from '@/data/portfolio';
@@ -59,10 +59,14 @@ const PIN_INSET_PX = 9;
 const PIN_RADIUS_PX = 7;
 const PIN_COLOUR = '#d63031';
 const PIN_SHINE_COLOUR = '#ffffff';
-const STRING_COLOUR = '#27ae60';
+// red thread through every role in the order they started, green between related items
+const TIMELINE_STRING_COLOUR = '#c0392b';
+const RELATED_STRING_COLOUR = '#27ae60';
 // how far a string droops between two pins, plus a little more for longer runs
 const STRING_SAG_PX = 18;
 const STRING_SAG_PER_PX = 0.08;
+// related strings droop further so they stay visible where they share pins with the timeline
+const RELATED_EXTRA_SAG_PX = 16;
 
 // items pop onto the board one after another once the frame has drawn in
 const POP_MS = 320;
@@ -71,8 +75,8 @@ const POP_START_SCALE = 1.15;
 // instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
 
-// pairs of item ids joined with green string
-const BOARD_STRINGS: [string, string][] = [
+// pairs of related item ids joined with green string
+const RELATED_STRINGS: [string, string][] = [
   ['google', OFFERS_ITEM_ID],
   ['coles', 'google'],
   ['mac', 'maps'],
@@ -113,6 +117,8 @@ interface PinRef {
 
 interface BoardString {
   key: string;
+  colour: string;
+  extraSag: number;
   from: PinRef;
   to: PinRef;
 }
@@ -257,19 +263,32 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
   // strings within a row run pin to pin. strings to the other row leave from a pin
   // near the bottom of the upper item, so they cross cork instead of card faces
   const strings = useMemo(() => {
-    const byId = new Map(placed.map((p) => [p.item.id, p]));
-    return BOARD_STRINGS.flatMap(([fromId, toId]): BoardString[] => {
-      const a = byId.get(fromId);
-      const b = byId.get(toId);
-      if (!a || !b) return [];
-
+    const connect = (a: PlacedItem, b: PlacedItem, colour: string, extraSag: number): BoardString => {
       const [upper, lower] = a.row <= b.row ? [a, b] : [b, a];
-      return [{
-        key: `${fromId}:${toId}`,
+      return {
+        key: `${colour}:${a.item.id}:${b.item.id}`,
+        colour,
+        extraSag,
         from: { placed: upper, spot: upper.row === lower.row ? PinSpot.Top : PinSpot.Bottom },
         to: { placed: lower, spot: PinSpot.Top },
-      }];
-    });
+      };
+    };
+
+    // sort is stable, so roles starting in the same month keep their display order
+    const timeline = placed
+      .flatMap((p) => (p.item.kind === ExperienceItemKind.Role ? [{ p, start: monthIndex(p.item.entry.start) }] : []))
+      .sort((a, b) => a.start - b.start)
+      .map(({ p }) => p);
+
+    const byId = new Map(placed.map((p) => [p.item.id, p]));
+    return [
+      ...timeline.slice(1).map((p, i) => connect(timeline[i], p, TIMELINE_STRING_COLOUR, 0)),
+      ...RELATED_STRINGS.flatMap(([fromId, toId]) => {
+        const a = byId.get(fromId);
+        const b = byId.get(toId);
+        return a && b ? [connect(a, b, RELATED_STRING_COLOUR, RELATED_EXTRA_SAG_PX)] : [];
+      }),
+    ];
   }, [placed]);
 
   // each item tied with a string to the row below gets a second pin near its bottom edge
@@ -338,7 +357,7 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
           {strings.map((s) => {
             const start = pinPoint(s.from);
             const end = pinPoint(s.to);
-            const sag = STRING_SAG_PX + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
+            const sag = STRING_SAG_PX + s.extraSag + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
             const controlX = (start.x + end.x) / 2;
             const controlY = (start.y + end.y) / 2 + sag;
             return (
@@ -346,7 +365,7 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
                 key={s.key}
                 d={`M${start.x} ${start.y} Q${controlX} ${controlY} ${end.x} ${end.y}`}
                 fill="none"
-                stroke={STRING_COLOUR}
+                stroke={s.colour}
                 strokeWidth={2}
                 strokeLinecap="round"
               />
