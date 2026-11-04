@@ -55,7 +55,7 @@ const BADGE_LOGO_SIZE_PX = 64;
 const BADGE_LOGO_MAX_WIDTH_PX = 148;
 const CLIP_COLOUR = '#9aa0a6';
 
-// wide enough for a logo, name, tick and "accepted" on one line
+// roomy enough for the title and the red circle around the accepted offer
 const NOTE_WIDTH_PX = 192;
 const NOTE_HEIGHT_PX = 168;
 const NOTE_FONT_SCALE = 1.1;

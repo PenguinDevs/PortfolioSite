@@ -6,11 +6,17 @@ import { INK_EDGE_COLOUR, STICKY_NOTE_COLOUR } from '../constants';
 import { TextWindow } from './TextWindow';
 
 const NOTE_TITLE = 'internship offers';
-const ACCEPTED_LABEL = 'accepted';
 const NOTE_PADDING = 14;
 // company logos sit just under the text height, rounded like the experience logos
 const LOGO_HEIGHT = 18;
 const LOGO_CORNER_RADIUS_RATIO = 0.22;
+
+// red pen loop around the accepted offer, left open at the top right like a quick scribble
+const CIRCLE_COLOUR = '#d63031';
+const CIRCLE_PATH = 'M60 2C30 0 6 4 4 18C2 32 30 39 55 38C82 37 98 29 96 18C95 13 92 10 88 8';
+// how far the loop reaches past the row on each side
+const CIRCLE_OVERHANG_X = 10;
+const CIRCLE_OVERHANG_Y = 6;
 
 export interface OffersNoteProps {
   offers: InternshipOffer[];
@@ -20,12 +26,11 @@ export interface OffersNoteProps {
   fontScale?: number;
 }
 
-// sticky note listing internship offers with their logos, and a tick next to the accepted one.
+// sticky note listing internship offers with their logos, with the accepted one circled in red pen.
 // the pin or peg holding it up is drawn by whatever it hangs on
 export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteProps) {
   const mode = useLightingMode();
   const ink = INK_EDGE_COLOUR[mode];
-  const tickSize = 16 * fontScale;
   const logoHeight = LOGO_HEIGHT * fontScale;
 
   return (
@@ -42,7 +47,16 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
         {offers.map((offer) => (
           <div
             key={offer.company}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 18 * fontScale, lineHeight: 1.15 }}
+            style={{
+              position: 'relative',
+              // shrink to the logo and name so the circle hugs them
+              alignSelf: 'flex-start',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 18 * fontScale,
+              lineHeight: 1.15,
+            }}
           >
             {offer.logo && (
               // decorative, the company name sits right beside it
@@ -62,19 +76,31 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
             )}
             <span>{offer.company}</span>
             {offer.accepted && (
-              <>
-                <svg width={tickSize} height={tickSize} viewBox="0 0 16 16" aria-hidden>
-                  <path
-                    d="M2 9 L6 13 L14 3"
-                    fill="none"
-                    stroke={ink}
-                    strokeWidth={2.2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span style={{ fontSize: 13 * fontScale, opacity: 0.65 }}>{ACCEPTED_LABEL}</span>
-              </>
+              <svg
+                viewBox="0 0 100 40"
+                preserveAspectRatio="none"
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: -CIRCLE_OVERHANG_Y * fontScale,
+                  bottom: -CIRCLE_OVERHANG_Y * fontScale,
+                  left: -CIRCLE_OVERHANG_X * fontScale,
+                  right: -CIRCLE_OVERHANG_X * fontScale,
+                  width: `calc(100% + ${2 * CIRCLE_OVERHANG_X * fontScale}px)`,
+                  height: `calc(100% + ${2 * CIRCLE_OVERHANG_Y * fontScale}px)`,
+                  overflow: 'visible',
+                  pointerEvents: 'none',
+                }}
+              >
+                <path
+                  d={CIRCLE_PATH}
+                  fill="none"
+                  stroke={CIRCLE_COLOUR}
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
             )}
           </div>
         ))}

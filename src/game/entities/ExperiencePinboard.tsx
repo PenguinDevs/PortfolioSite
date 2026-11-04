@@ -51,7 +51,7 @@ const CARD_PHOTO_HEIGHT_PX = 64;
 // hex alpha appended to the accent colour for the strip behind the logo
 const ACCENT_TINT_ALPHA = '33';
 
-// wide enough for a logo, name, tick and "accepted" on one line
+// roomy enough for the title and the red circle around the accepted offer
 const NOTE_WIDTH_PX = 186;
 const NOTE_HEIGHT_PX = 150;
 
