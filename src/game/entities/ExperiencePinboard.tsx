@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import type { Group } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
 import { ExperienceLogo } from '../components/ExperienceLogo';
@@ -9,7 +11,7 @@ import { ExperienceStatusTag } from '../components/ExperienceStatusTag';
 import { OffersNote } from '../components/OffersNote';
 import { TextWindow, TEXT_WINDOW_FONT } from '../components/TextWindow';
 import { useExperienceOverlay } from '../contexts/ExperienceOverlayContext';
-import { useLightingMode } from '../hooks';
+import { useEntityReveal, useLightingMode } from '../hooks';
 import { CORK_BOARD_COLOUR, INK_EDGE_COLOUR } from '../constants';
 import { ExperienceItemKind } from '../types';
 import { OFFERS_ITEM_ID, buildExperienceItems, formatMonthRange, getExperienceStatus, monthIndex } from '../experience';
@@ -68,10 +70,6 @@ const STRING_SAG_PER_PX = 0.08;
 // related strings droop further so they stay visible where they share pins with the timeline
 const RELATED_EXTRA_SAG_PX = 16;
 
-// items pop onto the board one after another once the frame has drawn in
-const POP_MS = 320;
-const POP_STAGGER_MS = 70;
-const POP_START_SCALE = 1.15;
 // instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
 
@@ -234,14 +232,7 @@ interface PinboardContentProps {
 // the cork board's DOM layer: cards and the offers note, with strings and pins on top
 function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) {
   const mode = useLightingMode();
-  const [shown, setShown] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  // flip on the frame after mount so the pop-in transitions actually run
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setShown(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
 
   // every string runs between the pins holding its two items up
   const strings = useMemo(() => {
@@ -278,36 +269,31 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
 
   return (
     <div style={{ position: 'relative', width: BOARD_WIDTH_PX, height: BOARD_HEIGHT_PX, fontFamily: TEXT_WINDOW_FONT }}>
-      {placed.map(({ item, x, y, tiltDeg }, i) => {
-        const delay = i * POP_STAGGER_MS;
-        return (
-          <div
-            key={item.id}
-            style={{
-              position: 'absolute',
-              left: x,
-              top: y,
-              opacity: shown ? 1 : 0,
-              transform: `translate(-50%, -50%) rotate(${tiltDeg}deg) scale(${shown ? 1 : POP_START_SCALE})`,
-              transition: `opacity ${POP_MS}ms ease ${delay}ms, transform ${POP_MS}ms ease ${delay}ms`,
-            }}
-          >
-            {item.kind === ExperienceItemKind.Role ? (
-              <PinboardCard
-                entry={item.entry}
-                now={now}
-                lifted={hoveredId === item.id}
-                onHoverChange={(hovered) =>
-                  setHoveredId((current) => (hovered ? item.id : current === item.id ? null : current))
-                }
-                onOpen={onOpen}
-              />
-            ) : (
-              <OffersNote offers={offers} width={NOTE_WIDTH_PX} height={NOTE_HEIGHT_PX} />
-            )}
-          </div>
-        );
-      })}
+      {placed.map(({ item, x, y, tiltDeg }) => (
+        <div
+          key={item.id}
+          style={{
+            position: 'absolute',
+            left: x,
+            top: y,
+            transform: `translate(-50%, -50%) rotate(${tiltDeg}deg)`,
+          }}
+        >
+          {item.kind === ExperienceItemKind.Role ? (
+            <PinboardCard
+              entry={item.entry}
+              now={now}
+              lifted={hoveredId === item.id}
+              onHoverChange={(hovered) =>
+                setHoveredId((current) => (hovered ? item.id : current === item.id ? null : current))
+              }
+              onOpen={onOpen}
+            />
+          ) : (
+            <OffersNote offers={offers} width={NOTE_WIDTH_PX} height={NOTE_HEIGHT_PX} />
+          )}
+        </div>
+      ))}
 
       <svg
         width={BOARD_WIDTH_PX}
@@ -315,38 +301,27 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
         style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}
         aria-hidden
       >
-        {/* strings go up once everything is pinned */}
-        <g
-          style={{
-            opacity: shown ? 1 : 0,
-            transition: `opacity ${POP_MS}ms ease ${placed.length * POP_STAGGER_MS}ms`,
-          }}
-        >
-          {strings.map((s) => {
-            const start = pinPoint(s.from);
-            const end = pinPoint(s.to);
-            const sag = STRING_SAG_PX + s.extraSag + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
-            const controlX = (start.x + end.x) / 2;
-            const controlY = (start.y + end.y) / 2 + sag;
-            return (
-              <path
-                key={s.key}
-                d={`M${start.x} ${start.y} Q${controlX} ${controlY} ${end.x} ${end.y}`}
-                fill="none"
-                stroke={s.colour}
-                strokeWidth={2}
-                strokeLinecap="round"
-              />
-            );
-          })}
-        </g>
-        {placed.map((p, i) => {
+        {strings.map((s) => {
+          const start = pinPoint(s.from);
+          const end = pinPoint(s.to);
+          const sag = STRING_SAG_PX + s.extraSag + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
+          const controlX = (start.x + end.x) / 2;
+          const controlY = (start.y + end.y) / 2 + sag;
+          return (
+            <path
+              key={s.key}
+              d={`M${start.x} ${start.y} Q${controlX} ${controlY} ${end.x} ${end.y}`}
+              fill="none"
+              stroke={s.colour}
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          );
+        })}
+        {placed.map((p) => {
           const pin = pinPoint(p);
           return (
-            <g
-              key={p.item.id}
-              style={{ opacity: shown ? 1 : 0, transition: `opacity ${POP_MS}ms ease ${i * POP_STAGGER_MS}ms` }}
-            >
+            <g key={p.item.id}>
               <circle cx={pin.x} cy={pin.y} r={PIN_RADIUS_PX} fill={PIN_COLOUR} stroke={pinColour} strokeWidth={1.5} />
               <circle cx={pin.x - 2} cy={pin.y - 2} r={2.2} fill={PIN_SHINE_COLOUR} opacity={0.7} />
             </g>
@@ -367,20 +342,38 @@ export function ExperiencePinboard(props: ThreeElements['group']) {
   // NOW / INCOMING tags are worked out against the date the page was opened
   const now = useMemo(() => new Date(), []);
 
+  // the frame's outline draws in first, then the board content fades in with the colour,
+  // the same way the frame's backing does
+  const boardRef = useRef<Group>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(boardRef, { perfLabel: 'ExperiencePinboard' });
+  const reveal = useMemo(
+    () => ({ drawProgress, colourProgress, connectMaterial }),
+    [drawProgress, colourProgress, connectMaterial],
+  );
+
+  useFrame(() => {
+    if (contentRef.current) contentRef.current.style.opacity = String(colourProgress.value);
+  });
+
   return (
     <group {...props}>
-      <WallFrame
-        position={[0, BOARD_Y, BOARD_Z]}
-        contentWidth={BOARD_WIDTH_PX * PX_TO_WORLD}
-        contentHeight={BOARD_HEIGHT_PX * PX_TO_WORLD}
-        frameBorder={FRAME_BORDER}
-        backingColour={CORK_BOARD_COLOUR}
-        seed={FRAME_SEED}
-      >
-        <Html transform distanceFactor={DISTANCE_FACTOR} zIndexRange={[0, 0]}>
-          <PinboardContent placed={placed} offers={internshipOffers} now={now} onOpen={showExperience} />
-        </Html>
-      </WallFrame>
+      <group ref={boardRef} position={[0, BOARD_Y, BOARD_Z]}>
+        <WallFrame
+          contentWidth={BOARD_WIDTH_PX * PX_TO_WORLD}
+          contentHeight={BOARD_HEIGHT_PX * PX_TO_WORLD}
+          frameBorder={FRAME_BORDER}
+          backingColour={CORK_BOARD_COLOUR}
+          seed={FRAME_SEED}
+          reveal={reveal}
+        >
+          <Html transform distanceFactor={DISTANCE_FACTOR} zIndexRange={[0, 0]}>
+            <div ref={contentRef} style={{ opacity: 0 }}>
+              <PinboardContent placed={placed} offers={internshipOffers} now={now} onOpen={showExperience} />
+            </div>
+          </Html>
+        </WallFrame>
+      </group>
     </group>
   );
 }
