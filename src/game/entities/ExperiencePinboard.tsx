@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ThreeElements } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { WallFrame } from './WallFrame';
-import { ProximityPrompt } from '../components';
 import { ExperienceLogo } from '../components/ExperienceLogo';
 import { ExperienceStatusTag } from '../components/ExperienceStatusTag';
 import { OffersNote } from '../components/OffersNote';
@@ -32,7 +31,7 @@ const ROW_CENTRES_PX = [128, 352];
 const FRAME_BORDER = 0.3;
 const FRAME_SEED = 61;
 
-// the entity's origin sits on the walking path so prompt anchors only need an x,
+// the entity's origin sits on the walking path like the other sections,
 // the board itself hangs on the back wall
 const BOARD_Y = 6.9;
 const BOARD_Z = -11.9;
@@ -75,12 +74,6 @@ const BOARD_STRINGS: [string, string][] = [
   ['mac', 'maps'],
   ['valotracker', 'leagues-gg'],
 ];
-
-const PROMPT_ACTION = 'View';
-// just over half the spacing between items, so one prompt is always in range along the board
-const PROMPT_MAX_DISTANCE = 1.6;
-// beside the penguin rather than on top of it
-const PROMPT_OFFSET: [number, number, number] = [2.6, 1.2, 0];
 
 interface BoardPoint {
   x: number;
@@ -345,20 +338,6 @@ export function ExperiencePinboard(props: ThreeElements['group']) {
           <PinboardContent placed={placed} offers={internshipOffers} now={now} onOpen={showExperience} />
         </Html>
       </WallFrame>
-
-      {placed.map(({ item, x }) =>
-        item.kind === ExperienceItemKind.Role && (
-          <group key={item.id} position={[(x - BOARD_WIDTH_PX / 2) * PX_TO_WORLD, 0, 0]}>
-            <ProximityPrompt
-              onInteract={() => showExperience(item.entry)}
-              actionText={PROMPT_ACTION}
-              objectText={`${item.entry.shortName ?? item.entry.company}\n${item.entry.shortRole ?? item.entry.role}`}
-              maxDistance={PROMPT_MAX_DISTANCE}
-              offset={PROMPT_OFFSET}
-            />
-          </group>
-        ),
-      )}
     </group>
   );
 }
