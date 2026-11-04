@@ -3,6 +3,7 @@
 import { type ReactNode, useId } from 'react';
 import { useLightingMode } from '../hooks';
 import { INK_EDGE_COLOUR, BACKGROUND_COLOUR } from '../constants';
+import type { ThemedColour } from '../types';
 
 export const TEXT_WINDOW_FONT = "'PatrickHand', sans-serif";
 
@@ -11,6 +12,8 @@ export interface TextWindowProps {
   width?: number | string;
   padding?: number;
   style?: React.CSSProperties;
+  // fill behind the content, defaults to the scene background
+  backgroundColour?: ThemedColour;
 }
 
 // 2D UI frame with hand-drawn ink edges that responds to the current theme
@@ -19,12 +22,13 @@ export function TextWindow({
   width = 360,
   padding = 24,
   style,
+  backgroundColour = BACKGROUND_COLOUR,
 }: TextWindowProps) {
   const mode = useLightingMode();
   const filterId = useId();
 
   const edgeColour = INK_EDGE_COLOUR[mode];
-  const bgColour = BACKGROUND_COLOUR[mode];
+  const bgColour = backgroundColour[mode];
 
   return (
     <div
