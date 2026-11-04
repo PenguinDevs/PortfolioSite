@@ -82,9 +82,6 @@ const SWING_IMPULSE_PER_SPEED = 0.05;
 const SWING_MAX_PLAYER_SPEED = 20;
 const SWING_MAX_ANGLE = 0.35;
 
-// hanging content fades in once the rail starts drawing (seconds)
-const CONTENT_FADE_DURATION = 0.5;
-
 const PROMPT_ACTION = 'View';
 // over half the spacing so a prompt is in range almost everywhere along the rail,
 // including the nav stop between the first badge and the pegged note
@@ -113,7 +110,7 @@ function HangingItem({ x, heightPx, showHook, seed, children, onInteract, prompt
   const playerRef = usePlayerRef();
 
   // the reveal is keyed to the rail so it starts when this part of the wall comes into view
-  const { drawProgress, connectMaterial } = useEntityReveal(railRef, { perfLabel: 'HangingItem' });
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(railRef, { perfLabel: 'HangingItem' });
 
   const material = useMemo(
     () => createToonMaterial({
@@ -138,16 +135,13 @@ function HangingItem({ x, heightPx, showHook, seed, children, onInteract, prompt
   const wasNear = useRef(false);
   const pivotWorld = useMemo(() => new Vector3(), []);
 
-  // drei's <Html> ignores the parent's visibility, so the content mounts once the reveal starts
+  // drei's <Html> ignores the parent's visibility, so like WallFrame content the badge
+  // mounts once the rail's outline has drawn and fades in with the colour
   const [contentMounted, setContentMounted] = useState(false);
-  const fadeRef = useRef(0);
 
   useFrame((_, delta) => {
-    if (!contentMounted && drawProgress.value > -1) setContentMounted(true);
-    if (contentMounted && fadeRef.current < 1) {
-      fadeRef.current = Math.min(fadeRef.current + delta / CONTENT_FADE_DURATION, 1);
-    }
-    if (contentRef.current) contentRef.current.style.opacity = String(fadeRef.current);
+    if (!contentMounted && colourProgress.value > 0.01) setContentMounted(true);
+    if (contentRef.current) contentRef.current.style.opacity = String(colourProgress.value);
 
     const player = playerRef.current;
     const pivot = pivotRef.current;
