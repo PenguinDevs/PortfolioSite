@@ -34,6 +34,12 @@ export const WALL_FRAME_BACKING_COLOUR: ThemedColour = {
   [LightingMode.Dark]: '#3d3d3d', // matches alley ground
 };
 
+// Experience pinboard cork backing
+export const CORK_BOARD_COLOUR: ThemedColour = {
+  [LightingMode.Light]: '#e6cfa6',
+  [LightingMode.Dark]: '#4a4033',
+};
+
 // Paper of the internship offers note
 export const STICKY_NOTE_COLOUR: ThemedColour = {
   [LightingMode.Light]: '#fde68a',

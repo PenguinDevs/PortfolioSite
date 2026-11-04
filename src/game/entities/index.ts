@@ -20,3 +20,4 @@ export { GalleryWallItem } from './GalleryWallItem';
 export type { GalleryWallItemProps } from './GalleryWallItem';
 export { ViewMoreButton } from './ViewMoreButton';
 export type { ViewMoreButtonProps } from './ViewMoreButton';
+export { ExperiencePinboard } from './ExperiencePinboard';
