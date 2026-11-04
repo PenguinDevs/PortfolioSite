@@ -1,0 +1,55 @@
+'use client';
+
+import type { ExperienceData } from '@/data/portfolio';
+import { TEXT_WINDOW_FONT } from './TextWindow';
+
+// corner rounding and fallback letter size, as fractions of the logo size
+const CORNER_RADIUS_RATIO = 0.22;
+const INITIAL_SIZE_RATIO = 0.55;
+const INITIAL_COLOUR = '#ffffff';
+
+export interface ExperienceLogoProps {
+  entry: ExperienceData;
+  size: number;
+}
+
+// company logo, or the first letter on the accent colour when the entry has no logo
+export function ExperienceLogo({ entry, size }: ExperienceLogoProps) {
+  const name = entry.shortName ?? entry.company;
+  const shape: React.CSSProperties = {
+    width: size,
+    height: size,
+    borderRadius: size * CORNER_RADIUS_RATIO,
+    flexShrink: 0,
+  };
+
+  if (entry.logo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={entry.logo}
+        alt={`${name} logo`}
+        draggable={false}
+        style={{ ...shape, display: 'block', objectFit: 'contain' }}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        ...shape,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: entry.accentColour,
+        color: INITIAL_COLOUR,
+        fontFamily: TEXT_WINDOW_FONT,
+        fontSize: size * INITIAL_SIZE_RATIO,
+        lineHeight: 1,
+      }}
+    >
+      {name.charAt(0)}
+    </div>
+  );
+}

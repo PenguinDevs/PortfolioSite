@@ -1,5 +1,6 @@
 export { AwardOverlayProvider, useAwardOverlay } from './AwardOverlayContext';
 export type { AwardData } from './AwardOverlayContext';
+export { ExperienceOverlayProvider, useExperienceOverlay } from './ExperienceOverlayContext';
 export { PlayerProvider, usePlayerRef } from './PlayerContext';
 export { SocialLinksProvider, useSocialLinks } from './SocialLinksContext';
 export { ProjectsProvider, useProjects } from './ProjectsContext';
