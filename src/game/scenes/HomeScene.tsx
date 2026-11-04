@@ -13,6 +13,7 @@ import { ProximityUpdater } from '../services/proximity';
 import { useLightingMode } from '../hooks';
 import { AMBIENT_INTENSITY, DIRECTIONAL_INTENSITY, SHADOW_OPACITY, TRACK_LENGTH } from '../constants';
 import { HomeSection } from './HomeSection';
+import { ExperienceSection } from './ExperienceSection';
 import { AwardsSection } from './AwardsSection';
 import { ProjectsSection } from './ProjectsSection';
 import { CircularSceneProvider, CircularSlot } from './circular';
@@ -40,17 +41,18 @@ const SHADOW_PLANE_DEPTH = 50;
 
 // section positions along the circular track
 const HOME_X = 0;
-const AWARDS_X = 42;
-const PROJECTS_X = 60;
+const EXPERIENCE_X = 54;
+const AWARDS_X = 90;
+const PROJECTS_X = 108;
 
 // ground tiles: centred near the track midpoint so a single CircularSlot
 // covers the entire loop. each tile is 12 world units wide (TILE_SCALE * 1m).
 // baseX must be a multiple of 12 so a tile lands exactly at x=0 (player spawn).
-// ±17 tiles = ±204 units, comfortably exceeding the wrap threshold (~153)
+// ±19 tiles = ±228 units, comfortably exceeding the wrap threshold (~180)
 // plus camera view distance in both directions.
-const GROUND_BASE_X = 144;
-const GROUND_START_TILE = -17;
-const GROUND_END_TILE = 17;
+const GROUND_BASE_X = 168;
+const GROUND_START_TILE = -19;
+const GROUND_END_TILE = 19;
 
 export function HomeScene() {
   const inputRef = useInput();
@@ -131,6 +133,9 @@ export function HomeScene() {
 
           <CircularSlot baseX={HOME_X}>
             <HomeSection />
+          </CircularSlot>
+          <CircularSlot baseX={EXPERIENCE_X}>
+            <ExperienceSection />
           </CircularSlot>
           <CircularSlot baseX={AWARDS_X}>
             <AwardsSection />

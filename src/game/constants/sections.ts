@@ -15,19 +15,23 @@ export interface SectionDefinition {
 
 // must be sorted by rangeStart ascending for the detection algorithm
 export const SECTIONS: SectionDefinition[] = [
-  { id: Section.Awards, label: 'Awards', x: 42, rangeStart: 36 },
-  { id: Section.Projects, label: 'Projects', x: 60, rangeStart: 57 },
-  { id: Section.Home, label: 'Home', x: 0, rangeStart: 258 },
+  // x is the middle of the desktop pinboard, touchX frames the first two
+  // badges of the mobile lanyard row (see ExperienceSection.tsx)
+  { id: Section.Experience, label: 'Experience', x: 54, touchX: 37, rangeStart: 30 },
+  { id: Section.Awards, label: 'Awards', x: 90, rangeStart: 84 },
+  { id: Section.Projects, label: 'Projects', x: 108, rangeStart: 105 },
+  { id: Section.Home, label: 'Home', x: 0, rangeStart: 306 },
 ];
 
 // display order for the navbar (separate from the range-sorted order above)
 export const SECTION_DISPLAY_ORDER: Section[] = [
   Section.Home,
+  Section.Experience,
   Section.Awards,
   Section.Projects,
 ];
 
 // total loop length of the circular track
-// last project tile ends at ~252, plus buffer space to 288.
+// last project tile ends at ~300, plus buffer space to 336.
 // must be a multiple of 12 (tile width) so ground tiles align after wrapping.
-export const TRACK_LENGTH = 288;
+export const TRACK_LENGTH = 336;

@@ -13,6 +13,7 @@ export enum Sound {
 
 export enum Section {
   Home = 'home',
+  Experience = 'experience',
   Awards = 'awards',
   Projects = 'projects',
 }
