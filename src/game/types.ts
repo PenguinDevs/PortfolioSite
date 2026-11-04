@@ -17,6 +17,37 @@ export enum Section {
   Projects = 'projects',
 }
 
+// kind of role, mirrors the LinkedIn employment types plus clubs and short programs
+export enum ExperienceType {
+  FullTime = 'full-time',
+  PartTime = 'part-time',
+  Contract = 'contract',
+  Internship = 'internship',
+  SelfEmployed = 'self-employed',
+  Freelance = 'freelance',
+  Club = 'club',
+  Program = 'program',
+}
+
+export enum WorkMode {
+  OnSite = 'on-site',
+  Remote = 'remote',
+  Hybrid = 'hybrid',
+}
+
+// derived from the role's dates at runtime, never stored in the data
+export enum ExperienceStatus {
+  Upcoming = 'upcoming',
+  Current = 'current',
+  Past = 'past',
+}
+
+// things shown in the experience section: one per role, plus the internship offers note
+export enum ExperienceItemKind {
+  Role = 'role',
+  Offers = 'offers',
+}
+
 export enum LightingMode {
   Light = 'light',
   Dark = 'dark',
