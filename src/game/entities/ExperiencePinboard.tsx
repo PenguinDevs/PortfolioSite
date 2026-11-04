@@ -83,7 +83,6 @@ const HOVER_LIFT_PX = 4;
 // pairs of related item ids joined with green string
 const RELATED_STRINGS: [string, string][] = [
   ['google', OFFERS_ITEM_ID],
-  ['coles', 'google'],
   ['mac', 'maps'],
   ['valotracker', 'leagues-gg'],
 ];
