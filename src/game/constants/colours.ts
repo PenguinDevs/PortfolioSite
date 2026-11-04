@@ -34,6 +34,12 @@ export const WALL_FRAME_BACKING_COLOUR: ThemedColour = {
   [LightingMode.Dark]: '#3d3d3d', // matches alley ground
 };
 
+// Paper of the internship offers note
+export const STICKY_NOTE_COLOUR: ThemedColour = {
+  [LightingMode.Light]: '#fde68a',
+  [LightingMode.Dark]: '#6b5d2a',
+};
+
 // Ink edge outlines
 export const INK_EDGE_COLOUR: ThemedColour = {
   [LightingMode.Light]: '#1a1a1a',
