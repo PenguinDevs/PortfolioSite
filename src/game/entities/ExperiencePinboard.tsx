@@ -59,7 +59,7 @@ const PIN_INSET_PX = 9;
 const PIN_RADIUS_PX = 7;
 const PIN_COLOUR = '#d63031';
 const PIN_SHINE_COLOUR = '#ffffff';
-const STRING_COLOUR = '#c0392b';
+const STRING_COLOUR = '#27ae60';
 // how far a string droops between two pins, plus a little more for longer runs
 const STRING_SAG_PX = 18;
 const STRING_SAG_PER_PX = 0.08;
@@ -71,7 +71,7 @@ const POP_START_SCALE = 1.15;
 // instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
 
-// pairs of item ids joined with red string
+// pairs of item ids joined with green string
 const BOARD_STRINGS: [string, string][] = [
   ['google', OFFERS_ITEM_ID],
   ['coles', 'google'],
