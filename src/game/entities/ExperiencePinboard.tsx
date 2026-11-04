@@ -61,7 +61,7 @@ const MAX_TILT_DEG = 3.5;
 const MAX_NUDGE_X_PX = 10;
 const MAX_NUDGE_Y_PX = 14;
 // the offers note hangs a little lower than the cards in the top row
-const OFFERS_NOTE_DROP_PX = 20;
+const OFFERS_NOTE_DROP_PX = 40;
 
 // hand placed tweaks on top of the generated messiness, keyed by item id
 interface PlacementOverride {
@@ -87,7 +87,7 @@ const RELATED_STRING_COLOUR = '#27ae60';
 const STRING_SAG_PX = 18;
 const STRING_SAG_PER_PX = 0.08;
 // related strings droop further so they stay visible where they share pins with the timeline
-const RELATED_EXTRA_SAG_PX = 40;
+const RELATED_EXTRA_SAG_PX = 36;
 
 // instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
