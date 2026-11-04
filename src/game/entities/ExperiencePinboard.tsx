@@ -14,7 +14,7 @@ import { useExperienceOverlay } from '../contexts/ExperienceOverlayContext';
 import { useEntityReveal, useLightingMode } from '../hooks';
 import { CORK_BOARD_COLOUR, INK_EDGE_COLOUR } from '../constants';
 import { ExperienceItemKind } from '../types';
-import { OFFERS_ITEM_ID, buildExperienceItems, formatMonthRange, getExperienceStatus, monthIndex } from '../experience';
+import { OFFERS_ITEM_ID, formatMonthRange, getExperienceStatus, monthIndex } from '../experience';
 import type { ExperienceItem } from '../experience';
 import { phaseFromId } from '../utils';
 import type { ExperienceData, InternshipOffer } from '@/data/portfolio';
@@ -27,8 +27,9 @@ const PX_TO_WORLD = DISTANCE_FACTOR / 400;
 const BOARD_WIDTH_PX = 1350;
 const BOARD_HEIGHT_PX = 480;
 const BOARD_PADDING_X_PX = 28;
-// vertical centres of the top and bottom rows of pinned items
-const ROW_CENTRES_PX = [128, 352];
+// row centres: the timeline runs along the bottom row and back along the top
+const TOP_ROW_Y_PX = 128;
+const BOTTOM_ROW_Y_PX = 352;
 
 const FRAME_BORDER = 0.3;
 const FRAME_SEED = 61;
@@ -106,18 +107,23 @@ interface BoardString {
   to: PlacedItem;
 }
 
-// lays items out left to right, alternating between the top and bottom rows
-function layoutBoard(items: ExperienceItem[]): PlacedItem[] {
-  const step = (BOARD_WIDTH_PX - 2 * BOARD_PADDING_X_PX - CARD_WIDTH_PX) / Math.max(items.length - 1, 1);
+// lays the roles out as a U so the red timeline string never zigzags: oldest along the
+// bottom row left to right, up at the right edge, then newer ones along the top row right
+// to left. the offers note gets its own column on the left, next to the newest role
+function layoutBoard(experience: ExperienceData[], hasOffers: boolean): PlacedItem[] {
+  // sort is stable, so roles starting in the same month keep their data order
+  const roles = [...experience].sort((a, b) => monthIndex(a.start) - monthIndex(b.start));
+  const roleColumns = Math.ceil(roles.length / 2);
+  const bottomCount = Math.floor(roles.length / 2);
+  const noteColumns = hasOffers ? 1 : 0;
+  const step = (BOARD_WIDTH_PX - 2 * BOARD_PADDING_X_PX - CARD_WIDTH_PX) / Math.max(noteColumns + roleColumns - 1, 1);
+  const columnX = (column: number) => BOARD_PADDING_X_PX + CARD_WIDTH_PX / 2 + column * step;
 
-  return items.map((item, i) => {
+  const place = (item: ExperienceItem, x: number, rowY: number): PlacedItem => {
     // phaseFromId is in [0, 2PI), dividing by PI and subtracting 1 maps it to [-1, 1)
     const tiltDeg = (phaseFromId(item.id) / Math.PI - 1) * MAX_TILT_DEG;
-    const nudge = (phaseFromId(`${item.id}:y`) / Math.PI - 1) * MAX_NUDGE_Y_PX;
+    const y = rowY + (phaseFromId(`${item.id}:y`) / Math.PI - 1) * MAX_NUDGE_Y_PX;
     const height = item.kind === ExperienceItemKind.Role ? CARD_HEIGHT_PX : NOTE_HEIGHT_PX;
-    const row = i % ROW_CENTRES_PX.length;
-    const x = BOARD_PADDING_X_PX + CARD_WIDTH_PX / 2 + i * step;
-    const y = ROW_CENTRES_PX[row] + nudge;
 
     // rotate the pin's offset from the item centre by the item's tilt
     const tilt = (tiltDeg * Math.PI) / 180;
@@ -130,7 +136,20 @@ function layoutBoard(items: ExperienceItem[]): PlacedItem[] {
       pin: { x: x + pinOffset * Math.sin(tilt), y: y - pinOffset * Math.cos(tilt) },
       lift: { x: HOVER_LIFT_PX * Math.sin(tilt), y: -HOVER_LIFT_PX * Math.cos(tilt) },
     };
+  };
+
+  const placed = roles.map((entry, i) => {
+    const item: ExperienceItem = { kind: ExperienceItemKind.Role, id: entry.id, entry };
+    // the bottom row is right aligned so its newest role sits under the top row's oldest
+    return i < bottomCount
+      ? place(item, columnX(noteColumns + roleColumns - bottomCount + i), BOTTOM_ROW_Y_PX)
+      : place(item, columnX(noteColumns + roleColumns - 1 - (i - bottomCount)), TOP_ROW_Y_PX);
   });
+  if (hasOffers) {
+    const note: ExperienceItem = { kind: ExperienceItemKind.Offers, id: OFFERS_ITEM_ID };
+    placed.push(place(note, columnX(0), (TOP_ROW_Y_PX + BOTTOM_ROW_Y_PX) / 2));
+  }
+  return placed;
 }
 
 interface PinboardCardProps {
@@ -336,7 +355,7 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
 export function ExperiencePinboard(props: ThreeElements['group']) {
   const { experience, internshipOffers, showExperience } = useExperienceOverlay();
   const placed = useMemo(
-    () => layoutBoard(buildExperienceItems(experience, internshipOffers)),
+    () => layoutBoard(experience, internshipOffers.length > 0),
     [experience, internshipOffers],
   );
   // NOW / INCOMING tags are worked out against the date the page was opened
