@@ -30,6 +30,8 @@ const BOARD_PADDING_X_PX = 28;
 // row centres: the timeline runs along the bottom row and back along the top
 const TOP_ROW_Y_PX = 128;
 const BOTTOM_ROW_Y_PX = 352;
+// the bottom row sits this many columns left of the top row
+const BOTTOM_ROW_SHIFT_COLUMNS = 0.5;
 
 const FRAME_BORDER = 0.3;
 const FRAME_SEED = 61;
@@ -109,7 +111,8 @@ interface BoardString {
 
 // lays the roles out as a U so the red timeline string never zigzags: oldest along the
 // bottom row left to right, up at the right edge, then newer ones along the top row right
-// to left. the offers note gets its own column on the left, next to the newest role
+// to left. the offers note starts the top row, next to the newest role, and the bottom
+// row sits half a column to the left like bricks
 function layoutBoard(experience: ExperienceData[], hasOffers: boolean): PlacedItem[] {
   // sort is stable, so roles starting in the same month keep their data order
   const roles = [...experience].sort((a, b) => monthIndex(a.start) - monthIndex(b.start));
@@ -140,14 +143,14 @@ function layoutBoard(experience: ExperienceData[], hasOffers: boolean): PlacedIt
 
   const placed = roles.map((entry, i) => {
     const item: ExperienceItem = { kind: ExperienceItemKind.Role, id: entry.id, entry };
-    // the bottom row is right aligned so its newest role sits under the top row's oldest
+    // the bottom row is right aligned so its newest role sits just under the top row's oldest
     return i < bottomCount
-      ? place(item, columnX(noteColumns + roleColumns - bottomCount + i), BOTTOM_ROW_Y_PX)
+      ? place(item, columnX(noteColumns + roleColumns - bottomCount + i - BOTTOM_ROW_SHIFT_COLUMNS), BOTTOM_ROW_Y_PX)
       : place(item, columnX(noteColumns + roleColumns - 1 - (i - bottomCount)), TOP_ROW_Y_PX);
   });
   if (hasOffers) {
     const note: ExperienceItem = { kind: ExperienceItemKind.Offers, id: OFFERS_ITEM_ID };
-    placed.push(place(note, columnX(0), (TOP_ROW_Y_PX + BOTTOM_ROW_Y_PX) / 2));
+    placed.push(place(note, columnX(0), TOP_ROW_Y_PX));
   }
   return placed;
 }
