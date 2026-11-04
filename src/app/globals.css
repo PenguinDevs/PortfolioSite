@@ -96,6 +96,15 @@ body {
   61%, 100% { opacity: 0; }
 }
 
+/* Section nav: phones only fit the neighbours either side of the active section.
+   matches the same "no fine pointer" check as useIsTouchDevice, important beats the inline opacity */
+@media not all and (pointer: fine) {
+  .section-nav-far {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+}
+
 /* Touch tutorial overlay */
 .touch-tutorial {
   position: fixed;

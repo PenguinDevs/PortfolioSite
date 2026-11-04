@@ -13,7 +13,13 @@ const NAV_Z_INDEX = 40;
 const SLOT_WIDTH = 110;
 const TRANSITION_MS = 300;
 
-// circular offset of item index i when active index is a (returns -1, 0, or +1 for n=3)
+// items further than this from the active one get a class that hides them on
+// touch devices (see globals.css), since phone screens only fit the neighbours.
+// done in CSS rather than with useIsTouchDevice so the server render matches
+const MAX_NEIGHBOUR_OFFSET = 1;
+const FAR_ITEM_CLASS = 'section-nav-far';
+
+// circular offset of item index i when active index is a (-1, 0 or +1 for n=3, -2 to +1 for n=4)
 function circularOffset(i: number, a: number, n: number): number {
   return ((i - a + Math.floor(n / 2) + n) % n) - Math.floor(n / 2);
 }
@@ -26,7 +32,7 @@ export function SectionNav() {
   const n = SECTION_DISPLAY_ORDER.length;
   const activeIdx = SECTION_DISPLAY_ORDER.indexOf(currentSection);
 
-  // offset for each item: -1 (left), 0 (centre), +1 (right)
+  // offset for each item: negative (left), 0 (centre), positive (right)
   const offsets = SECTION_DISPLAY_ORDER.map((_, i) => circularOffset(i, activeIdx, n));
 
   // track previous offsets so we can detect items that wrapped around
@@ -72,10 +78,12 @@ export function SectionNav() {
           const section = SECTIONS.find((s) => s.id === sectionId)!;
           const isActive = offsets[i] === 0;
           const isWrapping = wrapping.has(i);
+          const isFar = Math.abs(offsets[i]) > MAX_NEIGHBOUR_OFFSET;
 
           return (
             <button
               key={sectionId}
+              className={isFar ? FAR_ITEM_CLASS : undefined}
               onClick={() => navigateTo(sectionId, offsets[i] < 0 ? -1 : 1)}
               style={{
                 position: 'absolute',
