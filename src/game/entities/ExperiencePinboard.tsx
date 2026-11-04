@@ -68,6 +68,7 @@ const STRING_SAG_PER_PX = 0.08;
 const POP_MS = 320;
 const POP_STAGGER_MS = 70;
 const POP_START_SCALE = 1.15;
+// instant like the project buttons' hover tilt, so the pins and strings move with the card
 const HOVER_LIFT_PX = 4;
 
 // pairs of item ids joined with red string
@@ -77,6 +78,13 @@ const BOARD_STRINGS: [string, string][] = [
   ['mac', 'maps'],
   ['valotracker', 'leagues-gg'],
 ];
+
+enum PinSpot {
+  // the pin holding an item up
+  Top = 'top',
+  // near the bottom edge, where strings to the row below are tied
+  Bottom = 'bottom',
+}
 
 interface BoardPoint {
   x: number;
@@ -91,10 +99,22 @@ interface PlacedItem {
   x: number;
   y: number;
   tiltDeg: number;
-  // pin holding the item up, and the spot near its bottom edge where a string
-  // to the row below is tied, both after the tilt is applied
+  // both pin spots after the tilt is applied
   topPin: BoardPoint;
   bottomPin: BoardPoint;
+  // how far the pins move while the card is hovered, the lift rotated by the tilt
+  lift: BoardPoint;
+}
+
+interface PinRef {
+  placed: PlacedItem;
+  spot: PinSpot;
+}
+
+interface BoardString {
+  key: string;
+  from: PinRef;
+  to: PinRef;
 }
 
 // lays items out left to right, alternating between the top and bottom rows
@@ -110,7 +130,7 @@ function layoutBoard(items: ExperienceItem[]): PlacedItem[] {
     const x = BOARD_PADDING_X_PX + CARD_WIDTH_PX / 2 + i * step;
     const y = ROW_CENTRES_PX[row] + nudge;
 
-    // rotate a vertical offset from the item centre by the item's tilt
+    // rotate vertical offsets from the item centre by the item's tilt
     const tilt = (tiltDeg * Math.PI) / 180;
     const pinOffset = height / 2 - PIN_INSET_PX;
     return {
@@ -121,6 +141,7 @@ function layoutBoard(items: ExperienceItem[]): PlacedItem[] {
       tiltDeg,
       topPin: { x: x + pinOffset * Math.sin(tilt), y: y - pinOffset * Math.cos(tilt) },
       bottomPin: { x: x - pinOffset * Math.sin(tilt), y: y + pinOffset * Math.cos(tilt) },
+      lift: { x: HOVER_LIFT_PX * Math.sin(tilt), y: -HOVER_LIFT_PX * Math.cos(tilt) },
     };
   });
 }
@@ -128,22 +149,24 @@ function layoutBoard(items: ExperienceItem[]): PlacedItem[] {
 interface PinboardCardProps {
   entry: ExperienceData;
   now: Date;
+  lifted: boolean;
+  onHoverChange: (hovered: boolean) => void;
   onOpen: (entry: ExperienceData) => void;
 }
 
-function PinboardCard({ entry, now, onOpen }: PinboardCardProps) {
+function PinboardCard({ entry, now, lifted, onHoverChange, onOpen }: PinboardCardProps) {
   const mode = useLightingMode();
 
   return (
     <div
       onClick={() => onOpen(entry)}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = `translateY(-${HOVER_LIFT_PX}px)`;
+      onMouseEnter={() => onHoverChange(true)}
+      onMouseLeave={() => onHoverChange(false)}
+      style={{
+        position: 'relative',
+        cursor: 'pointer',
+        transform: lifted ? `translateY(-${HOVER_LIFT_PX}px)` : undefined,
       }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = '';
-      }}
-      style={{ position: 'relative', cursor: 'pointer', transition: 'transform 150ms ease' }}
     >
       <TextWindow
         width={CARD_WIDTH_PX}
@@ -223,6 +246,7 @@ interface PinboardContentProps {
 function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) {
   const mode = useLightingMode();
   const [shown, setShown] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   // flip on the frame after mount so the pop-in transitions actually run
   useEffect(() => {
@@ -234,25 +258,34 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
   // near the bottom of the upper item, so they cross cork instead of card faces
   const strings = useMemo(() => {
     const byId = new Map(placed.map((p) => [p.item.id, p]));
-    return BOARD_STRINGS.flatMap(([fromId, toId]) => {
+    return BOARD_STRINGS.flatMap(([fromId, toId]): BoardString[] => {
       const a = byId.get(fromId);
       const b = byId.get(toId);
       if (!a || !b) return [];
 
       const [upper, lower] = a.row <= b.row ? [a, b] : [b, a];
-      const crossesRows = upper.row !== lower.row;
-      const start = crossesRows ? upper.bottomPin : upper.topPin;
-      const end = lower.topPin;
-      const sag = STRING_SAG_PX + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
-      const controlX = (start.x + end.x) / 2;
-      const controlY = (start.y + end.y) / 2 + sag;
       return [{
         key: `${fromId}:${toId}`,
-        d: `M${start.x} ${start.y} Q${controlX} ${controlY} ${end.x} ${end.y}`,
-        tiePin: crossesRows ? start : undefined,
+        from: { placed: upper, spot: upper.row === lower.row ? PinSpot.Top : PinSpot.Bottom },
+        to: { placed: lower, spot: PinSpot.Top },
       }];
     });
   }, [placed]);
+
+  // each item tied with a string to the row below gets a second pin near its bottom edge
+  const tiedItems = useMemo(() => {
+    const tied = new Map<string, PlacedItem>();
+    for (const s of strings) {
+      if (s.from.spot === PinSpot.Bottom) tied.set(s.from.placed.item.id, s.from.placed);
+    }
+    return [...tied.values()];
+  }, [strings]);
+
+  // pins, and the strings tied to them, ride along with a hovered card
+  const pinPoint = ({ placed: p, spot }: PinRef): BoardPoint => {
+    const pin = spot === PinSpot.Top ? p.topPin : p.bottomPin;
+    return p.item.id === hoveredId ? { x: pin.x + p.lift.x, y: pin.y + p.lift.y } : pin;
+  };
 
   const pinColour = INK_EDGE_COLOUR[mode];
 
@@ -273,7 +306,15 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
             }}
           >
             {item.kind === ExperienceItemKind.Role ? (
-              <PinboardCard entry={item.entry} now={now} onOpen={onOpen} />
+              <PinboardCard
+                entry={item.entry}
+                now={now}
+                lifted={hoveredId === item.id}
+                onHoverChange={(hovered) =>
+                  setHoveredId((current) => (hovered ? item.id : current === item.id ? null : current))
+                }
+                onOpen={onOpen}
+              />
             ) : (
               <OffersNote offers={offers} width={NOTE_WIDTH_PX} height={NOTE_HEIGHT_PX} />
             )}
@@ -287,31 +328,52 @@ function PinboardContent({ placed, offers, now, onOpen }: PinboardContentProps) 
         style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}
         aria-hidden
       >
-        {/* strings go up once everything is pinned */}
+        {/* strings and the pins they're tied to go up once everything is pinned */}
         <g
           style={{
             opacity: shown ? 1 : 0,
             transition: `opacity ${POP_MS}ms ease ${placed.length * POP_STAGGER_MS}ms`,
           }}
         >
-          {strings.map((s) => (
-            <g key={s.key}>
-              <path d={s.d} fill="none" stroke={STRING_COLOUR} strokeWidth={2} strokeLinecap="round" />
-              {s.tiePin && (
-                <circle cx={s.tiePin.x} cy={s.tiePin.y} r={PIN_RADIUS_PX} fill={PIN_COLOUR} stroke={pinColour} strokeWidth={1.5} />
-              )}
-            </g>
-          ))}
+          {strings.map((s) => {
+            const start = pinPoint(s.from);
+            const end = pinPoint(s.to);
+            const sag = STRING_SAG_PX + Math.hypot(end.x - start.x, end.y - start.y) * STRING_SAG_PER_PX;
+            const controlX = (start.x + end.x) / 2;
+            const controlY = (start.y + end.y) / 2 + sag;
+            return (
+              <path
+                key={s.key}
+                d={`M${start.x} ${start.y} Q${controlX} ${controlY} ${end.x} ${end.y}`}
+                fill="none"
+                stroke={STRING_COLOUR}
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+            );
+          })}
+          {tiedItems.map((p) => {
+            const pin = pinPoint({ placed: p, spot: PinSpot.Bottom });
+            return (
+              <g key={p.item.id}>
+                <circle cx={pin.x} cy={pin.y} r={PIN_RADIUS_PX} fill={PIN_COLOUR} stroke={pinColour} strokeWidth={1.5} />
+                <circle cx={pin.x - 2} cy={pin.y - 2} r={2.2} fill={PIN_SHINE_COLOUR} opacity={0.7} />
+              </g>
+            );
+          })}
         </g>
-        {placed.map(({ item, topPin }, i) => (
-          <g
-            key={item.id}
-            style={{ opacity: shown ? 1 : 0, transition: `opacity ${POP_MS}ms ease ${i * POP_STAGGER_MS}ms` }}
-          >
-            <circle cx={topPin.x} cy={topPin.y} r={PIN_RADIUS_PX} fill={PIN_COLOUR} stroke={pinColour} strokeWidth={1.5} />
-            <circle cx={topPin.x - 2} cy={topPin.y - 2} r={2.2} fill={PIN_SHINE_COLOUR} opacity={0.7} />
-          </g>
-        ))}
+        {placed.map((p, i) => {
+          const pin = pinPoint({ placed: p, spot: PinSpot.Top });
+          return (
+            <g
+              key={p.item.id}
+              style={{ opacity: shown ? 1 : 0, transition: `opacity ${POP_MS}ms ease ${i * POP_STAGGER_MS}ms` }}
+            >
+              <circle cx={pin.x} cy={pin.y} r={PIN_RADIUS_PX} fill={PIN_COLOUR} stroke={pinColour} strokeWidth={1.5} />
+              <circle cx={pin.x - 2} cy={pin.y - 2} r={2.2} fill={PIN_SHINE_COLOUR} opacity={0.7} />
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
