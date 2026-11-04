@@ -55,9 +55,13 @@ const ACCENT_TINT_ALPHA = '33';
 const NOTE_WIDTH_PX = 186;
 const NOTE_HEIGHT_PX = 150;
 
-// hand-pinned look: every item gets a stable tilt and vertical nudge from its id
+// hand-pinned look: every item gets a stable tilt and position nudge from its id.
+// the x nudge stays under half the gap between columns so cards never overlap
 const MAX_TILT_DEG = 3.5;
-const MAX_NUDGE_Y_PX = 8;
+const MAX_NUDGE_X_PX = 10;
+const MAX_NUDGE_Y_PX = 14;
+// the offers note hangs a little lower than the cards in the top row
+const OFFERS_NOTE_DROP_PX = 20;
 
 // pins sit this far below an item's top edge
 const PIN_INSET_PX = 9;
@@ -122,9 +126,10 @@ function layoutBoard(experience: ExperienceData[], hasOffers: boolean): PlacedIt
   const step = (BOARD_WIDTH_PX - 2 * BOARD_PADDING_X_PX - CARD_WIDTH_PX) / Math.max(noteColumns + roleColumns - 1, 1);
   const columnX = (column: number) => BOARD_PADDING_X_PX + CARD_WIDTH_PX / 2 + column * step;
 
-  const place = (item: ExperienceItem, x: number, rowY: number): PlacedItem => {
+  const place = (item: ExperienceItem, columnCentre: number, rowY: number): PlacedItem => {
     // phaseFromId is in [0, 2PI), dividing by PI and subtracting 1 maps it to [-1, 1)
     const tiltDeg = (phaseFromId(item.id) / Math.PI - 1) * MAX_TILT_DEG;
+    const x = columnCentre + (phaseFromId(`${item.id}:x`) / Math.PI - 1) * MAX_NUDGE_X_PX;
     const y = rowY + (phaseFromId(`${item.id}:y`) / Math.PI - 1) * MAX_NUDGE_Y_PX;
     const height = item.kind === ExperienceItemKind.Role ? CARD_HEIGHT_PX : NOTE_HEIGHT_PX;
 
@@ -150,7 +155,7 @@ function layoutBoard(experience: ExperienceData[], hasOffers: boolean): PlacedIt
   });
   if (hasOffers) {
     const note: ExperienceItem = { kind: ExperienceItemKind.Offers, id: OFFERS_ITEM_ID };
-    placed.push(place(note, columnX(0), TOP_ROW_Y_PX));
+    placed.push(place(note, columnX(0), TOP_ROW_Y_PX + OFFERS_NOTE_DROP_PX));
   }
   return placed;
 }
