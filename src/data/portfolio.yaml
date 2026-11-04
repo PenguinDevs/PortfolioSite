@@ -225,35 +225,6 @@ experience:
     description: Organising events and competitions for the Monash competitive programming student team.
     href: https://monashaps.com
 
-  - id: mac
-    company: Monash Association of Coding (MAC)
-    shortName: MAC
-    role: Projects Officer
-    type: club
-    location: Melbourne, Victoria, Australia
-    start: '2025-10'
-    logo: /assets/images/experience/mac.webp
-    accentColour: '#f5c400'
-    description: Creating websites, internal tooling for various teams, and tutorials, SDKs and other applications for technical workshops and competitions.
-    techStack:
-      - Golang
-      - Python
-    href: https://www.monashcoding.com
-
-  - id: imc-launchpad
-    company: IMC Trading
-    shortName: IMC
-    role: Launchpad Participant
-    shortRole: Launchpad
-    type: program
-    location: Sydney, New South Wales, Australia
-    start: '2026'
-    end: '2026'
-    logo: /assets/images/experience/imc_trading.webp
-    accentColour: '#0b5be6'
-    description: Selected for Launchpad, IMC's highly selective three-day programme for first and second year STEM students.
-    href: https://www.imc.com/ap/careers/students-graduates/programs/launchpad
-
   - id: lyra
     company: Lyra
     role: Fellow
@@ -269,6 +240,50 @@ experience:
       - TypeScript
       - Next.js
     href: https://lyratechnologies.com.au
+
+  - id: imc-launchpad
+    company: IMC Trading
+    shortName: IMC
+    role: Launchpad Participant
+    shortRole: Launchpad
+    type: program
+    location: Sydney, New South Wales, Australia
+    start: '2026'
+    end: '2026'
+    logo: /assets/images/experience/imc_trading.webp
+    accentColour: '#0b5be6'
+    description: Selected for Launchpad, IMC's highly selective three-day programme for first and second year STEM students.
+    href: https://www.imc.com/ap/careers/students-graduates/programs/launchpad
+
+  - id: mac
+    company: Monash Association of Coding (MAC)
+    shortName: MAC
+    role: Projects Officer
+    type: club
+    location: Melbourne, Victoria, Australia
+    start: '2025-10'
+    logo: /assets/images/experience/mac.webp
+    accentColour: '#f5c400'
+    description: Creating websites, internal tooling for various teams, and tutorials, SDKs and other applications for technical workshops and competitions.
+    techStack:
+      - Golang
+      - Python
+    href: https://www.monashcoding.com
+
+  - id: ceebs
+    company: Ceebs
+    role: Lead Developer
+    type: contract
+    workMode: remote
+    location: Clayton, Victoria, Australia
+    start: '2025-02'
+    end: '2025-11'
+    logo: /assets/images/experience/ceebs.webp
+    accentColour: '#4a9be0'
+    description: Student delivery platform for the Monash campus.
+    techStack:
+      - Python
+    href: https://ceebs.site
 
   - id: leagues-gg
     company: Leagues.gg
@@ -289,21 +304,6 @@ experience:
       - Golang
       - Python
     href: https://valotracker.com
-
-  - id: ceebs
-    company: Ceebs
-    role: Lead Developer
-    type: contract
-    workMode: remote
-    location: Clayton, Victoria, Australia
-    start: '2025-02'
-    end: '2025-11'
-    logo: /assets/images/experience/ceebs.webp
-    accentColour: '#4a9be0'
-    description: Student delivery platform for the Monash campus.
-    techStack:
-      - Python
-    href: https://ceebs.site
 
   - id: valotracker
     company: ValoTracker
