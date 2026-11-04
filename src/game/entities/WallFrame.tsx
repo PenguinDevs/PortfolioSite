@@ -19,6 +19,7 @@ import type { EntityRevealResult } from '../hooks';
 import { InkEdges } from '../shaders/inkEdges';
 import { INK_EDGE_COLOUR, WALL_FRAME_COLOUR, WALL_FRAME_SHADOW, WALL_FRAME_BACKING_COLOUR } from '../constants';
 import { LightingMode } from '../types';
+import type { ThemedColour } from '../types';
 import { LightingService } from '../services';
 
 // default frame dimensions (world units)
@@ -83,6 +84,8 @@ export type WallFrameProps = ThreeElements['group'] & {
   bevelDepth?: number;
   // render a backing plane behind the content
   showBacking?: boolean;
+  // colour of the backing plane
+  backingColour?: ThemedColour;
   // ink edge noise seed for deterministic variation
   seed?: number;
   // when provided by a parent composite entity, the frame uses the parent's
@@ -101,6 +104,7 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
       frameDepth = DEFAULT_FRAME_DEPTH,
       bevelDepth = DEFAULT_BEVEL_DEPTH,
       showBacking = true,
+      backingColour = WALL_FRAME_BACKING_COLOUR,
       seed = 77,
       reveal: externalReveal,
       children,
@@ -159,12 +163,12 @@ export const WallFrame = forwardRef<Group, WallFrameProps>(
     // subscribe backing colour to lighting mode changes
     useEffect(() => {
       const initial = LightingService.getMode();
-      backingMaterial.color.set(WALL_FRAME_BACKING_COLOUR[initial]);
+      backingMaterial.color.set(backingColour[initial]);
 
       return LightingService.subscribe((mode) => {
-        backingMaterial.color.set(WALL_FRAME_BACKING_COLOUR[mode]);
+        backingMaterial.color.set(backingColour[mode]);
       });
-    }, [backingMaterial]);
+    }, [backingMaterial, backingColour]);
 
     // fade in backing opacity and mount content once the colour phase begins
     useFrame(() => {
