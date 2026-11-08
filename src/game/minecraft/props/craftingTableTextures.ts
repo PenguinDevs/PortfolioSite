@@ -8,8 +8,10 @@ import type { TexelOrigin } from '../propTextures';
 
 export enum CraftingTableTextureKey {
   Planks = 'prop:craftingTable:planks',
-  DarkWood = 'prop:craftingTable:darkWood',
-  Leather = 'prop:craftingTable:leather',
+  Panel = 'prop:craftingTable:panel',
+  Trim = 'prop:craftingTable:trim',
+  Bar = 'prop:craftingTable:bar',
+  Post = 'prop:craftingTable:post',
   Metal = 'prop:craftingTable:metal',
 }
 
@@ -17,21 +19,25 @@ export enum CraftingTableTextureKey {
 // palettes, all picked by hand
 // ---------------------------------------------------------------------------
 
-const PLANK_GRAIN = ['#b98f57', '#ae8650', '#c39a60', '#a37c47'] as const;
-const PLANK_HIGHLIGHT = ['#cba468', '#c49d63'] as const;
-const PLANK_STREAK = '#94703f';
-const PLANK_SEAM = '#6d4f2d';
-const KNOT_RING = '#7d5a34';
-const KNOT_CORE = '#5b3e22';
+// light warm oak for the sides, the work surface a shade lighter again
+const PLANK_GRAIN = ['#c49a5e', '#b98f55', '#cfa66a', '#ad874f'] as const;
+const PLANK_STREAK = '#a07a47';
+const PLANK_SEAM = '#80603a';
+const PLANK_NAIL = '#6f5333';
 
-const DARK_WOOD = ['#4b3019', '#553720', '#432a15', '#5c3d23'] as const;
-const DARK_WOOD_STREAK = '#36220f';
-const DARK_WOOD_HIGHLIGHT = '#6a4729';
+const PANEL_GRAIN = ['#d6b07a', '#cca671', '#dcb983', '#c79f68'] as const;
+const PANEL_STREAK = '#bc955f';
+const PANEL_SEAM = '#a88152';
 
-const LEATHER = ['#b0602b', '#a65826', '#bb6a32', '#9c5023'] as const;
-const LEATHER_SCUFF = '#87441d';
-const LEATHER_SHEEN = '#c7783c';
-const LEATHER_STITCH = '#e3b27a';
+// medium dark brown edging, the grid bars a little darker so they stand out on the panel
+const TRIM_WOOD = ['#76502e', '#6e4a2a', '#7d5734', '#684627'] as const;
+const TRIM_STREAK = '#5e3f23';
+const BAR_WOOD = ['#5d4024', '#553a20', '#634628'] as const;
+const BAR_STREAK = '#4b331c';
+
+const POST_WOOD = ['#6e4a2a', '#76502e', '#664426'] as const;
+const POST_STREAK = '#573a20';
+const POST_HIGHLIGHT = '#85603a';
 
 const METAL = ['#b9bfc5', '#c4cad0', '#adb3ba'] as const;
 const METAL_SHINE = ['#e4e8ec', '#d6dbe0'] as const;
@@ -41,49 +47,32 @@ const METAL_DARK = ['#7b828a', '#6c737b', '#858c94'] as const;
 // layout of each texture
 // ---------------------------------------------------------------------------
 
-// planks run in horizontal boards: a lighter top row, grain, then a dark seam row
-const PLANK_BOARD_HEIGHT = 4;
-// a knot painted into the planks, raised knots sample exactly this patch
-export const KNOT_ORIGIN: TexelOrigin = { x: 11, y: 5 };
-export const KNOT_SIZE = 2;
-// grain only patches (highlight row plus grain, no seam row) for raised boards up to 5 x 3 texels
-export const PLANK_BOARD_ORIGINS: readonly TexelOrigin[] = [
-  { x: 1, y: 8 },
-  { x: 6, y: 0 },
-  { x: 3, y: 12 },
-  { x: 8, y: 4 },
-];
-// long grain strip for the skirting boards along the bottom of each side, 12 x 2 texels
-export const PLANK_SKIRTING_ORIGIN: TexelOrigin = { x: 2, y: 12 };
-// the core sides start one row down so the bottom seam lands on the floor
+// boards of uneven heights, each ending in a seam row. the sides of the body sample from
+// row 1, so the bottom seam sits on the floor and the top row hides under the trim
+const PLANK_BOARD_HEIGHTS = [4, 3, 5, 4] as const;
 export const PLANK_SIDE_ORIGIN: TexelOrigin = { x: 0, y: 1 };
+// seam free patches lining up with the boards painted on the body, so a raised board
+// looks like that board pushed out a texel
+export const PLANK_MIDDLE_BOARD_ORIGIN: TexelOrigin = { x: 1, y: 7 };
+export const PLANK_UPPER_BOARD_ORIGIN: TexelOrigin = { x: 3, y: 4 };
+export const PLANK_LOWER_BOARD_ORIGIN: TexelOrigin = { x: 8, y: 12 };
 
-// dark wood: the first columns have vertical grain for posts, straps and handles,
-// the rest has horizontal grain for the trim and grid bars
-const DARK_VERTICAL_COLUMNS = 4;
-export const DARK_POST_ORIGIN: TexelOrigin = { x: 0, y: 0 };
-export const DARK_HANDLE_ORIGIN: TexelOrigin = { x: 1, y: 3 };
-export const DARK_TRIM_ORIGIN: TexelOrigin = { x: DARK_VERTICAL_COLUMNS, y: 0 };
-export const DARK_BAR_ORIGIN: TexelOrigin = { x: DARK_VERTICAL_COLUMNS, y: 5 };
+// work surface boards run front to back, the panel samples the middle 14 x 14
+const PANEL_BOARD_WIDTH = 4;
+export const PANEL_ORIGIN: TexelOrigin = { x: 1, y: 1 };
 
-// leather mat with a stitched seam one texel in from the edge
-const STITCH_INSET = 1;
-export const LEATHER_MAT_ORIGIN: TexelOrigin = { x: 2, y: 1 };
-// the mat is notched at the corners around the posts, these two strips fill the sides
-export const LEATHER_LEFT_WING_ORIGIN: TexelOrigin = { x: 1, y: 2 };
-export const LEATHER_RIGHT_WING_ORIGIN: TexelOrigin = { x: 14, y: 2 };
-// drapes and grips take patches from the stitch free middle
-export const LEATHER_PLAIN_ORIGINS: readonly TexelOrigin[] = [
-  { x: 3, y: 3 },
-  { x: 7, y: 4 },
-  { x: 5, y: 7 },
-  { x: 8, y: 6 },
-  { x: 4, y: 5 },
-];
+// the trim and the grid bars each fill a whole texture, so even the 14 texel long grid
+// bars sample real grain along their full length instead of running off the edge
+export const TRIM_ORIGIN: TexelOrigin = { x: 0, y: 0 };
+export const BAR_ORIGIN: TexelOrigin = { x: 0, y: 0 };
+
+export const POST_ORIGIN: TexelOrigin = { x: 0, y: 0 };
+export const HANDLE_ORIGIN: TexelOrigin = { x: 5, y: 3 };
 
 // metal: two bright rows along the top, a darker band down the right
 const METAL_SHINE_ROWS = 2;
 const METAL_DARK_COLUMN = 12;
+const METAL_GLINT_COUNT = 5;
 export const METAL_SHINE_ORIGIN: TexelOrigin = { x: 0, y: 0 };
 export const METAL_ORIGIN: TexelOrigin = { x: 2, y: METAL_SHINE_ROWS };
 export const METAL_DARK_ORIGIN: TexelOrigin = { x: METAL_DARK_COLUMN, y: METAL_SHINE_ROWS };
@@ -113,81 +102,85 @@ function fillNoise(
   }
 }
 
+// a few short grain streaks running along the rows of a rectangle
+function streakRows(
+  ctx: CanvasRenderingContext2D,
+  rand: Rng,
+  colour: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  for (let row = y; row < y + height; row++) {
+    if (rand() < 0.4) continue;
+    const length = 2 + Math.floor(rand() * 4);
+    const start = x + Math.floor(rand() * (width - length));
+    fillRect(ctx, start, row, length, 1, colour);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // painters
 // ---------------------------------------------------------------------------
 
+// horizontal boards with a seam under each, one butt joint per board with a nail either
+// side of it, joints staggered so no two line up
 const paintPlanks: PixelPainter = (ctx, rand, size) => {
   fillNoise(ctx, rand, PLANK_GRAIN, 0, 0, size, size);
-  for (let boardTop = 0; boardTop < size; boardTop += PLANK_BOARD_HEIGHT) {
-    // light top edge so each board looks slightly rounded over
-    fillNoise(ctx, rand, PLANK_HIGHLIGHT, 0, boardTop, size, 1);
-    fillRect(ctx, 0, boardTop + PLANK_BOARD_HEIGHT - 1, size, 1, PLANK_SEAM);
 
-    // butt joint where two boards meet, staggered per board
-    const jointX = 2 + Math.floor(rand() * (size - 4));
-    fillRect(ctx, jointX, boardTop, 1, PLANK_BOARD_HEIGHT - 1, PLANK_SEAM);
+  let boardTop = 0;
+  let lastJoint = -1;
+  for (const height of PLANK_BOARD_HEIGHTS) {
+    const grainRows = height - 1;
+    fillRect(ctx, 0, boardTop + grainRows, size, 1, PLANK_SEAM);
+    streakRows(ctx, rand, PLANK_STREAK, 0, boardTop, size, grainRows);
 
-    const streakLength = 2 + Math.floor(rand() * 4);
-    const streakX = Math.floor(rand() * (size - streakLength));
-    const streakY = boardTop + 1 + Math.floor(rand() * (PLANK_BOARD_HEIGHT - 2));
-    fillRect(ctx, streakX, streakY, streakLength, 1, PLANK_STREAK);
+    let joint = 3 + Math.floor(rand() * (size - 6));
+    if (Math.abs(joint - lastJoint) < 4) joint = (joint + size / 2) % size;
+    lastJoint = joint;
+    fillRect(ctx, joint, boardTop, 1, grainRows, PLANK_SEAM);
+
+    const nailRow = boardTop + Math.floor(grainRows / 2);
+    setPixel(ctx, joint - 1, nailRow, PLANK_NAIL);
+    setPixel(ctx, joint + 1, nailRow, PLANK_NAIL);
+    boardTop += height;
   }
-
-  // knot with a ring of darker grain around it
-  const { x, y } = KNOT_ORIGIN;
-  fillRect(ctx, x - 1, y, 1, KNOT_SIZE, KNOT_RING);
-  fillRect(ctx, x + KNOT_SIZE, y, 1, KNOT_SIZE, KNOT_RING);
-  fillRect(ctx, x, y - 1, KNOT_SIZE, 1, KNOT_RING);
-  fillRect(ctx, x, y, KNOT_SIZE, KNOT_SIZE, KNOT_CORE);
-  setPixel(ctx, x + 1, y, KNOT_RING);
 };
 
-const paintDarkWood: PixelPainter = (ctx, rand, size) => {
-  fillNoise(ctx, rand, DARK_WOOD, 0, 0, size, size);
+// boards running top to bottom of the canvas, which is front to back on the table
+const paintPanel: PixelPainter = (ctx, rand, size) => {
+  fillNoise(ctx, rand, PANEL_GRAIN, 0, 0, size, size);
+  for (let col = 0; col < size; col++) {
+    if (col % PANEL_BOARD_WIDTH === PANEL_BOARD_WIDTH - 1) {
+      fillRect(ctx, col, 0, 1, size, PANEL_SEAM);
+      continue;
+    }
+    if (rand() < 0.5) continue;
+    const length = 2 + Math.floor(rand() * 5);
+    fillRect(ctx, col, Math.floor(rand() * (size - length)), 1, length, PANEL_STREAK);
+  }
+};
 
-  // vertical grain: each column gets a broken streak
-  for (let col = 0; col < DARK_VERTICAL_COLUMNS; col++) {
+const paintTrim: PixelPainter = (ctx, rand, size) => {
+  fillNoise(ctx, rand, TRIM_WOOD, 0, 0, size, size);
+  streakRows(ctx, rand, TRIM_STREAK, 0, 0, size, size);
+};
+
+// a little darker than the trim so the grid stands out on the panel
+const paintBar: PixelPainter = (ctx, rand, size) => {
+  fillNoise(ctx, rand, BAR_WOOD, 0, 0, size, size);
+  streakRows(ctx, rand, BAR_STREAK, 0, 0, size, size);
+};
+
+// vertical grain for the corner posts and tool handles
+const paintPost: PixelPainter = (ctx, rand, size) => {
+  fillNoise(ctx, rand, POST_WOOD, 0, 0, size, size);
+  for (let col = 0; col < size; col++) {
     const start = Math.floor(rand() * size);
     const length = 3 + Math.floor(rand() * 6);
-    for (let row = start; row < start + length; row++) {
-      setPixel(ctx, col, row % size, col % 2 === 0 ? DARK_WOOD_STREAK : DARK_WOOD_HIGHLIGHT);
-    }
-  }
-
-  // horizontal grain on the rest
-  const horizontalWidth = size - DARK_VERTICAL_COLUMNS;
-  for (let row = 0; row < size; row++) {
-    if (rand() < 0.35) continue;
-    const length = 2 + Math.floor(rand() * 5);
-    const start = DARK_VERTICAL_COLUMNS + Math.floor(rand() * (horizontalWidth - length));
-    fillRect(ctx, start, row, length, 1, rand() < 0.7 ? DARK_WOOD_STREAK : DARK_WOOD_HIGHLIGHT);
-  }
-};
-
-const LEATHER_SCUFF_COUNT = 9;
-const LEATHER_SHEEN_COUNT = 7;
-const METAL_GLINT_COUNT = 5;
-
-const paintLeather: PixelPainter = (ctx, rand, size) => {
-  fillNoise(ctx, rand, LEATHER, 0, 0, size, size);
-
-  for (let i = 0; i < LEATHER_SCUFF_COUNT; i++) {
-    const x = Math.floor(rand() * (size - 1));
-    const y = Math.floor(rand() * size);
-    fillRect(ctx, x, y, rand() < 0.5 ? 2 : 1, 1, LEATHER_SCUFF);
-  }
-  for (let i = 0; i < LEATHER_SHEEN_COUNT; i++) {
-    setPixel(ctx, Math.floor(rand() * size), Math.floor(rand() * size), LEATHER_SHEEN);
-  }
-
-  // dashed stitching around the mat, every other texel
-  const far = size - 1 - STITCH_INSET;
-  for (let i = STITCH_INSET + 1; i < far; i += 2) {
-    setPixel(ctx, i, STITCH_INSET, LEATHER_STITCH);
-    setPixel(ctx, i, far, LEATHER_STITCH);
-    setPixel(ctx, STITCH_INSET, i, LEATHER_STITCH);
-    setPixel(ctx, far, i, LEATHER_STITCH);
+    const colour = rand() < 0.65 ? POST_STREAK : POST_HIGHLIGHT;
+    for (let row = start; row < start + length; row++) setPixel(ctx, col, row % size, colour);
   }
 };
 
@@ -205,8 +198,10 @@ const paintMetal: PixelPainter = (ctx, rand, size) => {
 
 const PAINTERS: Readonly<Record<CraftingTableTextureKey, PixelPainter>> = {
   [CraftingTableTextureKey.Planks]: paintPlanks,
-  [CraftingTableTextureKey.DarkWood]: paintDarkWood,
-  [CraftingTableTextureKey.Leather]: paintLeather,
+  [CraftingTableTextureKey.Panel]: paintPanel,
+  [CraftingTableTextureKey.Trim]: paintTrim,
+  [CraftingTableTextureKey.Bar]: paintBar,
+  [CraftingTableTextureKey.Post]: paintPost,
   [CraftingTableTextureKey.Metal]: paintMetal,
 };
 

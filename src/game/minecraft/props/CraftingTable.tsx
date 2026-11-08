@@ -15,8 +15,10 @@ const INK_SEED = 71;
 
 const MATERIAL_TEXTURES: Readonly<Record<TableMaterial, CraftingTableTextureKey>> = {
   [TableMaterial.Planks]: CraftingTableTextureKey.Planks,
-  [TableMaterial.DarkWood]: CraftingTableTextureKey.DarkWood,
-  [TableMaterial.Leather]: CraftingTableTextureKey.Leather,
+  [TableMaterial.Panel]: CraftingTableTextureKey.Panel,
+  [TableMaterial.Trim]: CraftingTableTextureKey.Trim,
+  [TableMaterial.Bar]: CraftingTableTextureKey.Bar,
+  [TableMaterial.Post]: CraftingTableTextureKey.Post,
   [TableMaterial.Metal]: CraftingTableTextureKey.Metal,
 };
 
@@ -25,9 +27,9 @@ const hasInk = (mesh: Mesh) => !mesh.userData.noInk;
 
 export type CraftingTableProps = ThreeElements['group'];
 
-// full crafting table block modelled in relief: dark corner posts and trim, a leather mat
-// draping over the edges with a raised grid on top, saw and hammer on the front (+z),
-// chisel and spanner on the +x side and pliers on the -x side
+// full crafting table block modelled in light relief: oak plank sides framed by thin dark
+// corner posts and top trim, a work surface with a raised 3 x 3 grid, saw and hammer on the
+// front (+z), a chisel on the +x side and pliers on the -x side
 export const CraftingTable = forwardRef<Group, CraftingTableProps>(function CraftingTable(props, ref) {
   const groupRef = useRef<Group>(null);
   const meshesRef = useRef<Group>(null);
