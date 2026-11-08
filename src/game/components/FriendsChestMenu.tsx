@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
 import type { FriendData } from '@/data/portfolio';
 import { useFriendsChest } from '../contexts/FriendsChestContext';
-import { FriendHead } from './friendsChest/FriendHead';
+import { FriendIcon } from './friendsChest/FriendIcon';
 import { FriendTooltip, TooltipSide, getHostname } from './friendsChest/FriendTooltip';
 import {
   FONT_SIZE,
@@ -280,7 +280,7 @@ function ChestWindow({
                 style={{ ...slotStyle, cursor: 'pointer' }}
               >
                 <span style={itemAreaStyle}>
-                  <FriendHead friend={friend} />
+                  <FriendIcon friend={friend} />
                   {isActive && (
                     <span style={{ position: 'absolute', inset: 0, display: 'block', background: GUI_COLOUR.hover }} />
                   )}
