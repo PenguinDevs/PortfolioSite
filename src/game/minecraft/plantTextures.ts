@@ -1,6 +1,6 @@
 import { RepeatWrapping } from 'three';
 import type { CanvasTexture } from 'three';
-import { createPixelTexture, hashString, pickColour, seededRandom, setPixel } from './pixelTexture';
+import { createPixelTexture, hashString, loadVanillaTexture, pickColour, seededRandom, setPixel } from './pixelTexture';
 import type { PixelPainter, Rng } from './pixelTexture';
 
 // every lush cave plant texture, the prefix keeps them apart from block and prop textures
@@ -459,12 +459,41 @@ const PLANT_PAINTERS: Record<PlantTexture, PixelPainter> = {
   [PlantTexture.HangingRoots]: paintHangingRoots,
 };
 
+const LUSH_GRASS_TINT = '#8eb971';
+
+const VANILLA_PLANT_FILES: Partial<Record<PlantTexture, { file: string; tint?: string }>> = {
+  [PlantTexture.AzaleaLeaves]: { file: 'azalea_side.png' },
+  [PlantTexture.FloweringAzaleaLeaves]: { file: 'flowering_azalea_side.png' },
+  [PlantTexture.AzaleaStem]: { file: 'azalea_plant.png' },
+  [PlantTexture.MossCarpet]: { file: 'moss_block.png' },
+  [PlantTexture.ShortGrass]: { file: 'short_grass.png', tint: LUSH_GRASS_TINT },
+  [PlantTexture.TallGrassLower]: { file: 'tall_grass_bottom.png', tint: LUSH_GRASS_TINT },
+  [PlantTexture.TallGrassUpper]: { file: 'tall_grass_top.png', tint: LUSH_GRASS_TINT },
+  [PlantTexture.CaveVines]: { file: 'cave_vines_plant.png' },
+  [PlantTexture.CaveVinesTip]: { file: 'cave_vines.png' },
+  [PlantTexture.GlowBerries]: { file: 'cave_vines_lit.png' },
+  [PlantTexture.SporeBlossomBase]: { file: 'spore_blossom_base.png' },
+  [PlantTexture.SporeBlossomFlower]: { file: 'spore_blossom.png' },
+  [PlantTexture.BigDripleafTop]: { file: 'big_dripleaf_top.png' },
+  [PlantTexture.BigDripleafStem]: { file: 'big_dripleaf_stem.png' },
+  [PlantTexture.SmallDripleaf]: { file: 'small_dripleaf_top.png' },
+  [PlantTexture.HangingRoots]: { file: 'hanging_roots.png' },
+};
+
 // textures stretched over more than one block wrap around instead of clamping
 const REPEATING_TEXTURES: ReadonlySet<PlantTexture> = new Set([PlantTexture.MossCarpet, PlantTexture.BigDripleafStem]);
 
 // cached and shared like every pixel texture, so never dispose the result.
 // client only, call it inside the Canvas
 export function getPlantTexture(key: PlantTexture): CanvasTexture {
+  const vanilla = VANILLA_PLANT_FILES[key];
+  if (vanilla) {
+    return loadVanillaTexture(
+      `/assets/minecraft/textures/block/${vanilla.file}`,
+      vanilla.tint,
+      REPEATING_TEXTURES.has(key),
+    );
+  }
   const texture = createPixelTexture(key, PLANT_PAINTERS[key]);
   if (REPEATING_TEXTURES.has(key) && texture.wrapS !== RepeatWrapping) {
     texture.wrapS = RepeatWrapping;

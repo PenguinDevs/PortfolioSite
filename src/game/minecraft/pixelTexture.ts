@@ -1,4 +1,4 @@
-import { CanvasTexture, NearestFilter } from 'three';
+import { CanvasTexture, NearestFilter, RepeatWrapping } from 'three';
 import { PIXEL_TEXTURE_SIZE } from './constants';
 
 export type Rng = () => number;
@@ -63,5 +63,47 @@ export function createPixelTexture(key: string, paint: PixelPainter, size = PIXE
   texture.minFilter = NearestFilter;
   texture.generateMipmaps = false;
   textureCache.set(key, texture);
+  return texture;
+}
+
+// loads an authentic Minecraft texture PNG from public/assets/minecraft/textures/
+// and renders it with crisp nearest-neighbor filtering
+export function loadVanillaTexture(url: string, tint?: string, repeat?: boolean): CanvasTexture {
+  const cacheKey = url + (tint ? `:${tint}` : '');
+  const cached = textureCache.get(cacheKey);
+  if (cached) return cached;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = PIXEL_TEXTURE_SIZE;
+  canvas.height = PIXEL_TEXTURE_SIZE;
+  const texture = new CanvasTexture(canvas);
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
+  texture.generateMipmaps = false;
+  if (repeat) {
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+  }
+  textureCache.set(cacheKey, texture);
+
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0);
+    if (tint) {
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = tint;
+      ctx.fillRect(0, 0, img.width, img.height);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(img, 0, 0);
+    }
+    texture.needsUpdate = true;
+  };
+  img.src = url;
+
   return texture;
 }

@@ -1,6 +1,6 @@
 import type { CanvasTexture } from 'three';
 import { BlockFace, BlockKind } from './constants';
-import { createPixelTexture, setPixel } from './pixelTexture';
+import { createPixelTexture, loadVanillaTexture, setPixel } from './pixelTexture';
 import type { PixelPainter, Rng } from './pixelTexture';
 
 // every palette in here runs from darkest to lightest so noise values map straight onto it
@@ -460,8 +460,28 @@ export function getBlockTextureKey(kind: BlockKind, face: BlockFace): string {
   return BLOCK_TEXTURES[kind][face].key;
 }
 
-// client only, it paints onto a DOM canvas the first time a texture is asked for
+const VANILLA_TEXTURE_FILES: Record<BlockKind, Partial<Record<BlockFace, string>>> = {
+  [BlockKind.Stone]: { [BlockFace.Side]: 'stone.png' },
+  [BlockKind.Cobblestone]: { [BlockFace.Side]: 'cobblestone.png' },
+  [BlockKind.MossyCobblestone]: { [BlockFace.Side]: 'mossy_cobblestone.png' },
+  [BlockKind.Andesite]: { [BlockFace.Side]: 'andesite.png' },
+  [BlockKind.Deepslate]: {
+    [BlockFace.Top]: 'deepslate_top.png',
+    [BlockFace.Bottom]: 'deepslate_top.png',
+    [BlockFace.Side]: 'deepslate.png',
+  },
+  [BlockKind.MossBlock]: { [BlockFace.Side]: 'moss_block.png' },
+  [BlockKind.Dirt]: { [BlockFace.Side]: 'dirt.png' },
+  [BlockKind.RootedDirt]: { [BlockFace.Side]: 'rooted_dirt.png' },
+  [BlockKind.Clay]: { [BlockFace.Side]: 'clay.png' },
+};
+
+// loads authentic Minecraft block texture if available, falling back to procedural painter
 export function getBlockTexture(kind: BlockKind, face: BlockFace): CanvasTexture {
+  const file = VANILLA_TEXTURE_FILES[kind]?.[face] ?? VANILLA_TEXTURE_FILES[kind]?.[BlockFace.Side];
+  if (file) {
+    return loadVanillaTexture(`/assets/minecraft/textures/block/${file}`);
+  }
   const spec = BLOCK_TEXTURES[kind][face];
   return createPixelTexture(spec.key, spec.paint);
 }
