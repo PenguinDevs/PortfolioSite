@@ -17,7 +17,29 @@ export type StonePillarProps = {
   // how many of the lowest layers get widened
   baseFlare?: number;
   seed?: number;
+  // which side a two block wide shaft curves in on at its waist
+  waistSide?: PillarWaist;
 } & ThreeElements['group'];
+
+export enum PillarWaist {
+  Left = 'left',
+  Right = 'right',
+}
+
+// share of the height where the waist starts and ends. the middle of a two block wide shaft
+// is pared back to one block there, stepping in through a front corner first on deep shafts,
+// so the column reads as curving in rather than running dead straight
+const WAIST_START = 0.25;
+const WAIST_END = 0.6;
+
+export interface PillarShape {
+  height: number;
+  width: 1 | 2;
+  depth: 1 | 2;
+  baseFlare: number;
+  seed: number;
+  waistSide: PillarWaist;
+}
 
 // the bottom layer rings the shaft one block out, minus a few knocked out blocks
 const CORNER_KNOCKOUT_CHANCE = 0.5;
@@ -84,11 +106,14 @@ function pickKind(rand: Rng, cell: PillarCell, topExposed: boolean, height: numb
 }
 
 // cells use the shaft's own grid, x in [0, width) and z in [0, depth), flare cells spill
-// one block outside that
-function buildPillar(height: number, width: number, depth: number, baseFlare: number, seed: number): VoxelBlock[] {
+// one block outside that. the front of the shaft (facing the camera) is z = depth - 1
+export function buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide }: PillarShape): VoxelBlock[] {
   const rand = seededRandom(hashString(`stonePillar:${seed}`));
   const layers = Math.max(0, Math.floor(height));
   const flareLayers = Math.min(Math.max(0, Math.floor(baseFlare)), layers);
+  const waistFrom = Math.max(flareLayers, Math.floor(layers * WAIST_START));
+  const waistTo = Math.floor(layers * WAIST_END);
+  const paredX = waistSide === PillarWaist.Left ? 0 : width - 1;
   const cells: PillarCell[] = [];
   const occupied = new Set<string>();
   const add = (x: number, y: number, z: number, flare: boolean) => {
@@ -96,9 +121,19 @@ function buildPillar(height: number, width: number, depth: number, baseFlare: nu
     occupied.add(`${x},${y},${z}`);
   };
 
+  // shaft cells cut away at the waist. on a deep shaft the first and last waist layers only
+  // lose their front corner, the layers between lose the whole column
+  const isPared = (x: number, y: number, z: number) => {
+    if (width < 2 || x !== paredX || y < waistFrom || y >= waistTo) return false;
+    const easing = depth > 1 && (y === waistFrom || y === waistTo - 1);
+    return !easing || z === depth - 1;
+  };
+
   for (let y = 0; y < layers; y++) {
     for (let x = 0; x < width; x++) {
-      for (let z = 0; z < depth; z++) add(x, y, z, false);
+      for (let z = 0; z < depth; z++) {
+        if (!isPared(x, y, z)) add(x, y, z, false);
+      }
     }
     if (y >= flareLayers) continue;
 
@@ -143,10 +178,18 @@ function buildPillar(height: number, width: number, depth: number, baseFlare: nu
 
 // a natural cave column, width x depth blocks thick with a stubby mossy foot. centred on the
 // group origin in x and z with its bottom on y = 0, and the same shape every time for a seed
-export function StonePillar({ height, width = 2, depth = 1, baseFlare = 2, seed = 0, ...groupProps }: StonePillarProps) {
+export function StonePillar({
+  height,
+  width = 2,
+  depth = 1,
+  baseFlare = 2,
+  seed = 0,
+  waistSide = PillarWaist.Right,
+  ...groupProps
+}: StonePillarProps) {
   const blocks = useMemo(
-    () => buildPillar(height, width, depth, baseFlare, seed),
-    [height, width, depth, baseFlare, seed],
+    () => buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide }),
+    [height, width, depth, baseFlare, seed, waistSide],
   );
 
   return (
