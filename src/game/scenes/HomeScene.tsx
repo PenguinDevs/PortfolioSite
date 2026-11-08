@@ -48,11 +48,11 @@ const PROJECTS_X = 108;
 // ground tiles: centred near the track midpoint so a single CircularSlot
 // covers the entire loop. each tile is 12 world units wide (TILE_SCALE * 1m).
 // baseX must be a multiple of 12 so a tile lands exactly at x=0 (player spawn).
-// ±19 tiles = ±228 units, comfortably exceeding the wrap threshold (~180)
+// ±20 tiles = ±240 units, comfortably exceeding the wrap threshold (~204)
 // plus camera view distance in both directions.
-const GROUND_BASE_X = 168;
-const GROUND_START_TILE = -19;
-const GROUND_END_TILE = 19;
+const GROUND_BASE_X = 192;
+const GROUND_START_TILE = -20;
+const GROUND_END_TILE = 20;
 
 export function HomeScene() {
   const inputRef = useInput();

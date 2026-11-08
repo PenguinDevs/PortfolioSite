@@ -20,7 +20,8 @@ export const SECTIONS: SectionDefinition[] = [
   { id: Section.Experience, label: 'Experience', x: 54, touchX: 37, rangeStart: 30 },
   { id: Section.Awards, label: 'Awards', x: 90, rangeStart: 84 },
   { id: Section.Projects, label: 'Projects', x: 108, rangeStart: 105 },
-  { id: Section.Home, label: 'Home', x: 0, rangeStart: 306 },
+  // the friends cave after the projects still counts as projects, home starts just past it
+  { id: Section.Home, label: 'Home', x: 0, rangeStart: 354 },
 ];
 
 // display order for the navbar (separate from the range-sorted order above)
@@ -32,6 +33,6 @@ export const SECTION_DISPLAY_ORDER: Section[] = [
 ];
 
 // total loop length of the circular track
-// last project tile ends at ~300, plus buffer space to 336.
+// the projects end at ~303 and the friends cave after them at ~350, plus buffer space to 384.
 // must be a multiple of 12 (tile width) so ground tiles align after wrapping.
-export const TRACK_LENGTH = 336;
+export const TRACK_LENGTH = 384;
