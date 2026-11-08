@@ -42,6 +42,8 @@ const fragmentShader = /* glsl */ `
   uniform float uOpacity;
   uniform float uRevealProgress;
   uniform vec3 uRevealColour;
+  uniform float uAlphaTest;
+  uniform vec3 uMapTint;
 
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -54,7 +56,11 @@ const fragmentShader = /* glsl */ `
     vec3 normal = normalize(vNormal);
     float NdotL = dot(normal, uLightDir);
 
-    vec3 baseColor = uUseMap ? texture2D(uMap, vUv).rgb : uColor;
+    vec4 texel = uUseMap ? texture2D(uMap, vUv) : vec4(uColor, 1.0);
+    // cut-out sprites (e.g. plants) drop their transparent texels, 0 keeps everything
+    if (texel.a < uAlphaTest) discard;
+
+    vec3 baseColor = uUseMap ? texel.rgb * uMapTint : uColor;
     vec3 shadowColor = uUseMap ? baseColor * 0.55 : uShadowColor;
 
     vec3 color;
@@ -81,6 +87,10 @@ export interface ToonMaterialOptions {
   midThreshold?: number;
   side?: Side;
   map?: Texture;
+  // texels with alpha below this are discarded (0 disables the cut-out)
+  alphaTest?: number;
+  // multiplies the map colour, e.g. to dim textures in dark mode
+  mapTint?: [number, number, number];
 }
 
 export function createToonMaterial({
@@ -91,6 +101,8 @@ export function createToonMaterial({
   midThreshold = -0.2,
   side = DoubleSide,
   map,
+  alphaTest = 0,
+  mapTint = [1, 1, 1],
 }: ToonMaterialOptions = {}) {
   return new ShaderMaterial({
     uniforms: {
@@ -105,6 +117,8 @@ export function createToonMaterial({
       uOpacity: { value: 1.0 },
       uRevealProgress: { value: 1.0 },
       uRevealColour: { value: new Color('#ffffff') },
+      uAlphaTest: { value: alphaTest },
+      uMapTint: { value: new Vector3(...mapTint) },
     },
     vertexShader,
     fragmentShader,
