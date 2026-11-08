@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
-import { Color, Frustum, Matrix4, Mesh, ShaderMaterial as ShaderMat, Vector3 } from 'three';
+import { Box3, Color, Frustum, Matrix4, Mesh, ShaderMaterial as ShaderMat, Vector3 } from 'three';
 import type { Group, ShaderMaterial } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { easeOutCubic } from '../math';
@@ -55,6 +55,9 @@ export interface EntityRevealOptions {
   immediate?: boolean;
   // label for perf logging (only used when ?perf is in the URL)
   perfLabel?: string;
+  // local space bounds checked against the view instead of the group origin, for entities
+  // big enough that part of them is on screen while their origin is still off it
+  bounds?: Box3;
 }
 
 // draw progress uniform extended with segment count for complexity-based duration.
@@ -94,6 +97,7 @@ export function useEntityReveal(
     delay = DEFAULT_INITIAL_DELAY,
     immediate = false,
     perfLabel,
+    bounds,
   } = options;
 
   // shared uniform objects that persist across renders.
@@ -183,6 +187,7 @@ export function useEntityReveal(
   const frustum = useMemo(() => new Frustum(), []);
   const projScreenMatrix = useMemo(() => new Matrix4(), []);
   const worldPos = useMemo(() => new Vector3(), []);
+  const worldBounds = useMemo(() => new Box3(), []);
 
   // if immediate, set initial draw progress to 0 so edges start appearing
   if (immediate && drawProgress.value === -1) {
@@ -211,11 +216,19 @@ export function useEntityReveal(
     // viewport detection: check if the entity is visible to the camera
     if (phase === RevealPhase.Waiting) {
       waitingFramesRef.current += 1;
-      group.getWorldPosition(worldPos);
       projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
       frustum.setFromProjectionMatrix(projScreenMatrix);
 
-      if (frustum.containsPoint(worldPos)) {
+      let inView: boolean;
+      if (bounds) {
+        worldBounds.copy(bounds).applyMatrix4(group.matrixWorld);
+        inView = frustum.intersectsBox(worldBounds);
+      } else {
+        group.getWorldPosition(worldPos);
+        inView = frustum.containsPoint(worldPos);
+      }
+
+      if (inView) {
         // entity was already in view on initial page load -- apply the delay
         const isInitialLoad = waitingFramesRef.current <= INITIAL_LOAD_FRAME_THRESHOLD;
         if (perfLabel) PerfLogger.mark(`reveal:${perfLabel}:visible`);
