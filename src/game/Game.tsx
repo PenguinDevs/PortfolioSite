@@ -9,6 +9,7 @@ import { TouchTutorial } from './components/TouchTutorial';
 import { AwardOverlay } from './components/AwardOverlay';
 import { ExperienceOverlay } from './components/ExperienceOverlay';
 import { ProjectOverlay } from './components/ProjectOverlay';
+import { FriendsChestMenu } from './components/FriendsChestMenu';
 import { SectionNav } from './components/SectionNav';
 import { ScrollHint } from './components/ScrollHint';
 import { NavigationProvider } from './contexts/NavigationContext';
@@ -18,7 +19,8 @@ import { ExperienceOverlayProvider } from './contexts/ExperienceOverlayContext';
 import { ProjectOverlayProvider } from './contexts/ProjectOverlayContext';
 import { SocialLinksProvider } from './contexts/SocialLinksContext';
 import { ProjectsProvider } from './contexts/ProjectsContext';
-import type { SocialLinks, ProjectData, ExperienceData, InternshipOffer } from '@/data/portfolio';
+import { FriendsChestProvider } from './contexts/FriendsChestContext';
+import type { SocialLinks, ProjectData, ExperienceData, InternshipOffer, FriendData } from '@/data/portfolio';
 
 import { useLightingMode } from './hooks';
 import { BACKGROUND_COLOUR } from './constants';
@@ -42,12 +44,14 @@ export function Game({
   projects,
   experience,
   internshipOffers,
+  friends,
 }: {
   awards: AwardData[];
   socialLinks: SocialLinks;
   projects: ProjectData[];
   experience: ExperienceData[];
   internshipOffers: InternshipOffer[];
+  friends: FriendData[];
 }) {
   PerfLogger.mark('game-mount');
   return (
@@ -57,21 +61,24 @@ export function Game({
           <AwardOverlayProvider awards={awards}>
             <ProjectsProvider projects={projects}>
               <ProjectOverlayProvider>
-                <LoadingScreen />
-                <TouchTutorial />
-                <Canvas
-                  shadows
-                  gl={{ antialias: true }}
-                  style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
-                >
-                  <SceneBackground />
-                  <HomeScene />
-                </Canvas>
-                <ExperienceOverlay />
-                <AwardOverlay />
-                <ProjectOverlay />
-                <ScrollHint />
-                <SectionNav />
+                <FriendsChestProvider friends={friends}>
+                  <LoadingScreen />
+                  <TouchTutorial />
+                  <Canvas
+                    shadows
+                    gl={{ antialias: true }}
+                    style={{ width: '100vw', height: '100dvh', background: '#ffffff', touchAction: 'none' }}
+                  >
+                    <SceneBackground />
+                    <HomeScene />
+                  </Canvas>
+                  <ExperienceOverlay />
+                  <AwardOverlay />
+                  <ProjectOverlay />
+                  <FriendsChestMenu />
+                  <ScrollHint />
+                  <SectionNav />
+                </FriendsChestProvider>
               </ProjectOverlayProvider>
             </ProjectsProvider>
           </AwardOverlayProvider>

@@ -1,5 +1,5 @@
 import { Game } from '@/game/Game';
-import { getAwards, getExperience, getInternshipOffers, getProjects, getSocialLinks } from '@/data/portfolio';
+import { getAwards, getExperience, getFriends, getInternshipOffers, getProjects, getSocialLinks } from '@/data/portfolio';
 
 export default function Home() {
   const awards = getAwards();
@@ -7,6 +7,7 @@ export default function Home() {
   const projects = getProjects();
   const experience = getExperience();
   const internshipOffers = getInternshipOffers();
+  const friends = getFriends();
   return (
     <Game
       awards={awards}
@@ -14,6 +15,7 @@ export default function Home() {
       projects={projects}
       experience={experience}
       internshipOffers={internshipOffers}
+      friends={friends}
     />
   );
 }

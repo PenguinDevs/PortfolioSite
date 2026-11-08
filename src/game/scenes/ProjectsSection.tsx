@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Sign, ProjectMonitor, ViewMoreButton } from '../entities';
 import { useProjects } from '../contexts/ProjectsContext';
 import { CircularSlot } from './circular';
+import { FriendsArea } from './FriendsArea';
 import type { ProjectData } from '@/data/portfolio';
 
 // each monitor spans two alley tiles (24 world units wide)
@@ -88,6 +89,11 @@ export function ProjectsSection({ baseX }: ProjectsSectionProps) {
 
       <CircularSlot baseX={baseX + resolved.length * SLOT_WIDTH}>
         <ViewMoreButton position={[SLOT_WIDTH / 8, MONITOR_Y, MONITOR_Z]} />
+      </CircularSlot>
+
+      {/* the friends cave carries on from the view more button, still part of the projects */}
+      <CircularSlot baseX={baseX + resolved.length * SLOT_WIDTH}>
+        <FriendsArea />
       </CircularSlot>
     </>
   );
