@@ -109,21 +109,6 @@ export function flickerFrame(time: number, phase: number, rate: number): number 
 // palettes, all picked by hand
 // ---------------------------------------------------------------------------
 
-const OAK_GRAIN = ['#b48c55', '#a8814b', '#bd955c', '#9c7643'] as const;
-const OAK_STREAK = '#8d6a3b';
-const OAK_SEAM = '#6f5130';
-const CRAFT_LIP = ['#c39b62', '#b8915a', '#cba46b'] as const;
-const CRAFT_LIP_SHADOW = '#4a321b';
-const CRAFT_LEG = ['#7a5631', '#6e4c2a', '#835d35'] as const;
-const CRAFT_RIM = '#3f2b16';
-const CRAFT_GRID_LINE = '#55391d';
-const CRAFT_CELL = ['#d2ab74', '#c9a26b', '#d9b47e'] as const;
-
-const TOOL_HANDLE = '#4a2f17';
-const TOOL_METAL = '#a9b0b7';
-const TOOL_METAL_LIGHT = '#d6dbe0';
-const TOOL_METAL_DARK = '#737a82';
-
 const COBBLE = ['#7d7d7a', '#878784', '#72726f', '#8f8f8b'] as const;
 const COBBLE_MORTAR = '#4a4a48';
 const COBBLE_HIGHLIGHT = '#a3a39f';
@@ -248,95 +233,6 @@ function paintPlanks(
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// crafting table
-// ---------------------------------------------------------------------------
-
-const CRAFT_LIP_ROWS = 3;
-const CRAFT_LEG_WIDTH = 2;
-const CRAFT_BOARD_HEIGHT = 4;
-// grid lines on the top, cells are the two texel gaps between them
-const CRAFT_GRID_LINES = [3, 6, 9, 12] as const;
-const CRAFT_GRID_START = CRAFT_GRID_LINES[0];
-const CRAFT_GRID_SPAN = CRAFT_GRID_LINES[CRAFT_GRID_LINES.length - 1] - CRAFT_GRID_START + 1;
-
-const TOOL_COLOURS: Readonly<Record<string, string>> = {
-  H: TOOL_HANDLE,
-  M: TOOL_METAL,
-  L: TOOL_METAL_LIGHT,
-  D: TOOL_METAL_DARK,
-};
-
-// handle on the left with a finger hole, blade tapering to the right, teeth along the bottom
-const SAW_SPRITE = [
-  'HHH.........',
-  'H.HLLLLLLLLL',
-  'HHHMMMMMMMMM',
-  '.HHMMMMMMMM.',
-  '...D.D.D.D..',
-] as const;
-
-// claw hammer standing on its grip
-const HAMMER_SPRITE = [
-  '.LLLLLL',
-  'MMMMMMM',
-  'D..H.DD',
-  '...H...',
-  '...H...',
-  '...H...',
-  '...H...',
-  '...H...',
-  '..HHH..',
-] as const;
-
-// shared look of every crafting table side: tabletop lip, corner legs and boards between
-const paintCraftingSide: PixelPainter = (ctx, rand, size) => {
-  fillNoise(ctx, rand, CRAFT_LIP, 0, 0, size, CRAFT_LIP_ROWS);
-  fillRect(ctx, 0, CRAFT_LIP_ROWS, size, 1, CRAFT_LIP_SHADOW);
-
-  const bodyTop = CRAFT_LIP_ROWS + 1;
-  const bodyHeight = size - bodyTop;
-  fillNoise(ctx, rand, CRAFT_LEG, 0, bodyTop, CRAFT_LEG_WIDTH, bodyHeight);
-  fillNoise(ctx, rand, CRAFT_LEG, size - CRAFT_LEG_WIDTH, bodyTop, CRAFT_LEG_WIDTH, bodyHeight);
-  paintPlanks(
-    ctx,
-    rand,
-    CRAFT_LEG_WIDTH,
-    bodyTop,
-    size - CRAFT_LEG_WIDTH * 2,
-    bodyHeight,
-    CRAFT_BOARD_HEIGHT,
-    OAK_GRAIN,
-    OAK_STREAK,
-    OAK_SEAM,
-  );
-};
-
-const paintCraftingTop: PixelPainter = (ctx, rand, size) => {
-  paintPlanks(ctx, rand, 0, 0, size, size, CRAFT_BOARD_HEIGHT, OAK_GRAIN, OAK_STREAK, OAK_SEAM);
-  strokeRect(ctx, 0, 0, size, size, CRAFT_RIM);
-
-  fillNoise(ctx, rand, CRAFT_CELL, CRAFT_GRID_START, CRAFT_GRID_START, CRAFT_GRID_SPAN, CRAFT_GRID_SPAN);
-  for (const line of CRAFT_GRID_LINES) {
-    fillRect(ctx, line, CRAFT_GRID_START, 1, CRAFT_GRID_SPAN, CRAFT_GRID_LINE);
-    fillRect(ctx, CRAFT_GRID_START, line, CRAFT_GRID_SPAN, 1, CRAFT_GRID_LINE);
-  }
-};
-
-const paintCraftingFront: PixelPainter = (ctx, rand, size) => {
-  paintCraftingSide(ctx, rand, size);
-  drawSprite(ctx, SAW_SPRITE, 2, 6, TOOL_COLOURS);
-};
-
-const paintCraftingToolSide: PixelPainter = (ctx, rand, size) => {
-  paintCraftingSide(ctx, rand, size);
-  drawSprite(ctx, HAMMER_SPRITE, 5, 5, TOOL_COLOURS);
-};
-
-const paintOakPlanks: PixelPainter = (ctx, rand, size) => {
-  paintPlanks(ctx, rand, 0, 0, size, size, CRAFT_BOARD_HEIGHT, OAK_GRAIN, OAK_STREAK, OAK_SEAM);
-};
 
 // ---------------------------------------------------------------------------
 // furnace
@@ -598,10 +494,6 @@ const paintTorchFlameB: PixelPainter = (ctx) => {
 // ---------------------------------------------------------------------------
 
 export enum PropTextureKey {
-  CraftingTableTop = 'prop:craftingTable:top',
-  CraftingTableFront = 'prop:craftingTable:front',
-  CraftingTableToolSide = 'prop:craftingTable:toolSide',
-  OakPlanks = 'prop:oakPlanks',
   Cobble = 'prop:furnace:cobble',
   FurnaceTop = 'prop:furnace:top',
   FurnaceFront = 'prop:furnace:front',
@@ -623,10 +515,6 @@ export enum PropTextureKey {
 }
 
 const PROP_PAINTERS: Readonly<Record<PropTextureKey, PixelPainter>> = {
-  [PropTextureKey.CraftingTableTop]: paintCraftingTop,
-  [PropTextureKey.CraftingTableFront]: paintCraftingFront,
-  [PropTextureKey.CraftingTableToolSide]: paintCraftingToolSide,
-  [PropTextureKey.OakPlanks]: paintOakPlanks,
   [PropTextureKey.Cobble]: paintCobble,
   [PropTextureKey.FurnaceTop]: paintSmoothStone,
   [PropTextureKey.FurnaceFront]: paintFurnaceFront,
