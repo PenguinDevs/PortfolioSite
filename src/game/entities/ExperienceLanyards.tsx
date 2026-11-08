@@ -55,10 +55,11 @@ const BADGE_LOGO_SIZE_PX = 64;
 const BADGE_LOGO_MAX_WIDTH_PX = 148;
 const CLIP_COLOUR = '#9aa0a6';
 
-// roomy enough for the title and the red circle around the accepted offer
+// roomy enough for the title on one line and six offers with their red circles. no wider,
+// the items along the rail are only 200px apart
 const NOTE_WIDTH_PX = 192;
-const NOTE_HEIGHT_PX = 168;
-const NOTE_FONT_SCALE = 1.1;
+const NOTE_HEIGHT_PX = 204;
+const NOTE_FONT_SCALE = 1;
 const NOTE_TILT_DEG = 3;
 // wooden peg clipped over the rail, overlapping the top of the note
 const PEG_WIDTH_PX = 16;

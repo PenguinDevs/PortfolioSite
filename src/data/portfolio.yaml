@@ -342,10 +342,20 @@ experience:
       - Photoshop
     href: https://create.roblox.com/talent/creators/204152663
 
-# shown as a note in the experience section
+# shown as a note in the experience section, accepted offers are circled
 internshipOffers:
   - company: Google
     logo: /assets/images/experience/google.webp
+    accepted: true
+  - company: Coles
+    logo: /assets/images/experience/coles_group.webp
+    accepted: true
+  - company: LHRA
+    accepted: true
+  # under NDA, so the note blacks the name out. keep the real name out of this file,
+  # it ships with the public site
+  - company: Undisclosed
+    redacted: true
     accepted: true
   - company: TikTok
     logo: /assets/images/experience/tiktok.webp

@@ -81,6 +81,8 @@ export interface InternshipOffer {
   // path under public/, shown beside the company on the offers note
   logo?: string;
   accepted: boolean;
+  // under NDA: the note blacks the name out, and company is only a placeholder
+  redacted: boolean;
 }
 
 export interface FriendData {
@@ -159,6 +161,7 @@ interface InternshipOfferYaml {
   company: string;
   logo?: string;
   accepted?: boolean;
+  redacted?: boolean;
 }
 
 interface FriendYaml {
@@ -317,6 +320,7 @@ export function getInternshipOffers(): InternshipOffer[] {
     company: o.company,
     logo: o.logo,
     accepted: o.accepted ?? false,
+    redacted: o.redacted ?? false,
   }));
 }
 

@@ -51,17 +51,18 @@ const CARD_PHOTO_HEIGHT_PX = 64;
 // hex alpha appended to the accent colour for the strip behind the logo
 const ACCENT_TINT_ALPHA = '33';
 
-// roomy enough for the title and the red circle around the accepted offer
-const NOTE_WIDTH_PX = 186;
-const NOTE_HEIGHT_PX = 150;
+// roomy enough for the title on one line and six offers with their red circles
+const NOTE_WIDTH_PX = 192;
+const NOTE_HEIGHT_PX = 204;
 
 // hand-pinned look: every item gets a stable tilt and position nudge from its id.
 // the x nudge stays under half the gap between columns so cards never overlap
 const MAX_TILT_DEG = 3.5;
 const MAX_NUDGE_X_PX = 10;
 const MAX_NUDGE_Y_PX = 14;
-// the offers note hangs a little lower than the cards in the top row
-const OFFERS_NOTE_DROP_PX = 40;
+// the offers note hangs a little lower than the cards in the top row, but not so low
+// that its foot runs into the leftmost card on the bottom row
+const OFFERS_NOTE_DROP_PX = 20;
 
 // hand placed tweaks on top of the generated messiness, keyed by item id
 interface PlacementOverride {
