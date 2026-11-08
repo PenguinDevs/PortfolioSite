@@ -1,0 +1,10 @@
+export { CraftingTable } from './CraftingTable';
+export type { CraftingTableProps } from './CraftingTable';
+export { Furnace } from './Furnace';
+export type { FurnaceProps } from './Furnace';
+export { Chest } from './Chest';
+export type { ChestProps } from './Chest';
+export { Lantern } from './Lantern';
+export type { LanternProps } from './Lantern';
+export { Torch, WallFacing } from './Torch';
+export type { TorchProps } from './Torch';
