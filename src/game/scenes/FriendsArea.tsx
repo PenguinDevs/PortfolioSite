@@ -8,7 +8,7 @@ import { ProximityPrompt } from '../components/ProximityPrompt';
 import { usePlayerRef } from '../contexts/PlayerContext';
 import { useFriendsChest } from '../contexts/FriendsChestContext';
 import { VoxelBlocks } from '../minecraft/VoxelBlocks';
-import { StonePillar } from '../minecraft/StonePillar';
+import { PillarWaist, StonePillar } from '../minecraft/StonePillar';
 import { Chest, CraftingTable, Furnace, Lantern, Torch, WallFacing } from '../minecraft/props';
 import { AzaleaBush, BigDripleaf, CaveVines, GrassTuft, HangingRoots, SmallDripleaf, SporeBlossom } from '../minecraft/decor';
 import { buildCaveShell, WALL_FACE_Z } from './friendsCave';
@@ -25,11 +25,11 @@ const SIGN_ROWS: [string, string, string, string] = ['', 'Friends', '---->', '']
 const SHELL_LIFT = 0.005;
 const SHELL_INK_SEED = 71;
 
-// the props stand on the row just behind the penguin's path
+// the props stand side by side on the row just behind the penguin's path
 const PROP_ROW_Z = -2;
-const LANTERN_X = 24;
-const CRAFTING_TABLE_X = 25;
-const FURNACE_X = 26;
+const LANTERN_X = 27;
+const CRAFTING_TABLE_X = 28;
+const FURNACE_X = 29;
 const CHEST_X = 30;
 
 const CHEST_PROMPT_DISTANCE = 2.5;
@@ -37,9 +37,10 @@ const CHEST_PROMPT_HEIGHT = 1.5;
 // how far the penguin can wander after opening the chest before the menu closes itself
 const MENU_WALK_AWAY_DISTANCE = 3;
 
-// wall torches take the block space in front of the wall, so they sit half a block off its face
-const WALL_TORCH_Y = 2;
-const WALL_TORCH_XS = [17, 33, 44];
+// wall torches take the block space in front of the wall, so they sit half a block off its
+// face, a block above whatever ground has built up against the wall there
+const WALL_TORCH_LIFT = 1;
+const WALL_TORCH_XS = [21, 33, 44];
 
 interface PillarPlacement {
   x: number;
@@ -48,6 +49,7 @@ interface PillarPlacement {
   width: 1 | 2;
   depth: 1 | 2;
   seed: number;
+  waistSide?: PillarWaist;
 }
 
 // foreground columns between the camera and the penguin. their feet sit around the bottom
@@ -55,15 +57,14 @@ interface PillarPlacement {
 // the penguin stands at the chest. the last one sits further back so the columns read as
 // separate layers when walking past
 const PILLARS: PillarPlacement[] = [
-  { x: 25.5, z: 10.5, height: 12, width: 2, depth: 1, seed: 3 },
+  { x: 25.5, z: 10.5, height: 12, width: 2, depth: 1, seed: 3, waistSide: PillarWaist.Right },
   { x: 36, z: 10.5, height: 12, width: 1, depth: 1, seed: 8 },
-  { x: 41.5, z: 9, height: 13, width: 2, depth: 2, seed: 13 },
+  { x: 41.5, z: 9, height: 13, width: 2, depth: 2, seed: 13, waistSide: PillarWaist.Left },
 ];
 
 // vines hang off the front of the ceiling, falling back a row where the edge is ragged
 const VINE_ROW_Z = -4;
 const VINES = [
-  { x: 18, length: 3 },
   { x: 21, length: 5 },
   { x: 24, length: 2 },
   { x: 28, length: 4 },
@@ -79,7 +80,7 @@ const HANGING_ROOTS = [
 ];
 
 const AZALEAS = [
-  { x: 16, z: -6, flowering: false },
+  { x: 14, z: -6, flowering: false },
   { x: 22, z: -6, flowering: true },
   { x: 35, z: -6, flowering: true },
   { x: 46, z: -6, flowering: false },
@@ -94,13 +95,14 @@ const SMALL_DRIPLEAVES = [
   { x: 40, z: -6 },
 ];
 const GRASS_TUFTS = [
-  { x: 15, z: -3, tall: false },
-  { x: 18, z: -2, tall: true },
-  { x: 20, z: -4, tall: false },
-  { x: 23, z: -3, tall: false },
-  { x: 28, z: -4, tall: false },
-  { x: 32, z: -3, tall: false },
+  { x: 20, z: -3, tall: false },
+  { x: 21, z: -2, tall: false },
+  { x: 23, z: -4, tall: false },
+  { x: 25, z: -3, tall: true },
+  { x: 32, z: -4, tall: false },
+  { x: 33, z: -3, tall: true },
   { x: 34, z: -2, tall: true },
+  { x: 36, z: -6, tall: false },
   { x: 44, z: -3, tall: false },
   { x: 47, z: -4, tall: false },
 ];
@@ -164,7 +166,11 @@ export function FriendsArea() {
       <VoxelBlocks blocks={shell.blocks} position={[0, SHELL_LIFT, 0]} inkSeed={SHELL_INK_SEED} />
 
       {WALL_TORCH_XS.map((x) => (
-        <Torch key={x} position={[cellCentre(x), WALL_TORCH_Y, WALL_FACE_Z + CELL_CENTRE]} wallFacing={WallFacing.PlusZ} />
+        <Torch
+          key={x}
+          position={[cellCentre(x), shell.surfaceHeight(x, WALL_FACE_Z) + WALL_TORCH_LIFT, WALL_FACE_Z + CELL_CENTRE]}
+          wallFacing={WallFacing.PlusZ}
+        />
       ))}
 
       <Lantern position={[cellCentre(LANTERN_X), 0, cellCentre(PROP_ROW_Z)]} />
@@ -202,16 +208,16 @@ export function FriendsArea() {
       })}
 
       {AZALEAS.map(({ x, z, flowering }) => (
-        <AzaleaBush key={x} position={[cellCentre(x), 0, cellCentre(z)]} flowering={flowering} />
+        <AzaleaBush key={x} position={[cellCentre(x), shell.surfaceHeight(x, z), cellCentre(z)]} flowering={flowering} />
       ))}
       {BIG_DRIPLEAVES.map(({ x, z, stemHeight }) => (
-        <BigDripleaf key={x} position={[cellCentre(x), 0, cellCentre(z)]} stemHeight={stemHeight} />
+        <BigDripleaf key={x} position={[cellCentre(x), shell.surfaceHeight(x, z), cellCentre(z)]} stemHeight={stemHeight} />
       ))}
       {SMALL_DRIPLEAVES.map(({ x, z }) => (
-        <SmallDripleaf key={x} position={[cellCentre(x), 0, cellCentre(z)]} />
+        <SmallDripleaf key={x} position={[cellCentre(x), shell.surfaceHeight(x, z), cellCentre(z)]} />
       ))}
       {GRASS_TUFTS.map(({ x, z, tall }) => (
-        <GrassTuft key={x} position={[cellCentre(x), 0, cellCentre(z)]} tall={tall} />
+        <GrassTuft key={x} position={[cellCentre(x), shell.surfaceHeight(x, z), cellCentre(z)]} tall={tall} />
       ))}
 
       {PILLARS.map(({ seed, x, z, ...pillar }) => (
