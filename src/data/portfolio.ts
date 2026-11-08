@@ -83,6 +83,14 @@ export interface InternshipOffer {
   accepted: boolean;
 }
 
+export interface FriendData {
+  id: string;
+  name: string;
+  // fetched at runtime so it always shows their current discord avatar
+  avatarUrl: string;
+  link: string;
+}
+
 // --- raw YAML shape interfaces ----------------------------------------------
 
 interface AwardYaml {
@@ -153,6 +161,13 @@ interface InternshipOfferYaml {
   accepted?: boolean;
 }
 
+interface FriendYaml {
+  id: string;
+  name: string;
+  discordId: string;
+  link: string;
+}
+
 interface PortfolioData {
   social: SocialLinks;
   techStack: Record<string, TechStackYaml[]>;
@@ -160,6 +175,7 @@ interface PortfolioData {
   internshipOffers?: InternshipOfferYaml[];
   awards: AwardYaml[];
   projects: ProjectYaml[];
+  friends?: FriendYaml[];
 }
 
 // --- read and parse at build time (server-only) -----------------------------
@@ -302,4 +318,23 @@ export function getInternshipOffers(): InternshipOffer[] {
     logo: o.logo,
     accepted: o.accepted ?? false,
   }));
+}
+
+// resolves avatars through this api so they follow each friend's discord picture
+const DISCORD_AVATAR_API = 'https://api.shiroko.me/discord/avatar/';
+const DISCORD_ID_PATTERN = /^\d{17,20}$/;
+
+export function getFriends(): FriendData[] {
+  return (portfolio.friends ?? []).map((f) => {
+    // an unquoted id parses as a number and silently loses its last digits
+    if (typeof f.discordId !== 'string' || !DISCORD_ID_PATTERN.test(f.discordId)) {
+      throw new Error(`friend '${f.id}': discordId must be a quoted id string, got '${f.discordId}'`);
+    }
+    return {
+      id: f.id,
+      name: f.name,
+      avatarUrl: `${DISCORD_AVATAR_API}${f.discordId}`,
+      link: f.link,
+    };
+  });
 }
