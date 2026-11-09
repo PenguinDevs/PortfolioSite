@@ -7,11 +7,13 @@ import type { ThreeElements } from '@react-three/fiber';
 import { useEntityReveal } from '../hooks';
 import type { EntityRevealOptions } from '../hooks';
 import { InkEdgesGroup } from '../shaders';
+import type { InkDrawGroups, StaggeredReveal } from '../shaders';
 import { INK_EDGE_COLOUR } from '../constants';
 import { LightingMode } from '../types';
 import { BLOCK_SIZE, BlockFace, BlockKind } from './constants';
 import { createPixelMaterial, usePixelMaterials } from './materials';
 import { getBlockTexture, getBlockTextureKey } from './blockTextures';
+import { hashString, seededRandom } from './pixelTexture';
 
 // one full block. coordinates are whole cells local to the component, a cell spans
 // [x, x + 1] x [y, y + 1] x [z, z + 1] blocks, so y = 0 sits on the floor
@@ -69,6 +71,18 @@ function inkFilter(mesh: Mesh): boolean {
   return !mesh.userData.noInk;
 }
 
+// blocks come in one at a time, rising from the ground up. timings are in draw progress, which
+// the reveal runs from 0 to just past 1, and the last block starts early enough that its ink
+// and texture still finish before the progress tops out
+const LAST_BLOCK_START = 0.9;
+// a block's start is nudged by up to this many layers, so each layer comes in a block at a time
+const BLOCK_START_JITTER_LAYERS = 3;
+// a block's ink is traced outwards from one corner over this much progress
+const BLOCK_TRACE_SPAN = 0.03;
+// its texture starts filling in this far behind its ink and takes this long to fill
+const BLOCK_FILL_LAG = 0.06;
+const BLOCK_FILL_WINDOW = 0.05;
+
 // shared by the dedupe pass and the neighbour lookups, so they always agree
 function cellKey(x: number, y: number, z: number): string {
   return `${x},${y},${z}`;
@@ -82,6 +96,8 @@ interface FaceBatch {
 interface VoxelMesh {
   batches: FaceBatch[];
   inkGeometry: BufferGeometry;
+  // traces the ink block by block, in the same order the textures fill in
+  drawGroups: InkDrawGroups;
   // local bounds of every cell, undefined when there are no blocks
   bounds: Box3 | undefined;
 }
@@ -113,8 +129,62 @@ function writeFacePositions(
   for (let i = 0; i < INDICES_PER_FACE; i++) indices[firstIndex + i] = firstVertex + QUAD_INDICES[i];
 }
 
+// when each block starts coming in, keyed like the cells. the order follows the height above the
+// bottom layer, so builds rise up out of the ground as if they were being placed
+function computeBlockStarts(cells: ReadonlyMap<string, VoxelBlock>, seed: number): Map<string, number> {
+  const rand = seededRandom(hashString(`voxelReveal:${seed}`));
+  let lowest = Infinity;
+  let highest = -Infinity;
+  for (const { y } of cells.values()) {
+    lowest = Math.min(lowest, y);
+    highest = Math.max(highest, y);
+  }
+  const span = highest - lowest + BLOCK_START_JITTER_LAYERS;
+  const starts = new Map<string, number>();
+  for (const [key, { y }] of cells) {
+    const layer = y - lowest + rand() * BLOCK_START_JITTER_LAYERS;
+    starts.set(key, (layer / span) * LAST_BLOCK_START);
+  }
+  return starts;
+}
+
+// the ink comes in block by block too. an edge goes with whichever of the blocks around it
+// starts first, so it is drawn along with that block
+function createInkDrawGroups(starts: ReadonlyMap<string, number>): InkDrawGroups {
+  const indexByKey = new Map<string, number>();
+  const startByIndex: number[] = [];
+  for (const [key, start] of starts) {
+    indexByKey.set(key, startByIndex.length);
+    startByIndex.push(start);
+  }
+  return {
+    groupOf: (ax, ay, az, bx, by, bz) => {
+      const x0 = Math.round(Math.min(ax, bx) / BLOCK_SIZE);
+      const y0 = Math.round(Math.min(ay, by) / BLOCK_SIZE);
+      const z0 = Math.round(Math.min(az, bz) / BLOCK_SIZE);
+      // an edge runs along one axis, and the cells sharing it sit either side of it on the other two
+      const xFrom = Math.abs(ax - bx) < BLOCK_SIZE / 2 ? x0 - 1 : x0;
+      const yFrom = Math.abs(ay - by) < BLOCK_SIZE / 2 ? y0 - 1 : y0;
+      const zFrom = Math.abs(az - bz) < BLOCK_SIZE / 2 ? z0 - 1 : z0;
+      let group = -1;
+      for (let x = xFrom; x <= x0; x++) {
+        for (let y = yFrom; y <= y0; y++) {
+          for (let z = zFrom; z <= z0; z++) {
+            const index = indexByKey.get(cellKey(x, y, z));
+            if (index === undefined) continue;
+            if (group === -1 || startByIndex[index] < startByIndex[group]) group = index;
+          }
+        }
+      }
+      return group;
+    },
+    startOf: (group) => (group === -1 ? 0 : startByIndex[group]),
+    traceSpan: BLOCK_TRACE_SPAN,
+  };
+}
+
 // culls hidden faces and batches the rest into one geometry per texture plus the ink geometry
-function buildVoxelMesh(blocks: readonly VoxelBlock[]): VoxelMesh {
+function buildVoxelMesh(blocks: readonly VoxelBlock[], seed: number): VoxelMesh {
   // later entries win when two blocks claim the same cell
   const cells = new Map<string, VoxelBlock>();
   for (const block of blocks) cells.set(cellKey(block.x, block.y, block.z), block);
@@ -144,6 +214,7 @@ function buildVoxelMesh(blocks: readonly VoxelBlock[]): VoxelMesh {
   }
   bounds?.min.multiplyScalar(BLOCK_SIZE);
   bounds?.max.multiplyScalar(BLOCK_SIZE);
+  const starts = computeBlockStarts(cells, seed);
 
   const inkPositions = new Float32Array(visibleFaceCount * VERTICES_PER_FACE * 3);
   const inkIndices = createIndexArray(visibleFaceCount);
@@ -156,6 +227,8 @@ function buildVoxelMesh(blocks: readonly VoxelBlock[]): VoxelMesh {
     const normals = new Float32Array(faceCount * VERTICES_PER_FACE * 3);
     const uvs = new Float32Array(faceCount * VERTICES_PER_FACE * 2);
     const indices = createIndexArray(faceCount);
+    // every vertex knows when its block starts, so the texture can fill in block by block
+    const revealStarts = new Float32Array(faceCount * VERTICES_PER_FACE);
 
     for (let slot = 0; slot < faceCount; slot++) {
       const x = packed[slot * 4];
@@ -171,12 +244,14 @@ function buildVoxelMesh(blocks: readonly VoxelBlock[]): VoxelMesh {
       normals.set(face.normal, (firstVertex + 2) * 3);
       normals.set(face.normal, (firstVertex + 3) * 3);
       uvs.set(CORNER_UVS, firstVertex * 2);
+      revealStarts.fill(starts.get(cellKey(x, y, z)) ?? 0, firstVertex, firstVertex + VERTICES_PER_FACE);
     }
 
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(positions, 3));
     geometry.setAttribute('normal', new BufferAttribute(normals, 3));
     geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
+    geometry.setAttribute('aRevealStart', new BufferAttribute(revealStarts, 1));
     geometry.setIndex(new BufferAttribute(indices, 1));
     batches.push({ textureKey, geometry });
   }
@@ -185,17 +260,17 @@ function buildVoxelMesh(blocks: readonly VoxelBlock[]): VoxelMesh {
   inkGeometry.setAttribute('position', new BufferAttribute(inkPositions, 3));
   inkGeometry.setIndex(new BufferAttribute(inkIndices, 1));
 
-  return { batches, inkGeometry, bounds };
+  return { batches, inkGeometry, drawGroups: createInkDrawGroups(starts), bounds };
 }
 
 // one material per distinct block texture, made up front so a blocks change never adds
 // materials the reveal has already finished with
-function createBlockMaterials(): Map<string, ShaderMaterial> {
+function createBlockMaterials(staggeredReveal: StaggeredReveal): Map<string, ShaderMaterial> {
   const materials = new Map<string, ShaderMaterial>();
   for (const kind of Object.values(BlockKind)) {
     for (const face of Object.values(BlockFace)) {
       const key = getBlockTextureKey(kind, face);
-      if (!materials.has(key)) materials.set(key, createPixelMaterial(getBlockTexture(kind, face)));
+      if (!materials.has(key)) materials.set(key, createPixelMaterial(getBlockTexture(kind, face), { staggeredReveal }));
     }
   }
   return materials;
@@ -207,7 +282,7 @@ export function VoxelBlocks({ blocks, revealOptions, inkSeed = 0, ...groupProps 
   const groupRef = useRef<Group>(null);
   const meshesGroupRef = useRef<Group>(null);
 
-  const voxelMesh = useMemo(() => buildVoxelMesh(blocks), [blocks]);
+  const voxelMesh = useMemo(() => buildVoxelMesh(blocks, inkSeed), [blocks, inkSeed]);
   useEffect(() => {
     return () => {
       for (const batch of voxelMesh.batches) batch.geometry.dispose();
@@ -215,15 +290,19 @@ export function VoxelBlocks({ blocks, revealOptions, inkSeed = 0, ...groupProps 
     };
   }, [voxelMesh]);
 
-  const materialsByTexture = useMemo(createBlockMaterials, []);
-  const materials = useMemo(() => [...materialsByTexture.values()], [materialsByTexture]);
-
   // big builds like the cave shell start revealing once any part of them is in view
   const { drawProgress, connectMaterial } = useEntityReveal(groupRef, {
     perfLabel: 'VoxelBlocks',
     ...revealOptions,
     bounds: voxelMesh.bounds,
   });
+
+  // each block's texture fills in on its own, just behind its ink
+  const materialsByTexture = useMemo(
+    () => createBlockMaterials({ progress: drawProgress, lag: BLOCK_FILL_LAG, window: BLOCK_FILL_WINDOW }),
+    [drawProgress],
+  );
+  const materials = useMemo(() => [...materialsByTexture.values()], [materialsByTexture]);
   usePixelMaterials(materials, connectMaterial);
 
   return (
@@ -250,6 +329,7 @@ export function VoxelBlocks({ blocks, revealOptions, inkSeed = 0, ...groupProps 
         seed={inkSeed}
         width={2}
         drawProgress={drawProgress}
+        drawGroups={voxelMesh.drawGroups}
         filter={inkFilter}
       />
     </group>

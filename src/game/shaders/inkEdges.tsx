@@ -283,16 +283,28 @@ function copySkinDataForEdges(
 // Draw order computation for reveal animation
 // ---------------------------------------------------------------------------
 
-// BFS from a random start segment to produce a normalised draw order (0..1)
-// per vertex, plus per-vertex extrusion data so each edge can grow from its
-// BFS-origin vertex to its far vertex. Handles disconnected clusters.
+// splits the draw-in reveal into groups that each trace their own edges in their own slot of the
+// reveal, e.g. one per voxel block, instead of one wavefront running across the whole mesh
+export interface InkDrawGroups {
+  // group an edge belongs to, from its two endpoints in the mesh's local space
+  groupOf: (ax: number, ay: number, az: number, bx: number, by: number, bz: number) => number;
+  // when a group starts drawing, 0..1 of the reveal
+  startOf: (group: number) => number;
+  // share of the reveal a group spends tracing its edges outwards from where it starts
+  traceSpan: number;
+}
+
+// BFS to produce a normalised draw order (0..1) per vertex, plus per-vertex extrusion data so
+// each edge can grow from its BFS-origin vertex to its far vertex. Without groups the whole mesh
+// is one wavefront from a random start segment and disconnected clusters follow one another.
+// With groups each group walks only its own edges, all of its clusters starting together
 interface DrawOrderData {
   drawOrder: Float32Array;      // per vertex (2 per segment), normalised 0..1
   isEnd: Float32Array;          // per vertex, 0 for start vertex, 1 for end vertex
   segmentOrigin: Float32Array;  // per vertex, vec3 position of the start vertex
 }
 
-function computeDrawOrder(positions: Float32Array): DrawOrderData {
+function computeDrawOrder(positions: Float32Array, groups?: InkDrawGroups): DrawOrderData {
   const segmentCount = positions.length / 6;
   if (segmentCount === 0) {
     return {
@@ -316,6 +328,18 @@ function computeDrawOrder(positions: Float32Array): DrawOrderData {
     segKeys.push([k0, k1]);
   }
 
+  // group of every segment, without groups the whole mesh is group 0
+  const segmentGroup = new Int32Array(segmentCount);
+  if (groups) {
+    for (let s = 0; s < segmentCount; s++) {
+      const base = s * 6;
+      segmentGroup[s] = groups.groupOf(
+        positions[base], positions[base + 1], positions[base + 2],
+        positions[base + 3], positions[base + 4], positions[base + 5],
+      );
+    }
+  }
+
   // map: quantised vertex key -> list of segment indices sharing that vertex
   const vertexSegments = new Map<string, number[]>();
   for (let s = 0; s < segmentCount; s++) {
@@ -329,12 +353,14 @@ function computeDrawOrder(positions: Float32Array): DrawOrderData {
     }
   }
 
-  // build adjacency with shared vertex info so we know which vertex connects neighbours
+  // build adjacency with shared vertex info so we know which vertex connects neighbours.
+  // the walk never crosses into another group
   interface AdjEntry { segment: number; sharedKey: string }
   const adj: AdjEntry[][] = Array.from({ length: segmentCount }, () => []);
   for (const [vertexKey, segs] of vertexSegments.entries()) {
     for (let i = 0; i < segs.length; i++) {
       for (let j = i + 1; j < segs.length; j++) {
+        if (segmentGroup[segs[i]] !== segmentGroup[segs[j]]) continue;
         adj[segs[i]].push({ segment: segs[j], sharedKey: vertexKey });
         adj[segs[j]].push({ segment: segs[i], sharedKey: vertexKey });
       }
@@ -345,46 +371,53 @@ function computeDrawOrder(positions: Float32Array): DrawOrderData {
   const segmentLevel = new Int32Array(segmentCount).fill(-1);
   // 0 or 1: which of the segment's two vertices is the start (entry from parent)
   const segStartIdx = new Uint8Array(segmentCount);
-  let maxLevel = 0;
-
-  const startSegment = Math.floor(Math.random() * segmentCount);
-  segmentLevel[startSegment] = 0;
-  segStartIdx[startSegment] = 0; // arbitrary for root
-
-  const queue: number[] = [startSegment];
+  const queue: number[] = [];
   let head = 0;
 
-  while (head < queue.length) {
-    const current = queue[head++];
-    const nextLevel = segmentLevel[current] + 1;
-    for (const { segment: neighbour, sharedKey } of adj[current]) {
-      if (segmentLevel[neighbour] !== -1) continue;
-      segmentLevel[neighbour] = nextLevel;
-      if (nextLevel > maxLevel) maxLevel = nextLevel;
-      // shared vertex is the start (entry) of the neighbour segment
-      segStartIdx[neighbour] = segKeys[neighbour][0] === sharedKey ? 0 : 1;
-      queue.push(neighbour);
-    }
-  }
-
-  // handle disconnected components: start new BFS from any unvisited segment
-  for (let s = 0; s < segmentCount; s++) {
-    if (segmentLevel[s] !== -1) continue;
-    const componentStart = maxLevel + 1;
-    segmentLevel[s] = componentStart;
-    segStartIdx[s] = 0;
-    maxLevel = componentStart;
-    queue.push(s);
+  // walks out from root, returning the deepest level it reached
+  const spread = (root: number, rootLevel: number): number => {
+    segmentLevel[root] = rootLevel;
+    segStartIdx[root] = 0; // arbitrary for a root
+    queue.push(root);
+    let deepest = rootLevel;
     while (head < queue.length) {
       const current = queue[head++];
       const nextLevel = segmentLevel[current] + 1;
       for (const { segment: neighbour, sharedKey } of adj[current]) {
         if (segmentLevel[neighbour] !== -1) continue;
         segmentLevel[neighbour] = nextLevel;
-        if (nextLevel > maxLevel) maxLevel = nextLevel;
+        if (nextLevel > deepest) deepest = nextLevel;
+        // shared vertex is the start (entry) of the neighbour segment
         segStartIdx[neighbour] = segKeys[neighbour][0] === sharedKey ? 0 : 1;
         queue.push(neighbour);
       }
+    }
+    return deepest;
+  };
+
+  const segmentOrder = new Float32Array(segmentCount);
+  if (groups) {
+    const deepestByGroup = new Map<number, number>();
+    for (let s = 0; s < segmentCount; s++) {
+      if (segmentLevel[s] !== -1) continue;
+      const deepest = spread(s, 0);
+      const group = segmentGroup[s];
+      deepestByGroup.set(group, Math.max(deepestByGroup.get(group) ?? 0, deepest));
+    }
+    for (let s = 0; s < segmentCount; s++) {
+      const group = segmentGroup[s];
+      const deepest = deepestByGroup.get(group) ?? 0;
+      const trace = deepest > 0 ? segmentLevel[s] / deepest : 0;
+      segmentOrder[s] = groups.startOf(group) + trace * groups.traceSpan;
+    }
+  } else {
+    let maxLevel = spread(Math.floor(Math.random() * segmentCount), 0);
+    // handle disconnected components: start a new BFS after the levels used so far
+    for (let s = 0; s < segmentCount; s++) {
+      if (segmentLevel[s] === -1) maxLevel = spread(s, maxLevel + 1);
+    }
+    for (let s = 0; s < segmentCount; s++) {
+      segmentOrder[s] = maxLevel > 0 ? segmentLevel[s] / maxLevel : 0;
     }
   }
 
@@ -394,9 +427,8 @@ function computeDrawOrder(positions: Float32Array): DrawOrderData {
   const segmentOrigin = new Float32Array(segmentCount * 2 * 3);
 
   for (let s = 0; s < segmentCount; s++) {
-    const normalised = maxLevel > 0 ? segmentLevel[s] / maxLevel : 0;
-    drawOrder[s * 2] = normalised;
-    drawOrder[s * 2 + 1] = normalised;
+    drawOrder[s * 2] = segmentOrder[s];
+    drawOrder[s * 2 + 1] = segmentOrder[s];
 
     const si = segStartIdx[s]; // 0 or 1
     const ei = 1 - si;
@@ -442,6 +474,7 @@ function buildInkLines(
     wobble: number;
     clipY?: { value: number };
     drawProgress?: { value: number; segmentCount?: number };
+    drawGroups?: InkDrawGroups;
   },
   skinning?: SkinningInfo,
 ): LineSegments | null {
@@ -453,7 +486,7 @@ function buildInkLines(
   // when draw progress is provided, compute per-segment draw order for the reveal animation
   const hasDrawReveal = !!params.drawProgress;
   if (hasDrawReveal) {
-    const drawData = computeDrawOrder(edgePositions);
+    const drawData = computeDrawOrder(edgePositions, params.drawGroups);
     geo.setAttribute('aDrawOrder', new BufferAttribute(drawData.drawOrder, 1));
     geo.setAttribute('aIsEnd', new BufferAttribute(drawData.isEnd, 1));
     geo.setAttribute('aSegmentOrigin', new BufferAttribute(drawData.segmentOrigin, 3));
@@ -603,12 +636,15 @@ export interface InkEdgesOptions {
   // -1 = all hidden, 0..1 = progressive reveal, >1 = all visible.
   // segmentCount is written back by the ink edges system for complexity-based duration scaling.
   drawProgress?: { value: number; segmentCount?: number };
+  // traces the draw-in reveal group by group instead of as one wavefront, see InkDrawGroups
+  drawGroups?: InkDrawGroups;
 }
 
-type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY' | 'drawProgress'>> & {
+type ResolvedInkEdgesOptions = Required<Omit<InkEdgesOptions, 'darkColour' | 'clipY' | 'drawProgress' | 'drawGroups'>> & {
   darkColour?: string;
   clipY?: { value: number };
   drawProgress?: { value: number; segmentCount?: number };
+  drawGroups?: InkDrawGroups;
 };
 
 const DEFAULTS: ResolvedInkEdgesOptions = {
@@ -660,6 +696,7 @@ export function InkEdges({ target, geometry: geometryDep, ...opts }: InkEdgesPro
       wobble: o.wobble,
       clipY: o.clipY,
       drawProgress: o.drawProgress,
+      drawGroups: o.drawGroups,
     });
 
     if (!lineObj) return;
@@ -684,7 +721,7 @@ export function InkEdges({ target, geometry: geometryDep, ...opts }: InkEdgesPro
       (lineObj.material as LineBasicMaterial).dispose();
     };
   }, [target, geometryDep, o.thresholdAngle, o.creaseOffset, o.colour, o.darkColour, o.width, o.opacity,
-      o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress]);
+      o.seed, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress, o.drawGroups]);
 
   return null;
 }
@@ -748,6 +785,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
           wobble: o.wobble,
           clipY: o.clipY,
           drawProgress: o.drawProgress,
+          drawGroups: o.drawGroups,
         },
         skinning,
       );
@@ -779,7 +817,7 @@ export function InkEdgesGroup({ target, filter, ...opts }: InkEdgesGroupProps) {
       }
     };
   }, [target, filter, o.thresholdAngle, o.creaseOffset, o.seed, o.colour, o.darkColour, o.width,
-      o.opacity, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress]);
+      o.opacity, o.gapFreq, o.gapThreshold, o.wobble, o.clipY, o.drawProgress, o.drawGroups]);
 
   return null;
 }

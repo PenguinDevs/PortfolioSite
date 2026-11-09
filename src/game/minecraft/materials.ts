@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ShaderMaterial, Texture, Vector3 } from 'three';
 import { createToonMaterial } from '../shaders';
+import type { StaggeredReveal } from '../shaders';
 import { LightingService } from '../services';
 import type { LightingMode } from '../types';
 import { CUT_OUT_ALPHA, PIXEL_MAP_TINT } from './constants';
@@ -13,15 +14,21 @@ export interface PixelMaterialOptions {
   cutOut?: boolean;
   // always fully lit and never dimmed in dark mode, for flames, lantern light and glow berries
   glow?: boolean;
+  // fills the mesh in part by part instead of all at once, see StaggeredReveal
+  staggeredReveal?: StaggeredReveal;
 }
 
 // toon material showing a pixel texture, ready to be connected to an entity reveal
-export function createPixelMaterial(texture: Texture, { cutOut = false, glow = false }: PixelMaterialOptions = {}): ShaderMaterial {
+export function createPixelMaterial(
+  texture: Texture,
+  { cutOut = false, glow = false, staggeredReveal }: PixelMaterialOptions = {},
+): ShaderMaterial {
   const material = createToonMaterial({
     map: texture,
     alphaTest: cutOut ? CUT_OUT_ALPHA : 0,
     litThreshold: glow ? ALWAYS_LIT_THRESHOLD : undefined,
     midThreshold: glow ? ALWAYS_LIT_THRESHOLD : undefined,
+    staggeredReveal,
   });
   material.userData.pixelGlow = glow;
   return material;

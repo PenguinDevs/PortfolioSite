@@ -7,8 +7,16 @@ const vertexShader = /* glsl */ `
   varying vec3 vPosition;
   varying vec2 vUv;
 
+  #ifdef STAGGERED_REVEAL
+    attribute float aRevealStart;
+    varying float vRevealStart;
+  #endif
+
   void main() {
     vUv = uv;
+    #ifdef STAGGERED_REVEAL
+      vRevealStart = aRevealStart;
+    #endif
 
     #include <skinbase_vertex>
 
@@ -49,6 +57,13 @@ const fragmentShader = /* glsl */ `
   varying vec3 vPosition;
   varying vec2 vUv;
 
+  #ifdef STAGGERED_REVEAL
+    uniform float uStaggerProgress;
+    uniform float uStaggerLag;
+    uniform float uStaggerWindow;
+    varying float vRevealStart;
+  #endif
+
   void main() {
     // discard fragments below the clip threshold (defaults to -10000 so no effect)
     if (vPosition.y < uClipY) discard;
@@ -73,11 +88,27 @@ const fragmentShader = /* glsl */ `
     }
 
     // reveal animation: lerp from reveal base colour to the computed colour
-    color = mix(uRevealColour, color, uRevealProgress);
+    float reveal = uRevealProgress;
+    #ifdef STAGGERED_REVEAL
+      // each part fills in on its own once the shared progress gets a little past its start
+      float partStart = vRevealStart + uStaggerLag;
+      reveal = max(reveal, smoothstep(partStart, partStart + uStaggerWindow, uStaggerProgress));
+    #endif
+    color = mix(uRevealColour, color, reveal);
 
     gl_FragColor = vec4(color, uOpacity);
   }
 `;
+
+// fills the parts of a mesh in one at a time instead of all at once, driven by a shared progress
+// such as an entity reveal's draw progress. the geometry needs an aRevealStart attribute giving
+// each vertex the progress at which its part starts
+export interface StaggeredReveal {
+  progress: { value: number };
+  // how far past its start a part begins filling in, and how long the fill takes, in progress units
+  lag: number;
+  window: number;
+}
 
 export interface ToonMaterialOptions {
   color?: string;
@@ -91,6 +122,7 @@ export interface ToonMaterialOptions {
   alphaTest?: number;
   // multiplies the map colour, e.g. to dim textures in dark mode
   mapTint?: [number, number, number];
+  staggeredReveal?: StaggeredReveal;
 }
 
 export function createToonMaterial({
@@ -103,6 +135,7 @@ export function createToonMaterial({
   map,
   alphaTest = 0,
   mapTint = [1, 1, 1],
+  staggeredReveal,
 }: ToonMaterialOptions = {}) {
   return new ShaderMaterial({
     uniforms: {
@@ -119,7 +152,14 @@ export function createToonMaterial({
       uRevealColour: { value: new Color('#ffffff') },
       uAlphaTest: { value: alphaTest },
       uMapTint: { value: new Vector3(...mapTint) },
+      ...(staggeredReveal && {
+        // shared object, so the material follows the progress without being touched each frame
+        uStaggerProgress: staggeredReveal.progress,
+        uStaggerLag: { value: staggeredReveal.lag },
+        uStaggerWindow: { value: staggeredReveal.window },
+      }),
     },
+    defines: staggeredReveal ? { STAGGERED_REVEAL: '' } : {},
     vertexShader,
     fragmentShader,
     side,
