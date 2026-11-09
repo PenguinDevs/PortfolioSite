@@ -87,12 +87,13 @@ function isTypingTarget(target: EventTarget | null): boolean {
 export function FriendsChestMenu() {
   const { friends, isOpen, close } = useFriendsChest();
 
-  // only keyboard users get a tooltip on focus. :focus-visible can't be trusted for this,
-  // because the window moves focus itself straight after the tap or click that opened it
+  // only people tabbing around get a tooltip on focus. :focus-visible can't be trusted for this,
+  // because the window moves focus itself straight after the tap or click that opened it. other
+  // keys don't count, the arrows walk the penguin and E opens the chest for mouse users too
   const lastModality = useRef(InputModality.Pointer);
   useEffect(() => {
-    const onKey = () => {
-      lastModality.current = InputModality.Keyboard;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === ChestKey.Tab) lastModality.current = InputModality.Keyboard;
     };
     const onPointer = () => {
       lastModality.current = InputModality.Pointer;
@@ -127,7 +128,7 @@ function ChestWindow({
   const activeIndex = hoveredIndex ?? focusedIndex;
 
   // quick fade in, move focus into the chest and hand it back when the chest closes.
-  // keyboard users land on the first friend, everyone else on the window itself
+  // people tabbing around land on the first friend, everyone else on the window itself
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     backdropRef.current?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: FADE_MS, easing: 'ease-out' });
@@ -273,7 +274,12 @@ function ChestWindow({
                 type="button"
                 aria-label={`${friend.name}, visit ${getHostname(friend.link)} in a new tab`}
                 onClick={() => window.open(friend.link, LINK_TARGET, LINK_FEATURES)}
-                onMouseEnter={() => setHoveredIndex(index)}
+                // the mouse takes over from the keyboard, so leaving a slot never jumps the
+                // tooltip back to whichever slot was last tabbed to
+                onMouseEnter={() => {
+                  setHoveredIndex(index);
+                  setFocusedIndex(null);
+                }}
                 onMouseLeave={() => setHoveredIndex((current) => (current === index ? null : current))}
                 onFocus={() => setFocusedIndex(lastModality.current === InputModality.Keyboard ? index : null)}
                 onBlur={() => setFocusedIndex((current) => (current === index ? null : current))}
