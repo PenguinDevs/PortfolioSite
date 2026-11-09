@@ -48,16 +48,17 @@ const METAL_DARK = ['#7b828a', '#6c737b', '#858c94'] as const;
 // ---------------------------------------------------------------------------
 
 // boards of uneven heights, each ending in a seam row. the sides of the body sample from
-// row 1, so the bottom seam sits on the floor and the top row hides under the trim
+// row 2, so the bottom seam sits on the floor and the top row hides under the trim
 const PLANK_BOARD_HEIGHTS = [4, 3, 5, 4] as const;
-export const PLANK_SIDE_ORIGIN: TexelOrigin = { x: 0, y: 1 };
+export const PLANK_SIDE_ORIGIN: TexelOrigin = { x: 0, y: 2 };
 // seam free patches lining up with the boards painted on the body, so a raised board
 // looks like that board pushed out a texel
 export const PLANK_MIDDLE_BOARD_ORIGIN: TexelOrigin = { x: 1, y: 7 };
 export const PLANK_UPPER_BOARD_ORIGIN: TexelOrigin = { x: 3, y: 4 };
 export const PLANK_LOWER_BOARD_ORIGIN: TexelOrigin = { x: 8, y: 12 };
 
-// work surface boards run front to back, the panel samples the middle 14 x 14
+// work surface boards run front to back. the panel samples 12 x 12 from texel 1, 1, which puts
+// its seams evenly either side of the middle
 const PANEL_BOARD_WIDTH = 4;
 export const PANEL_ORIGIN: TexelOrigin = { x: 1, y: 1 };
 
