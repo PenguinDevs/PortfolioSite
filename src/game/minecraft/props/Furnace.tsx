@@ -30,7 +30,6 @@ const VANILLA_BLOCK_TEXTURES = '/assets/minecraft/textures/block/';
 
 enum FurnaceTexture {
   Front = 'furnace_front.png',
-  FrontLit = 'furnace_front_on.png',
   Side = 'furnace_side.png',
   Top = 'furnace_top.png',
   // 32 frame strip of the vanilla fire animation
@@ -90,36 +89,33 @@ export const Furnace = forwardRef<Group, FurnaceProps>(function Furnace({ lit = 
     };
   }, []);
 
-  const { materials, materialFor, fireMaterial, frontTextures, liningTextures } = useMemo(() => {
-    const textures = {
-      front: { out: loadVanillaTexture(textureUrl(FurnaceTexture.Front)), lit: loadVanillaTexture(textureUrl(FurnaceTexture.FrontLit)) },
-      lining: {
-        out: loadVanillaTexture(textureUrl(FurnaceTexture.Top), SOOT_TINT),
-        lit: loadVanillaTexture(textureUrl(FurnaceTexture.Top), FIRELIT_SOOT_TINT),
-      },
+  const { materials, materialFor, fireMaterial, liningTextures } = useMemo(() => {
+    const lining = {
+      out: loadVanillaTexture(textureUrl(FurnaceTexture.Top), SOOT_TINT),
+      lit: loadVanillaTexture(textureUrl(FurnaceTexture.Top), FIRELIT_SOOT_TINT),
     };
     const bySurface: Record<FurnaceSurface, ShaderMaterial> = {
-      [FurnaceSurface.Front]: createPixelMaterial(textures.front.out),
+      // furnace_front even when lit. furnace_front_on only differs inside the carved mouth, apart
+      // from fire painted over the lip under it and a stray flame texel beside it
+      [FurnaceSurface.Front]: createPixelMaterial(loadVanillaTexture(textureUrl(FurnaceTexture.Front))),
       [FurnaceSurface.Side]: createPixelMaterial(loadVanillaTexture(textureUrl(FurnaceTexture.Side))),
       [FurnaceSurface.Top]: createPixelMaterial(loadVanillaTexture(textureUrl(FurnaceTexture.Top))),
-      [FurnaceSurface.Lining]: createPixelMaterial(textures.lining.out),
+      [FurnaceSurface.Lining]: createPixelMaterial(lining.out),
     };
     const flames = createPixelMaterial(loadVanillaTexture(textureUrl(FurnaceTexture.Fire)), { cutOut: true, glow: true });
     return {
       materials: [...Object.values(bySurface), flames],
       materialFor: bySurface,
       fireMaterial: flames,
-      frontTextures: textures.front,
-      liningTextures: textures.lining,
+      liningTextures: lining,
     };
   }, []);
   usePixelMaterials(materials, connectMaterial);
 
-  // lighting the furnace swaps in furnace_front_on and the firelit lining
+  // lighting the furnace warms up its lining, the fire itself is the sprite
   useEffect(() => {
-    materialFor[FurnaceSurface.Front].uniforms.uMap.value = lit ? frontTextures.lit : frontTextures.out;
     materialFor[FurnaceSurface.Lining].uniforms.uMap.value = lit ? liningTextures.lit : liningTextures.out;
-  }, [lit, materialFor, frontTextures, liningTextures]);
+  }, [lit, materialFor, liningTextures]);
 
   // random phase so neighbouring furnaces don't flicker in sync
   const phase = useMemo(() => Math.random() * 10, []);

@@ -11,7 +11,7 @@ import type { Vec3 } from './texelQuads';
 
 // which material a face is drawn with
 export enum FurnaceSurface {
-  // furnace_front, or furnace_front_on when lit
+  // furnace_front
   Front = 'front',
   // furnace_side on the left, right and back
   Side = 'side',
