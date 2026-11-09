@@ -350,7 +350,8 @@ internshipOffers:
   - company: TikTok
     logo: /assets/images/experience/tiktok.webp
   - company: Coles
-    logo: /assets/images/experience/coles_group.webp
+    # the square icon reads better at note size than the wordmark on the experience card
+    logo: /assets/images/experience/coles_group_icon.webp
     accepted: true
   - company: KPMG
     logo: /assets/images/experience/kpmg.webp
