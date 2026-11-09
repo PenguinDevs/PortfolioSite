@@ -12,9 +12,12 @@ import { easeInOutCubic } from '../../math';
 import { createPixelMaterial, usePixelMaterials } from '../materials';
 import {
   BoxFaceIndex,
+  CHEST_BODY_ROWS,
   CHEST_BODY_SIDE_ORIGIN,
   CHEST_FACE_ORIGIN,
+  CHEST_LID_ROWS,
   CHEST_LID_SIDE_ORIGIN,
+  CHEST_WIDTH_TEXELS,
   PROP_TEXEL,
   PropTextureKey,
   createTexelBox,
@@ -24,21 +27,18 @@ import type { BoxFaceOrigins, TexelOrigin } from '../propTextures';
 
 const INK_SEED = 97;
 
-// sizes in texels, matching the classic chest model
-const CHEST_WIDTH = 14;
-const BODY_HEIGHT = 10;
-const LID_HEIGHT = 5;
+// latch size in texels, the chest's own size comes from its textures
 const LATCH_WIDTH = 2;
 const LATCH_HEIGHT = 4;
 const LATCH_DEPTH = 1;
 
-const HALF_DEPTH = (CHEST_WIDTH / 2) * PROP_TEXEL;
-const BODY_POSITION: [number, number, number] = [0, (BODY_HEIGHT / 2) * PROP_TEXEL, 0];
+const HALF_DEPTH = (CHEST_WIDTH_TEXELS / 2) * PROP_TEXEL;
+const BODY_POSITION: [number, number, number] = [0, (CHEST_BODY_ROWS / 2) * PROP_TEXEL, 0];
 // the lid pivots about its back bottom edge, which is the hinge on top of the body
-const HINGE_POSITION: [number, number, number] = [0, BODY_HEIGHT * PROP_TEXEL, -HALF_DEPTH];
-const LID_POSITION: [number, number, number] = [0, (LID_HEIGHT / 2) * PROP_TEXEL, HALF_DEPTH];
+const HINGE_POSITION: [number, number, number] = [0, CHEST_BODY_ROWS * PROP_TEXEL, -HALF_DEPTH];
+const LID_POSITION: [number, number, number] = [0, (CHEST_LID_ROWS / 2) * PROP_TEXEL, HALF_DEPTH];
 // latch hangs off the lid front, centred on the seam between lid and body
-const LATCH_POSITION: [number, number, number] = [0, 0, CHEST_WIDTH * PROP_TEXEL + (LATCH_DEPTH / 2) * PROP_TEXEL];
+const LATCH_POSITION: [number, number, number] = [0, 0, CHEST_WIDTH_TEXELS * PROP_TEXEL + (LATCH_DEPTH / 2) * PROP_TEXEL];
 
 // negative so the front edge swings up and back towards -z
 const LID_OPEN_ANGLE = -(80 * Math.PI) / 180;
@@ -74,8 +74,8 @@ export const Chest = forwardRef<Group, ChestProps>(function Chest({ open, ...pro
 
   const geometries = useMemo(
     () => ({
-      body: createTexelBox(CHEST_WIDTH, BODY_HEIGHT, CHEST_WIDTH, chestFaceOrigins(CHEST_BODY_SIDE_ORIGIN)),
-      lid: createTexelBox(CHEST_WIDTH, LID_HEIGHT, CHEST_WIDTH, chestFaceOrigins(CHEST_LID_SIDE_ORIGIN)),
+      body: createTexelBox(CHEST_WIDTH_TEXELS, CHEST_BODY_ROWS, CHEST_WIDTH_TEXELS, chestFaceOrigins(CHEST_BODY_SIDE_ORIGIN)),
+      lid: createTexelBox(CHEST_WIDTH_TEXELS, CHEST_LID_ROWS, CHEST_WIDTH_TEXELS, chestFaceOrigins(CHEST_LID_SIDE_ORIGIN)),
       latch: createTexelBox(LATCH_WIDTH, LATCH_HEIGHT, LATCH_DEPTH),
     }),
     [],

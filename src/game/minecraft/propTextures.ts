@@ -220,15 +220,17 @@ function paintPlanks(
 // ---------------------------------------------------------------------------
 
 // the chest side texture holds the lid side (rows 1 to 5) stacked on the body side
-// (rows 6 to 15), both 14 texels wide starting at column 1
+// (rows 6 to 15), both CHEST_WIDTH_TEXELS wide starting at column 1
 export const CHEST_LID_SIDE_ORIGIN: TexelOrigin = { x: 1, y: 1 };
 export const CHEST_BODY_SIDE_ORIGIN: TexelOrigin = { x: 1, y: 6 };
-// tops, bottoms and the inside are 14 x 14 starting at texel 1, 1
+// tops, bottoms and the inside are square, starting at texel 1, 1
 export const CHEST_FACE_ORIGIN: TexelOrigin = { x: 1, y: 1 };
 
-const CHEST_WIDTH_TEXELS = 14;
-const CHEST_LID_ROWS = 5;
-const CHEST_BODY_ROWS = 10;
+// chest size in texels, which the model is built from too. a texel short of a full block each
+// way, so it sits just inside its cell next to full blocks without looking small beside them
+export const CHEST_WIDTH_TEXELS = 15;
+export const CHEST_LID_ROWS = 5;
+export const CHEST_BODY_ROWS = 10;
 const CHEST_BOARD_HEIGHT = 4;
 
 const paintChestSide: PixelPainter = (ctx, rand) => {
