@@ -417,6 +417,49 @@ const paintClay: PixelPainter = (ctx, rand, size) => {
   }
 };
 
+interface OrePalette {
+  main: string;
+  light: string;
+  dark: string;
+}
+
+// pinkish beige lumps of iron and bright cyan gems, picked by hand
+const IRON_ORE_PALETTE: OrePalette = { main: '#d6ad92', light: '#efd6c4', dark: '#a0745a' };
+const DIAMOND_ORE_PALETTE: OrePalette = { main: '#46d4cc', light: '#c2f7f3', dark: '#16827d' };
+
+// small lump shapes as texel offsets. the first texel catches the light, the last sits in shadow
+const ORE_LUMPS: readonly (readonly (readonly [number, number])[])[] = [
+  [[0, 0], [1, 0], [0, 1]],
+  [[0, 0], [1, 0], [0, 1], [1, 1]],
+  [[1, 0], [0, 1], [1, 1], [2, 1]],
+  [[0, 0], [1, 0], [2, 0], [1, 1]],
+];
+// one lump per quarter of the face so they spread out like a vein running through the stone
+const ORE_QUARTERS = 2;
+// widest lump plus a texel of stone either side, so lumps never touch the quarter edges
+const ORE_LUMP_SPAN = 4;
+
+function paintOre(palette: OrePalette): PixelPainter {
+  return (ctx, rand, size) => {
+    paintStone(ctx, rand, size);
+    const quarter = size / ORE_QUARTERS;
+    for (let qy = 0; qy < ORE_QUARTERS; qy++) {
+      for (let qx = 0; qx < ORE_QUARTERS; qx++) {
+        const lump = ORE_LUMPS[Math.floor(rand() * ORE_LUMPS.length)];
+        const originX = qx * quarter + 1 + Math.floor(rand() * (quarter - ORE_LUMP_SPAN));
+        const originY = qy * quarter + 1 + Math.floor(rand() * (quarter - ORE_LUMP_SPAN));
+        lump.forEach(([dx, dy], i) => {
+          const colour = i === 0 ? palette.light : i === lump.length - 1 ? palette.dark : palette.main;
+          setPixel(ctx, originX + dx, originY + dy, colour);
+        });
+      }
+    }
+  };
+}
+
+const paintIronOre = paintOre(IRON_ORE_PALETTE);
+const paintDiamondOre = paintOre(DIAMOND_ORE_PALETTE);
+
 // --- lookup ---
 
 interface BlockTextureSpec {
@@ -452,6 +495,8 @@ const BLOCK_TEXTURES: Record<BlockKind, BlockFaceTextures> = {
   [BlockKind.Dirt]: sameOnEveryFace(BlockKind.Dirt, paintDirt),
   [BlockKind.RootedDirt]: sameOnEveryFace(BlockKind.RootedDirt, paintRootedDirt),
   [BlockKind.Clay]: sameOnEveryFace(BlockKind.Clay, paintClay),
+  [BlockKind.IronOre]: sameOnEveryFace(BlockKind.IronOre, paintIronOre),
+  [BlockKind.DiamondOre]: sameOnEveryFace(BlockKind.DiamondOre, paintDiamondOre),
 };
 
 // cache key of the texture a block face uses. faces that share a texture share a key,
@@ -474,6 +519,9 @@ const VANILLA_TEXTURE_FILES: Record<BlockKind, Partial<Record<BlockFace, string>
   [BlockKind.Dirt]: { [BlockFace.Side]: 'dirt.png' },
   [BlockKind.RootedDirt]: { [BlockFace.Side]: 'rooted_dirt.png' },
   [BlockKind.Clay]: { [BlockFace.Side]: 'clay.png' },
+  // the ores are painted in code, so they fall back to their painters
+  [BlockKind.IronOre]: {},
+  [BlockKind.DiamondOre]: {},
 };
 
 // loads authentic Minecraft block texture if available, falling back to procedural painter

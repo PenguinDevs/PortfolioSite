@@ -27,6 +27,8 @@ export enum BlockKind {
   Dirt = 'dirt',
   RootedDirt = 'rootedDirt',
   Clay = 'clay',
+  IronOre = 'ironOre',
+  DiamondOre = 'diamondOre',
 }
 
 // which side of a block a texture is painted for

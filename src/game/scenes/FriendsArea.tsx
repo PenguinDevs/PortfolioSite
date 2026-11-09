@@ -9,6 +9,8 @@ import { usePlayerRef } from '../contexts/PlayerContext';
 import { useFriendsChest } from '../contexts/FriendsChestContext';
 import { VoxelBlocks } from '../minecraft/VoxelBlocks';
 import { PillarWaist, StonePillar } from '../minecraft/StonePillar';
+import type { PillarAccent } from '../minecraft/StonePillar';
+import { BlockKind } from '../minecraft/constants';
 import { Chest, CraftingTable, Furnace, Lantern, Torch, WallFacing } from '../minecraft/props';
 import { AzaleaBush, BigDripleaf, CaveVines, GrassTuft, HangingRoots, SmallDripleaf, SporeBlossom } from '../minecraft/decor';
 import { buildCaveShell, WALL_FACE_Z } from './friendsCave';
@@ -50,14 +52,22 @@ interface PillarPlacement {
   depth: 1 | 2;
   seed: number;
   waistSide?: PillarWaist;
+  accents?: readonly PillarAccent[];
 }
+
+// one lump of iron low down and a diamond near the top, on the inner column of the pillar
+// beside the chest, both clear of its waist so neither gets pared away
+const ORE_ACCENTS: readonly PillarAccent[] = [
+  { kind: BlockKind.IronOre, x: 1, y: 2 },
+  { kind: BlockKind.DiamondOre, x: 1, y: 7 },
+];
 
 // foreground columns between the camera and the penguin. their feet sit around the bottom
 // edge of the frame, and they stay clear of the chest menu (top middle of the screen) while
 // the penguin stands at the chest. the last one sits further back so the columns read as
 // separate layers when walking past
 const PILLARS: PillarPlacement[] = [
-  { x: 25.5, z: 10.5, height: 12, width: 2, depth: 1, seed: 3, waistSide: PillarWaist.Right },
+  { x: 25.5, z: 10.5, height: 12, width: 2, depth: 1, seed: 3, waistSide: PillarWaist.Right, accents: ORE_ACCENTS },
   { x: 36, z: 10.5, height: 12, width: 1, depth: 1, seed: 8 },
   { x: 41.5, z: 9, height: 13, width: 2, depth: 2, seed: 13, waistSide: PillarWaist.Left },
 ];

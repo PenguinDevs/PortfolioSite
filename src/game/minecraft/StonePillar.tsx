@@ -19,11 +19,21 @@ export type StonePillarProps = {
   seed?: number;
   // which side a two block wide shaft curves in on at its waist
   waistSide?: PillarWaist;
+  // blocks swapped into the front of the shaft, e.g. ores
+  accents?: readonly PillarAccent[];
 } & ThreeElements['group'];
 
 export enum PillarWaist {
   Left = 'left',
   Right = 'right',
+}
+
+// a block swapped into the front face of the shaft. x is the shaft column (0 is the left) and
+// y the layer, an accent on a cell pared away at the waist is simply skipped
+export interface PillarAccent {
+  kind: BlockKind;
+  x: number;
+  y: number;
 }
 
 // share of the height where the waist starts and ends. the middle of a two block wide shaft
@@ -39,6 +49,7 @@ export interface PillarShape {
   baseFlare: number;
   seed: number;
   waistSide: PillarWaist;
+  accents?: readonly PillarAccent[];
 }
 
 // the bottom layer rings the shaft one block out, minus a few knocked out blocks
@@ -107,7 +118,7 @@ function pickKind(rand: Rng, cell: PillarCell, topExposed: boolean, height: numb
 
 // cells use the shaft's own grid, x in [0, width) and z in [0, depth), flare cells spill
 // one block outside that. the front of the shaft (facing the camera) is z = depth - 1
-export function buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide }: PillarShape): VoxelBlock[] {
+export function buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide, accents = [] }: PillarShape): VoxelBlock[] {
   const rand = seededRandom(hashString(`stonePillar:${seed}`));
   const layers = Math.max(0, Math.floor(height));
   const flareLayers = Math.min(Math.max(0, Math.floor(baseFlare)), layers);
@@ -168,12 +179,14 @@ export function buildPillarBlocks({ height, width, depth, baseFlare, seed, waist
     }
   }
 
-  return cells.map((cell) => ({
-    kind: pickKind(rand, cell, !occupied.has(`${cell.x},${cell.y + 1},${cell.z}`), layers),
-    x: cell.x,
-    y: cell.y,
-    z: cell.z,
-  }));
+  // every cell still rolls its kind first, so adding an accent never reshuffles the rest of the pillar
+  const accentKinds = new Map(accents.map((accent) => [`${accent.x},${accent.y}`, accent.kind]));
+  const frontZ = depth - 1;
+  return cells.map((cell) => {
+    const kind = pickKind(rand, cell, !occupied.has(`${cell.x},${cell.y + 1},${cell.z}`), layers);
+    const accent = !cell.flare && cell.z === frontZ ? accentKinds.get(`${cell.x},${cell.y}`) : undefined;
+    return { kind: accent ?? kind, x: cell.x, y: cell.y, z: cell.z };
+  });
 }
 
 // a natural cave column, width x depth blocks thick with a stubby mossy foot. centred on the
@@ -185,11 +198,12 @@ export function StonePillar({
   baseFlare = 2,
   seed = 0,
   waistSide = PillarWaist.Right,
+  accents,
   ...groupProps
 }: StonePillarProps) {
   const blocks = useMemo(
-    () => buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide }),
-    [height, width, depth, baseFlare, seed, waistSide],
+    () => buildPillarBlocks({ height, width, depth, baseFlare, seed, waistSide, accents }),
+    [height, width, depth, baseFlare, seed, waistSide, accents],
   );
 
   return (
