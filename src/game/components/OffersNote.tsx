@@ -7,8 +7,7 @@ import { TextWindow } from './TextWindow';
 
 const NOTE_TITLE = '2026 internship offers';
 const NOTE_PADDING = 14;
-// rows sit just far enough apart that the red circles round neighbouring offers only touch
-const ROW_GAP = 6;
+const ROW_GAP = 4;
 const ROW_FONT_SIZE = 17;
 // company logos sit just under the text height, rounded like the experience logos
 const LOGO_HEIGHT = 17;
@@ -21,14 +20,6 @@ const REDACTION_TILT_DEG = -1.5;
 const REDACTION_LABEL = 'NDA';
 const REDACTION_DESCRIPTION = 'company name under NDA';
 
-// red pen loop around an accepted offer. it never closes: the end overshoots past
-// where it started, passing just above it, like a quick scribble
-const CIRCLE_COLOUR = '#d63031';
-const CIRCLE_PATH = 'M60 2C30 0 6 4 4 18C2 32 30 39 55 38C82 37 98 29 96 18C95 8 80 -1 46 -6';
-// how far the loop reaches past the row on each side
-const CIRCLE_OVERHANG_X = 10;
-const CIRCLE_OVERHANG_Y = 5;
-
 export interface OffersNoteProps {
   offers: InternshipOffer[];
   width: number;
@@ -37,7 +28,7 @@ export interface OffersNoteProps {
   fontScale?: number;
 }
 
-// sticky note listing internship offers with their logos, with the accepted ones circled in red pen.
+// sticky note listing internship offers with their logos.
 // the pin or peg holding it up is drawn by whatever it hangs on
 export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteProps) {
   const mode = useLightingMode();
@@ -60,9 +51,6 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
           <div
             key={offer.company}
             style={{
-              position: 'relative',
-              // shrink to the logo and name so the circle hugs them
-              alignSelf: 'flex-start',
               display: 'flex',
               alignItems: 'center',
               gap: 6,
@@ -104,33 +92,6 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
               </>
             ) : (
               <span>{offer.company}</span>
-            )}
-            {offer.accepted && (
-              <svg
-                viewBox="0 0 100 40"
-                preserveAspectRatio="none"
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  top: -CIRCLE_OVERHANG_Y * fontScale,
-                  bottom: -CIRCLE_OVERHANG_Y * fontScale,
-                  left: -CIRCLE_OVERHANG_X * fontScale,
-                  right: -CIRCLE_OVERHANG_X * fontScale,
-                  width: `calc(100% + ${2 * CIRCLE_OVERHANG_X * fontScale}px)`,
-                  height: `calc(100% + ${2 * CIRCLE_OVERHANG_Y * fontScale}px)`,
-                  overflow: 'visible',
-                  pointerEvents: 'none',
-                }}
-              >
-                <path
-                  d={CIRCLE_PATH}
-                  fill="none"
-                  stroke={CIRCLE_COLOUR}
-                  strokeWidth={2.2}
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
             )}
           </div>
         ))}
