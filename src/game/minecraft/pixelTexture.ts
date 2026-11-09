@@ -107,3 +107,33 @@ export function loadVanillaTexture(url: string, tint?: string, repeat?: boolean)
 
   return texture;
 }
+
+const pixelCache = new Map<string, Promise<ImageData>>();
+
+// reads the raw texels of a texture PNG from public/assets/minecraft/textures/, for building
+// geometry from a sprite's shape. cached per url, a failed load is dropped so it can retry
+export function loadVanillaPixels(url: string): Promise<ImageData> {
+  const cached = pixelCache.get(url);
+  if (cached) return cached;
+
+  const { promise, resolve, reject } = Promise.withResolvers<ImageData>();
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      reject(new Error('vanilla pixels: 2d canvas context unavailable'));
+      return;
+    }
+    ctx.drawImage(img, 0, 0);
+    resolve(ctx.getImageData(0, 0, img.width, img.height));
+  };
+  img.onerror = () => reject(new Error(`vanilla pixels: failed to load ${url}`));
+  img.src = url;
+
+  promise.catch(() => pixelCache.delete(url));
+  pixelCache.set(url, promise);
+  return promise;
+}

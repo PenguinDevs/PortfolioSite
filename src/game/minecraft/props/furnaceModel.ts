@@ -1,378 +1,220 @@
 import type { BufferGeometry } from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { BoxFaceIndex, PROP_TEXEL, createTexelBox } from '../propTextures';
-import type { BoxFaceOrigins, TexelOrigin } from '../propTextures';
-import {
-  STONE_ORIGIN,
-  FRAME_ORIGIN,
-  BAND_ORIGIN,
-  WALL_ORIGIN,
-  GRATE_ORIGIN,
-  BARK_ORIGIN,
-  CHARRED_ORIGIN,
-  EMBER_ORIGIN,
-} from './furnaceTextures';
+import { PIXEL_TEXTURE_SIZE } from '../constants';
+import { PROP_TEXEL } from '../propTextures';
+import { CELL_FACE_SHAPES, CELL_FACES, CellFace, TexelQuadBuilder, texelCentreU, texelCentreV } from './texelQuads';
+import type { Vec3 } from './texelQuads';
 
-// the furnace is built from texel boxes merged into one geometry per material
-// and outline class. everything is measured in texels: x and z run -8..8
-// across the block and y runs 0..16 up from the floor
+// the furnace is a full block made of 16 x 16 x 16 texel sized cells with the openings of the
+// vanilla front texture carved back into it. every visible cell face becomes one quad showing
+// the texel that sits there on the vanilla texture, so from straight on it matches the block
+// in game texel for texel. the fire opening faces +z and the origin is the bottom centre
 
-export enum FurnaceMaterial {
-  Stones = 'stones',
-  Frame = 'frame',
-  Band = 'band',
-  Wall = 'wall',
-  Grate = 'grate',
-  Bark = 'bark',
-  Charred = 'charred',
-  Ember = 'ember',
+// which material a face is drawn with
+export enum FurnaceSurface {
+  // furnace_front, or furnace_front_on when lit
+  Front = 'front',
+  // furnace_side on the left, right and back
+  Side = 'side',
+  // furnace_top on the top and bottom
+  Top = 'top',
+  // tinted stone lining the fire chamber
+  Lining = 'lining',
 }
 
-// big features get ink outlines, small relief stays plain
-export enum Outline {
-  Ink = 'ink',
-  Plain = 'plain',
+export const FURNACE_SURFACES = Object.values(FurnaceSurface);
+
+export interface FurnaceModel {
+  surfaces: Record<FurnaceSurface, BufferGeometry>;
+  // every face in one shape only geometry, so coplanar faces from different materials share
+  // edges and only silhouettes and creases get inked
+  inkGeometry: BufferGeometry;
 }
 
-export interface FurnacePart {
-  material: FurnaceMaterial;
-  outline: Outline;
-  geometry: BufferGeometry;
+const SIZE = PIXEL_TEXTURE_SIZE;
+const HALF = SIZE / 2;
+const LAST = SIZE - 1;
+const CELL: Vec3 = [PROP_TEXEL, PROP_TEXEL, PROP_TEXEL];
+
+// how the faces inside a carved out region are textured
+enum Lining {
+  // the hole's own front texels carried straight back, for shallow relief
+  FrontTexels,
+  // tinted stone walls round a dark back wall, for the fire chamber
+  Soot,
 }
 
-interface PieceStyle {
-  material: FurnaceMaterial;
-  outline: Outline;
+// [row, first column, last column] of a hole on the front texture, rows count down from the top
+type RowSpan = readonly [row: number, first: number, last: number];
+
+// texels behind the front face, [from, to)
+type DepthSpan = readonly [from: number, to: number];
+
+interface Carve {
+  rows: readonly RowSpan[];
+  depth: DepthSpan;
+  lining: Lining;
 }
 
-const STONES_INK: PieceStyle = { material: FurnaceMaterial.Stones, outline: Outline.Ink };
-const STONES_PLAIN: PieceStyle = { material: FurnaceMaterial.Stones, outline: Outline.Plain };
-const FRAME_INK: PieceStyle = { material: FurnaceMaterial.Frame, outline: Outline.Ink };
-const BAND_INK: PieceStyle = { material: FurnaceMaterial.Band, outline: Outline.Ink };
-const WALL_PLAIN: PieceStyle = { material: FurnaceMaterial.Wall, outline: Outline.Plain };
-const GRATE_PLAIN: PieceStyle = { material: FurnaceMaterial.Grate, outline: Outline.Plain };
-const EMBER_PLAIN: PieceStyle = { material: FurnaceMaterial.Ember, outline: Outline.Plain };
-
-// [from, to] in texels, exclusive upper bound
-type Span = readonly [number, number];
-
-const HALF = 8;
-// frame ring is 2 texels wide around each face
-const FRAME_W = 2;
-// inner edge of the frame in each axis
-const INNER = HALF - FRAME_W; // 6
-
-// smooth stone band covers the bottom 3 texel rows
-const BAND_TOP = 3;
-
-// fire opening on the front (+z): 8 wide, 5 tall, 5 deep from the panel face
-const FIRE_X: Span = [-4, 4];
-const FIRE_Y: Span = [BAND_TOP, 8];
-const OPEN_DEPTH = 5; // both openings share this depth
-
-// upper opening: 8 wide, 4 tall, same depth
-const UPPER_X: Span = [-4, 4];
-const UPPER_Y: Span = [10, 14];
-
-// shelf divider between the two openings
-const SHELF_Y: Span = [8, 10];
-
-// the panel face sits at the inner edge of the frame
-const PANEL_Z = INNER; // z = 6
-// opening back walls sit here
-const BACK_Z = PANEL_Z - OPEN_DEPTH; // z = 1
-
-// vent slit positions on the +x side (y values)
-const VENT_Y_POSITIONS = [10, 12] as const;
-const VENT_WIDTH = 4; // z extent
-const VENT_DEPTH = 2; // x extent inward from the panel face
-
-// grate bar x offsets from centre (vertical bars) in the upper opening
-const GRATE_BAR_X = [-2, 1] as const;
-// horizontal crossbar y position
-const GRATE_CROSS_Y = 12;
-
-// ---------------------------------------------------------------------------
-// origin helper: maps all box faces to the same texture origin
-// ---------------------------------------------------------------------------
-
-function sameOrigin(origin: TexelOrigin): BoxFaceOrigins {
-  return {
-    [BoxFaceIndex.PlusX]: origin,
-    [BoxFaceIndex.MinusX]: origin,
-    [BoxFaceIndex.PlusY]: origin,
-    [BoxFaceIndex.MinusY]: origin,
-    [BoxFaceIndex.PlusZ]: origin,
-    [BoxFaceIndex.MinusZ]: origin,
-  };
+function rowsBetween(firstRow: number, lastRow: number, firstColumn: number, lastColumn: number): RowSpan[] {
+  const rows: RowSpan[] = [];
+  for (let row = firstRow; row <= lastRow; row++) rows.push([row, firstColumn, lastColumn]);
+  return rows;
 }
 
-// ---------------------------------------------------------------------------
-// builder: collects boxes into buckets by material + outline, then merges
-// ---------------------------------------------------------------------------
+// the stepped arch of the top slot, following its dark texels on furnace_front
+const TOP_SLOT_DEPTH = 2;
+const TOP_SLOT: Carve = {
+  rows: [
+    [3, 5, 10],
+    [4, 4, 11],
+    [5, 3, 12],
+    [6, 3, 12],
+  ],
+  depth: [0, TOP_SLOT_DEPTH],
+  lining: Lining.FrontTexels,
+};
 
-class FurnaceBuilder {
-  private readonly buckets = new Map<string, { style: PieceStyle; boxes: BufferGeometry[] }>();
+// the fire mouth is cut through a front wall one texel thick, again following the dark
+// texels on furnace_front. the row under it stays as a sill
+const FRONT_WALL_DEPTH = 1;
+const MOUTH: Carve = {
+  rows: [
+    [11, 5, 10],
+    [12, 4, 11],
+    [13, 3, 12],
+    [14, 3, 12],
+  ],
+  depth: [0, FRONT_WALL_DEPTH],
+  lining: Lining.Soot,
+};
 
-  box(style: PieceStyle, x: Span, y: Span, z: Span, origin: TexelOrigin) {
-    const w = x[1] - x[0];
-    const h = y[1] - y[0];
-    const d = z[1] - z[0];
-    if (w <= 0 || h <= 0 || d <= 0) return;
-    const geometry = createTexelBox(w, h, d, sameOrigin(origin));
-    geometry.translate(
-      ((x[0] + x[1]) / 2) * PROP_TEXEL,
-      ((y[0] + y[1]) / 2) * PROP_TEXEL,
-      ((z[0] + z[1]) / 2) * PROP_TEXEL,
-    );
+// behind the wall the chamber opens out to the widest part of the mouth and runs up past
+// its top, so a fire taller than the mouth can stand in it with its tips out of sight
+const CHAMBER_TOP_ROW = 8;
+const CHAMBER_BOTTOM_ROW = 14;
+const CHAMBER_FIRST_COLUMN = 3;
+const CHAMBER_LAST_COLUMN = 12;
+const CHAMBER_DEPTH = 6;
+const FIRE_CHAMBER: Carve = {
+  rows: rowsBetween(CHAMBER_TOP_ROW, CHAMBER_BOTTOM_ROW, CHAMBER_FIRST_COLUMN, CHAMBER_LAST_COLUMN),
+  depth: [FRONT_WALL_DEPTH, CHAMBER_DEPTH],
+  lining: Lining.Soot,
+};
 
-    const key = `${style.material}:${style.outline}`;
-    let bucket = this.buckets.get(key);
-    if (!bucket) {
-      bucket = { style, boxes: [] };
-      this.buckets.set(key, bucket);
+const CARVES: readonly Carve[] = [TOP_SLOT, MOUTH, FIRE_CHAMBER];
+
+// the chamber's back wall samples the dark border along the top of the lining texture
+const SOOT_BACK_ROW = 0;
+
+// where the bottom centre of the fire goes: on the chamber floor, centred across the mouth and
+// this many texels behind the front face, two texels clear of the inside of the front wall
+const FIRE_DEPTH = 3;
+export const FIRE_POSITION: Vec3 = [0, (LAST - CHAMBER_BOTTOM_ROW) * PROP_TEXEL, (HALF - FIRE_DEPTH) * PROP_TEXEL];
+
+// grid value for a cell that is still stone, carved cells store their carve index plus one
+const SOLID = 0;
+
+function cellIndex(x: number, y: number, z: number): number {
+  return (y * SIZE + z) * SIZE + x;
+}
+
+// cell x runs left to right seen from the front, y bottom to top and z back to front, so
+// front texel (column, row) is the cell x = column, y = LAST - row in the front layer
+function carveGrid(): Uint8Array {
+  const grid = new Uint8Array(SIZE * SIZE * SIZE);
+  CARVES.forEach((carve, carveIndex) => {
+    const [fromDepth, toDepth] = carve.depth;
+    for (const [row, first, last] of carve.rows) {
+      for (let depth = fromDepth; depth < toDepth; depth++) {
+        for (let column = first; column <= last; column++) {
+          grid[cellIndex(column, LAST - row, LAST - depth)] = carveIndex + 1;
+        }
+      }
     }
-    bucket.boxes.push(geometry);
-  }
+  });
+  return grid;
+}
 
-  build(): FurnacePart[] {
-    const parts: FurnacePart[] = [];
-    for (const { style, boxes } of this.buckets.values()) {
-      if (boxes.length === 0) continue;
-      const geometry = mergeGeometries(boxes);
-      for (const box of boxes) box.dispose();
-      if (!geometry) throw new Error('furnace: failed to merge geometry');
-      parts.push({ material: style.material, outline: style.outline, geometry });
+interface TexelPick {
+  surface: FurnaceSurface;
+  column: number;
+  row: number;
+}
+
+// faces on the outside of the block, each texture upright as seen from outside it
+function outerTexel(face: CellFace, x: number, y: number, z: number): TexelPick {
+  switch (face) {
+    case CellFace.Front:
+      return { surface: FurnaceSurface.Front, column: x, row: LAST - y };
+    case CellFace.Back:
+      return { surface: FurnaceSurface.Side, column: LAST - x, row: LAST - y };
+    case CellFace.Right:
+      return { surface: FurnaceSurface.Side, column: LAST - z, row: LAST - y };
+    case CellFace.Left:
+      return { surface: FurnaceSurface.Side, column: z, row: LAST - y };
+    // tops have the back of the block at the top of the texture, bottoms mirror that
+    case CellFace.Top:
+      return { surface: FurnaceSurface.Top, column: x, row: z };
+    case CellFace.Bottom:
+      return { surface: FurnaceSurface.Top, column: x, row: LAST - z };
+  }
+}
+
+// faces of stone cells looking into the carved cell at (nx, ny, nz)
+function liningTexel(face: CellFace, lining: Lining, x: number, y: number, z: number, nx: number, ny: number): TexelPick {
+  if (lining === Lining.FrontTexels) return { surface: FurnaceSurface.Front, column: nx, row: LAST - ny };
+  switch (face) {
+    case CellFace.Front:
+      return { surface: FurnaceSurface.Lining, column: x, row: SOOT_BACK_ROW };
+    case CellFace.Back:
+      return { surface: FurnaceSurface.Lining, column: x, row: LAST - y };
+    case CellFace.Right:
+    case CellFace.Left:
+      return { surface: FurnaceSurface.Lining, column: z, row: LAST - y };
+    case CellFace.Top:
+    case CellFace.Bottom:
+      return { surface: FurnaceSurface.Lining, column: x, row: z };
+  }
+}
+
+// builds the whole block once, the caller owns and disposes the returned geometries
+export function buildFurnaceModel(): FurnaceModel {
+  const grid = carveGrid();
+  const builders = {} as Record<FurnaceSurface, TexelQuadBuilder>;
+  for (const surface of FURNACE_SURFACES) builders[surface] = new TexelQuadBuilder();
+  const ink = new TexelQuadBuilder();
+
+  for (let y = 0; y < SIZE; y++) {
+    for (let z = 0; z < SIZE; z++) {
+      for (let x = 0; x < SIZE; x++) {
+        if (grid[cellIndex(x, y, z)] !== SOLID) continue;
+
+        for (const face of CELL_FACES) {
+          const [dx, dy, dz] = CELL_FACE_SHAPES[face].normal;
+          const nx = x + dx;
+          const ny = y + dy;
+          const nz = z + dz;
+
+          let pick: TexelPick;
+          const outside = nx < 0 || nx >= SIZE || ny < 0 || ny >= SIZE || nz < 0 || nz >= SIZE;
+          if (outside) {
+            pick = outerTexel(face, x, y, z);
+          } else {
+            const neighbour = grid[cellIndex(nx, ny, nz)];
+            if (neighbour === SOLID) continue;
+            pick = liningTexel(face, CARVES[neighbour - 1].lining, x, y, z, nx, ny);
+          }
+
+          const u = texelCentreU(pick.column, SIZE);
+          const v = texelCentreV(pick.row, SIZE);
+          builders[pick.surface].addFace(face, x - HALF, y, z - HALF, CELL, u, v);
+          ink.addFace(face, x - HALF, y, z - HALF, CELL, u, v);
+        }
+      }
     }
-    return parts;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// body: band, frame, and the core split around the two openings
-// ---------------------------------------------------------------------------
-
-function addBody(b: FurnaceBuilder) {
-  // smooth stone band covering the full block base
-  b.box(BAND_INK, [-HALF, HALF], [0, BAND_TOP], [-HALF, HALF], BAND_ORIGIN);
-
-  // four corner posts from the top of the band to the top of the block
-  for (const sx of [-1, 1] as const) {
-    for (const sz of [-1, 1] as const) {
-      const px: Span = sx < 0 ? [-HALF, -INNER] : [INNER, HALF];
-      const pz: Span = sz < 0 ? [-HALF, -INNER] : [INNER, HALF];
-      b.box(FRAME_INK, px, [BAND_TOP, 16], pz, FRAME_ORIGIN);
-    }
   }
 
-  // top rails between posts (y 14..16)
-  const topY: Span = [16 - FRAME_W, 16];
-  b.box(FRAME_INK, [-INNER, INNER], topY, [-HALF, -INNER], FRAME_ORIGIN);  // back
-  b.box(FRAME_INK, [-INNER, INNER], topY, [INNER, HALF], FRAME_ORIGIN);    // front
-  b.box(FRAME_INK, [-HALF, -INNER], topY, [-INNER, INNER], FRAME_ORIGIN);  // left
-  b.box(FRAME_INK, [INNER, HALF], topY, [-INNER, INNER], FRAME_ORIGIN);    // right
-
-  // the core (panel region inside the frame, above the band) is split into pieces
-  // that leave the fire and upper openings empty on the front face.
-  // openings carve x [-4,4], z [BACK_Z, PANEL_Z] at their respective y ranges
-  //
-  // back slab: behind both openings
-  b.box(STONES_INK, [-INNER, INNER], [BAND_TOP, 16 - FRAME_W], [-INNER, BACK_Z], STONE_ORIGIN);
-
-  // left and right columns flanking the openings (split at the shelf)
-  for (const side of [-1, 1] as const) {
-    const cx: Span = side < 0 ? [-INNER, FIRE_X[0]] : [FIRE_X[1], INNER];
-    b.box(STONES_INK, cx, [BAND_TOP, SHELF_Y[0]], [BACK_Z, PANEL_Z], STONE_ORIGIN);  // lower
-    b.box(STONES_INK, cx, [SHELF_Y[1], 16 - FRAME_W], [BACK_Z, PANEL_Z], STONE_ORIGIN); // upper
-    b.box(STONES_INK, cx, SHELF_Y, [BACK_Z, PANEL_Z], STONE_ORIGIN);                 // shelf level
-  }
-
-  // shelf spanning the full panel width between the two openings
-  b.box(BAND_INK, FIRE_X, SHELF_Y, [BACK_Z, PANEL_Z], BAND_ORIGIN);
+  const surfaces = {} as Record<FurnaceSurface, BufferGeometry>;
+  for (const surface of FURNACE_SURFACES) surfaces[surface] = builders[surface].build();
+  return { surfaces, inkGeometry: ink.buildShape() };
 }
-
-// ---------------------------------------------------------------------------
-// opening interiors: dark back walls inside each recess
-// ---------------------------------------------------------------------------
-
-function addOpeningInteriors(b: FurnaceBuilder) {
-  // fire back wall: sits just in front of the back slab
-  b.box(WALL_PLAIN, FIRE_X, FIRE_Y, [BACK_Z, BACK_Z + 1], WALL_ORIGIN);
-  // upper opening back wall
-  b.box(WALL_PLAIN, UPPER_X, UPPER_Y, [BACK_Z, BACK_Z + 1], WALL_ORIGIN);
-}
-
-// ---------------------------------------------------------------------------
-// vent slits on the +x side: shallow cuts with glow planes added by component
-// ---------------------------------------------------------------------------
-
-function addVentRecesses(b: FurnaceBuilder) {
-  // the vents cut into the right side of the core, which is the right column pieces.
-  // since the right columns are already placed as solid boxes, we add small dark boxes
-  // inset from the panel face to suggest the vent slot. the slot is shallow enough that
-  // a thin dark box on the face reads as a recess
-  const ventPanelX = INNER; // +x panel face position
-  for (const vy of VENT_Y_POSITIONS) {
-    // dark back of the vent slot, sits just inside the +x face
-    b.box(WALL_PLAIN,
-      [ventPanelX - VENT_DEPTH, ventPanelX - VENT_DEPTH + 1],
-      [vy, vy + 1],
-      [-VENT_WIDTH / 2, VENT_WIDTH / 2],
-      WALL_ORIGIN,
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// grate bars in the upper opening
-// ---------------------------------------------------------------------------
-
-function addGrate(b: FurnaceBuilder) {
-  // vertical bars: 1 wide, full height of upper opening, 1 deep, set 2 texels back
-  const barZ: Span = [PANEL_Z - 3, PANEL_Z - 2];
-  for (const bx of GRATE_BAR_X) {
-    b.box(GRATE_PLAIN, [bx, bx + 1], UPPER_Y, barZ, GRATE_ORIGIN);
-  }
-  // horizontal crossbar: spans the opening width, 1 tall
-  // split into pieces between the vertical bars to avoid overlapping geometry
-  const crossY: Span = [GRATE_CROSS_Y, GRATE_CROSS_Y + 1];
-  b.box(GRATE_PLAIN, [UPPER_X[0], GRATE_BAR_X[0]], crossY, barZ, GRATE_ORIGIN);
-  b.box(GRATE_PLAIN, [GRATE_BAR_X[0] + 1, GRATE_BAR_X[1]], crossY, barZ, GRATE_ORIGIN);
-  b.box(GRATE_PLAIN, [GRATE_BAR_X[1] + 1, UPPER_X[1]], crossY, barZ, GRATE_ORIGIN);
-}
-
-// ---------------------------------------------------------------------------
-// raised relief stones on the side, top and back panels
-// ---------------------------------------------------------------------------
-
-function addRelief(b: FurnaceBuilder) {
-  // stones stand 1 texel proud of the recessed panel face (flush with the frame)
-
-  // front face (+z): narrow strips beside the openings
-  b.box(STONES_PLAIN, [-INNER, FIRE_X[0]], [SHELF_Y[1], UPPER_Y[0]],
-    [PANEL_Z, PANEL_Z + 1], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [FIRE_X[1], INNER], [SHELF_Y[1], UPPER_Y[0]],
-    [PANEL_Z, PANEL_Z + 1], STONE_ORIGIN);
-
-  // top face (+y): a few raised stones on the recessed top panel
-  const topPanel = 16 - FRAME_W;
-  b.box(STONES_PLAIN, [-4, -1], [topPanel, topPanel + 1], [-4, 0], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [1, 4], [topPanel, topPanel + 1], [1, 5], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [-2, 2], [topPanel, topPanel + 1], [-INNER, -3], STONE_ORIGIN);
-
-  // +x side: three raised stones, avoiding the vent positions
-  b.box(STONES_PLAIN, [PANEL_Z, PANEL_Z + 1], [BAND_TOP + 1, BAND_TOP + 4],
-    [-4, -1], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [PANEL_Z, PANEL_Z + 1], [BAND_TOP + 1, BAND_TOP + 4],
-    [2, 5], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [PANEL_Z, PANEL_Z + 1], [13, topPanel],
-    [-3, 1], STONE_ORIGIN);
-
-  // -x side: three raised stones
-  b.box(STONES_PLAIN, [-(PANEL_Z + 1), -PANEL_Z], [BAND_TOP + 1, BAND_TOP + 4],
-    [-3, 1], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [-(PANEL_Z + 1), -PANEL_Z], [8, 11],
-    [2, 5], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [-(PANEL_Z + 1), -PANEL_Z], [12, topPanel],
-    [-5, -2], STONE_ORIGIN);
-
-  // back face (-z): three raised stones
-  b.box(STONES_PLAIN, [-4, -1], [BAND_TOP + 1, BAND_TOP + 4],
-    [-(PANEL_Z + 1), -PANEL_Z], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [1, 5], [8, 11],
-    [-(PANEL_Z + 1), -PANEL_Z], STONE_ORIGIN);
-  b.box(STONES_PLAIN, [-3, 1], [12, topPanel],
-    [-(PANEL_Z + 1), -PANEL_Z], STONE_ORIGIN);
-}
-
-// ---------------------------------------------------------------------------
-// ember bed on the fire floor
-// ---------------------------------------------------------------------------
-
-function addEmberBed(b: FurnaceBuilder) {
-  // thin glowing slab just above the fire floor
-  b.box(EMBER_PLAIN, FIRE_X, [FIRE_Y[0], FIRE_Y[0] + 1],
-    [BACK_Z + 1, PANEL_Z - 1], EMBER_ORIGIN);
-}
-
-// ---------------------------------------------------------------------------
-// public: build the complete shell
-// ---------------------------------------------------------------------------
-
-export function buildFurnaceParts(): FurnacePart[] {
-  const builder = new FurnaceBuilder();
-  addBody(builder);
-  addOpeningInteriors(builder);
-  addVentRecesses(builder);
-  addGrate(builder);
-  addRelief(builder);
-  addEmberBed(builder);
-  return builder.build();
-}
-
-// ---------------------------------------------------------------------------
-// log geometry and placement (built separately so they can be rotated)
-// ---------------------------------------------------------------------------
-
-export interface FurnaceLogInfo {
-  width: number;
-  height: number;
-  depth: number;
-  position: [number, number, number];
-  rotation: [number, number, number];
-}
-
-// two crossed logs sitting in the fire chamber
-export const FURNACE_LOGS: readonly FurnaceLogInfo[] = [
-  {
-    width: 6, height: 2, depth: 2,
-    position: [0, (FIRE_Y[0] + 1) * PROP_TEXEL, ((BACK_Z + PANEL_Z) / 2) * PROP_TEXEL],
-    rotation: [0, 0.5, 0.1],
-  },
-  {
-    width: 6, height: 2, depth: 2,
-    position: [0, (FIRE_Y[0] + 2.2) * PROP_TEXEL, ((BACK_Z + PANEL_Z) / 2) * PROP_TEXEL],
-    rotation: [0, -0.5, -0.1],
-  },
-];
-
-export function buildLogGeometry(info: FurnaceLogInfo, lit: boolean): BufferGeometry {
-  const origin = lit ? BARK_ORIGIN : CHARRED_ORIGIN;
-  return createTexelBox(info.width, info.height, info.depth, sameOrigin(origin));
-}
-
-// ---------------------------------------------------------------------------
-// flame planes: front-facing cutout sprites inside the fire chamber
-// ---------------------------------------------------------------------------
-
-export interface FlamePlaneInfo {
-  width: number;
-  height: number;
-  position: [number, number, number];
-}
-
-export const FLAME_PLANES: readonly FlamePlaneInfo[] = [
-  // back flame (taller, nearer the back wall)
-  {
-    width: 6, height: 4,
-    position: [0, (FIRE_Y[0] + 3) * PROP_TEXEL, (BACK_Z + 2) * PROP_TEXEL],
-  },
-  // front flame (shorter, near the mouth)
-  {
-    width: 5, height: 3,
-    position: [0, (FIRE_Y[0] + 2.5) * PROP_TEXEL, (PANEL_Z - 2) * PROP_TEXEL],
-  },
-];
-
-// ---------------------------------------------------------------------------
-// vent glow planes on the +x side
-// ---------------------------------------------------------------------------
-
-export const VENT_GLOW_WIDTH = VENT_WIDTH;
-export const VENT_GLOW_HEIGHT = 1;
-
-export const VENT_GLOW_POSITIONS: readonly [number, number, number][] = VENT_Y_POSITIONS.map(vy => [
-  INNER * PROP_TEXEL + 0.002, // just proud of the +x panel face
-  (vy + 0.5) * PROP_TEXEL,
-  0,
-]);
