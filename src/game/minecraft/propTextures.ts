@@ -109,25 +109,6 @@ export function flickerFrame(time: number, phase: number, rate: number): number 
 // palettes, all picked by hand
 // ---------------------------------------------------------------------------
 
-const COBBLE = ['#7d7d7a', '#878784', '#72726f', '#8f8f8b'] as const;
-const COBBLE_MORTAR = '#4a4a48';
-const COBBLE_HIGHLIGHT = '#a3a39f';
-const COBBLE_SHADOW = '#5e5e5b';
-const SMOOTH_STONE = ['#9a9a96', '#a1a19d', '#94948f'] as const;
-const SMOOTH_STONE_EDGE = '#6c6c69';
-const SMOOTH_STONE_RIM = '#b0b0ac';
-const FURNACE_LINTEL = '#7f7f7b';
-const FURNACE_INSIDE = ['#1e1b19', '#24201d', '#2b2622'] as const;
-const FURNACE_INSIDE_SHADOW = '#141210';
-const FURNACE_ASH = ['#3b3531', '#4a423c', '#332e2a'] as const;
-const FURNACE_VENT = '#2a2725';
-
-const FIRE_TIP = '#d9481a';
-const FIRE_OUTER = '#ff8a1f';
-const FIRE_BODY = '#ffc53d';
-const FIRE_CORE = '#ffe486';
-const FIRE_EMBERS = ['#ff7a1a', '#ffb02e', '#e8501a'] as const;
-
 const CHEST_GRAIN = ['#a66f34', '#9a6530', '#b07a3c', '#8f5c2a'] as const;
 const CHEST_SEAM = '#6e4520';
 const CHEST_TRIM = '#4f2f12';
@@ -233,133 +214,6 @@ function paintPlanks(
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// furnace
-// ---------------------------------------------------------------------------
-
-const COBBLE_STONE_COUNT = 10;
-// pixels closer than this to the border between two stones become mortar
-const COBBLE_MORTAR_WIDTH = 0.9;
-const COBBLE_SPECKLE_CHANCE = 0.15;
-
-// shortest distance between two coordinates on a texture that wraps around
-function wrappedDelta(a: number, b: number, size: number): number {
-  const delta = Math.abs(a - b);
-  return Math.min(delta, size - delta);
-}
-
-// rounded stones packed together with dark mortar between them, worked out as a
-// tiling voronoi so the texture repeats cleanly across neighbouring blocks
-const paintCobble: PixelPainter = (ctx, rand, size) => {
-  const stoneX: number[] = [];
-  const stoneY: number[] = [];
-  const stoneColour: string[] = [];
-  for (let i = 0; i < COBBLE_STONE_COUNT; i++) {
-    stoneX.push(rand() * size);
-    stoneY.push(rand() * size);
-    stoneColour.push(pickColour(COBBLE, rand));
-  }
-
-  const nearest = new Int8Array(size * size);
-  const mortar = new Uint8Array(size * size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      let best = Infinity;
-      let second = Infinity;
-      let bestIndex = 0;
-      for (let i = 0; i < COBBLE_STONE_COUNT; i++) {
-        const dx = wrappedDelta(x + 0.5, stoneX[i], size);
-        const dy = wrappedDelta(y + 0.5, stoneY[i], size);
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < best) {
-          second = best;
-          best = distance;
-          bestIndex = i;
-        } else if (distance < second) {
-          second = distance;
-        }
-      }
-      nearest[y * size + x] = bestIndex;
-      mortar[y * size + x] = second - best < COBBLE_MORTAR_WIDTH ? 1 : 0;
-    }
-  }
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const index = y * size + x;
-      if (mortar[index]) {
-        setPixel(ctx, x, y, COBBLE_MORTAR);
-        continue;
-      }
-      // light catches the top of each stone, the bottom sits in shadow
-      const above = mortar[((y + size - 1) % size) * size + x];
-      const below = mortar[((y + 1) % size) * size + x];
-      let colour = stoneColour[nearest[index]];
-      if (above) colour = COBBLE_HIGHLIGHT;
-      else if (below) colour = COBBLE_SHADOW;
-      else if (rand() < COBBLE_SPECKLE_CHANCE) colour = pickColour(COBBLE, rand);
-      setPixel(ctx, x, y, colour);
-    }
-  }
-};
-
-const paintSmoothStone: PixelPainter = (ctx, rand, size) => {
-  fillNoise(ctx, rand, SMOOTH_STONE, 0, 0, size, size);
-  strokeRect(ctx, 0, 0, size, size, SMOOTH_STONE_EDGE);
-  strokeRect(ctx, 1, 1, size - 2, size - 2, SMOOTH_STONE_RIM);
-};
-
-// fire opening on the furnace front, the fire overlay lines up with these
-const FURNACE_FRAME = { x: 3, y: 6, width: 10, height: 9 } as const;
-const FURNACE_OPENING = { x: 4, y: 8, width: 8, height: 6 } as const;
-const FURNACE_VENT_RECT = { x: 6, y: 2, width: 4, height: 2 } as const;
-
-const paintFurnaceFront: PixelPainter = (ctx, rand, size) => {
-  paintCobble(ctx, rand, size);
-
-  // smooth stone surround with a darker outline
-  fillNoise(ctx, rand, SMOOTH_STONE, FURNACE_FRAME.x, FURNACE_FRAME.y, FURNACE_FRAME.width, FURNACE_FRAME.height);
-  strokeRect(ctx, FURNACE_FRAME.x, FURNACE_FRAME.y, FURNACE_FRAME.width, FURNACE_FRAME.height, SMOOTH_STONE_EDGE);
-  fillRect(ctx, FURNACE_OPENING.x, FURNACE_OPENING.y - 1, FURNACE_OPENING.width, 1, FURNACE_LINTEL);
-
-  // sooty hole with a shadow under the lintel and ash on the floor
-  const { x, y, width, height } = FURNACE_OPENING;
-  fillNoise(ctx, rand, FURNACE_INSIDE, x, y, width, height);
-  fillRect(ctx, x, y, width, 1, FURNACE_INSIDE_SHADOW);
-  fillNoise(ctx, rand, FURNACE_ASH, x, y + height - 1, width, 1);
-
-  // small chimney slot near the top
-  fillRect(ctx, FURNACE_VENT_RECT.x - 1, FURNACE_VENT_RECT.y - 1, FURNACE_VENT_RECT.width + 2, FURNACE_VENT_RECT.height + 2, SMOOTH_STONE_EDGE);
-  fillRect(ctx, FURNACE_VENT_RECT.x, FURNACE_VENT_RECT.y, FURNACE_VENT_RECT.width, FURNACE_VENT_RECT.height, FURNACE_VENT);
-};
-
-// tallest flame column inside the opening, the bottom row is always embers
-const FIRE_MAX_HEIGHT = FURNACE_OPENING.height - 2;
-
-// transparent everywhere except the furnace opening, where a bed of embers carries
-// a ragged row of flames. each frame key gets a different seed so the two frames differ
-const paintFurnaceFire: PixelPainter = (ctx, rand) => {
-  const { x, y, width, height } = FURNACE_OPENING;
-  const emberRow = y + height - 1;
-  fillNoise(ctx, rand, FIRE_EMBERS, x, emberRow, width, 1);
-
-  let flameHeight = 1 + Math.floor(rand() * FIRE_MAX_HEIGHT);
-  for (let col = x; col < x + width; col++) {
-    // neighbouring columns stay within a texel or two so the flames look like one fire
-    flameHeight += Math.floor(rand() * 5) - 2;
-    flameHeight = Math.max(1, Math.min(FIRE_MAX_HEIGHT, flameHeight));
-    for (let i = 0; i < flameHeight; i++) {
-      const row = emberRow - 1 - i;
-      const fromTop = flameHeight - 1 - i;
-      let colour = FIRE_BODY;
-      if (fromTop === 0) colour = FIRE_TIP;
-      else if (fromTop === 1) colour = FIRE_OUTER;
-      else if (i === 0) colour = FIRE_CORE;
-      setPixel(ctx, col, row, colour);
-    }
-  }
-};
 
 // ---------------------------------------------------------------------------
 // chest
@@ -494,11 +348,6 @@ const paintTorchFlameB: PixelPainter = (ctx) => {
 // ---------------------------------------------------------------------------
 
 export enum PropTextureKey {
-  Cobble = 'prop:furnace:cobble',
-  FurnaceTop = 'prop:furnace:top',
-  FurnaceFront = 'prop:furnace:front',
-  FurnaceFireA = 'prop:furnace:fireA',
-  FurnaceFireB = 'prop:furnace:fireB',
   ChestSide = 'prop:chest:side',
   ChestTop = 'prop:chest:top',
   ChestInside = 'prop:chest:inside',
@@ -515,11 +364,6 @@ export enum PropTextureKey {
 }
 
 const PROP_PAINTERS: Readonly<Record<PropTextureKey, PixelPainter>> = {
-  [PropTextureKey.Cobble]: paintCobble,
-  [PropTextureKey.FurnaceTop]: paintSmoothStone,
-  [PropTextureKey.FurnaceFront]: paintFurnaceFront,
-  [PropTextureKey.FurnaceFireA]: paintFurnaceFire,
-  [PropTextureKey.FurnaceFireB]: paintFurnaceFire,
   [PropTextureKey.ChestSide]: paintChestSide,
   [PropTextureKey.ChestTop]: paintChestTop,
   [PropTextureKey.ChestInside]: paintChestInside,
