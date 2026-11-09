@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { MathUtils, Vector3 } from 'three';
+import { Box3, MathUtils, Vector3 } from 'three';
 import type { Group } from 'three';
 import type { ThreeElements } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
@@ -90,6 +90,12 @@ const PROMPT_MAX_DISTANCE = 2.6;
 // shows on the wall under the badge it belongs to, clear of the badge's bottom edge
 const PROMPT_OFFSET: [number, number, number] = [0, 1.8, RAIL_Z + 0.4];
 
+// items slide into view quickly as you swipe along the rail, so they draw in much faster than the
+// default reveal: a short outline, with the colour and the badge fading in before it finishes
+const ITEM_REVEAL_EDGE_SECONDS = 0.45;
+const ITEM_REVEAL_COLOUR_DELAY = -0.2;
+const ITEM_REVEAL_COLOUR_SECONDS = 0.3;
+
 interface HangingItemProps {
   // position along the rail relative to the first item
   x: number;
@@ -110,8 +116,24 @@ function HangingItem({ x, heightPx, showHook, seed, children, onInteract, prompt
   const contentRef = useRef<HTMLDivElement>(null);
   const playerRef = usePlayerRef();
 
-  // the reveal is keyed to the rail so it starts when this part of the wall comes into view
-  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(railRef, { perfLabel: 'HangingItem' });
+  const pivotY = RAIL_Y - RAIL_THICKNESS / 2 - (showHook ? HOOK_SIZE[1] : 0);
+
+  // the reveal is keyed to the rail, but the whole item counts towards it being in view, so it
+  // starts drawing as soon as any of it peeks onto the screen rather than once its middle does
+  const revealBounds = useMemo(
+    () => new Box3(
+      new Vector3(-ITEM_SPACING / 2, pivotY - RAIL_Y - heightPx * PX_TO_WORLD, MOUNT_Z - MOUNT_SIZE[2] / 2),
+      new Vector3(ITEM_SPACING / 2, RAIL_THICKNESS / 2, CONTENT_Z),
+    ),
+    [pivotY, heightPx],
+  );
+  const { drawProgress, colourProgress, connectMaterial } = useEntityReveal(railRef, {
+    perfLabel: 'HangingItem',
+    edgeDuration: ITEM_REVEAL_EDGE_SECONDS,
+    colourDelay: ITEM_REVEAL_COLOUR_DELAY,
+    colourDuration: ITEM_REVEAL_COLOUR_SECONDS,
+    bounds: revealBounds,
+  });
 
   const material = useMemo(
     () => createToonMaterial({
@@ -163,8 +185,6 @@ function HangingItem({ x, heightPx, showHook, seed, children, onInteract, prompt
 
     pivot.rotation.z = MathUtils.clamp(spring.value, -SWING_MAX_ANGLE, SWING_MAX_ANGLE);
   });
-
-  const pivotY = RAIL_Y - RAIL_THICKNESS / 2 - (showHook ? HOOK_SIZE[1] : 0);
 
   return (
     <group position={[x, 0, 0]}>
