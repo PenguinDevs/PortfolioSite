@@ -55,12 +55,9 @@ interface PillarPlacement {
   accents?: readonly PillarAccent[];
 }
 
-// one lump of iron low down and a diamond near the top, on the inner column of the pillar
-// beside the chest, both clear of its waist so neither gets pared away
-const ORE_ACCENTS: readonly PillarAccent[] = [
-  { kind: BlockKind.IronOre, x: 1, y: 2 },
-  { kind: BlockKind.DiamondOre, x: 1, y: 7 },
-];
+// a lone diamond near the top of the pillar beside the chest, clear of its waist so it never
+// gets pared away. the iron is in the cave wall instead, see friendsCave
+const ORE_ACCENTS: readonly PillarAccent[] = [{ kind: BlockKind.DiamondOre, x: 1, y: 7 }];
 
 // foreground columns between the camera and the penguin. their feet sit around the bottom
 // edge of the frame, and they stay clear of the chest menu (top middle of the screen) while

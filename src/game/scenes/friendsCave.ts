@@ -55,6 +55,11 @@ const BRIDGE_Z_START = -6;
 // clay floor around the dripleaf, [x0, x1) x [z0, z1)
 const CLAY_POOL = { x0: 38, x1: 44, z0: -6, z1: -2 };
 
+// a small vein of iron in the back wall, in the open stone left of the props so it shows
+// from the chest. [x, y] cells, all above the ground and below the ceiling curve
+const IRON_VEIN: readonly (readonly [number, number])[] = [[23, 6], [24, 6], [24, 5], [25, 5], [25, 4]];
+const IRON_VEIN_CELLS = new Set(IRON_VEIN.map(([x, y]) => `${x},${y}`));
+
 // value noise scale, bigger means larger patches
 const PATCH_SCALE = 4;
 
@@ -185,7 +190,9 @@ export function buildCaveShell(): CaveShell {
       ? WALL_HEIGHT
       : MOUTH_MIN_HEIGHT + Math.round((WALL_HEIGHT - MOUTH_MIN_HEIGHT) * inside * inside) + (rand() < 0.5 ? 0 : 1);
     for (let y = 0; y < wallHeight; y++) {
-      blocks.push({ kind: wallKind(x, y, rand), x, y, z: WALL_Z });
+      // vein cells still roll a wall kind, so the vein never reshuffles the rest of the wall
+      const kind = wallKind(x, y, rand);
+      blocks.push({ kind: IRON_VEIN_CELLS.has(`${x},${y}`) ? BlockKind.IronOre : kind, x, y, z: WALL_Z });
     }
 
     // ceiling overhang across the full-height part of the wall, with a ragged front edge,
