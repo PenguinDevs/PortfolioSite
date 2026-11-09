@@ -519,9 +519,8 @@ const VANILLA_TEXTURE_FILES: Record<BlockKind, Partial<Record<BlockFace, string>
   [BlockKind.Dirt]: { [BlockFace.Side]: 'dirt.png' },
   [BlockKind.RootedDirt]: { [BlockFace.Side]: 'rooted_dirt.png' },
   [BlockKind.Clay]: { [BlockFace.Side]: 'clay.png' },
-  // the ores are painted in code, so they fall back to their painters
-  [BlockKind.IronOre]: {},
-  [BlockKind.DiamondOre]: {},
+  [BlockKind.IronOre]: { [BlockFace.Side]: 'iron_ore.png' },
+  [BlockKind.DiamondOre]: { [BlockFace.Side]: 'diamond_ore.png' },
 };
 
 // loads authentic Minecraft block texture if available, falling back to procedural painter
