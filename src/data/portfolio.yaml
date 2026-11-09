@@ -839,28 +839,35 @@ projects:
       value: https://www.artstation.com/artwork/kNdArK
 
 friends:
-  # discord ids must stay quoted, unquoted ones parse as lossy numbers
+  # discord ids must stay quoted, unquoted ones parse as lossy numbers. avatar is a saved
+  # copy of their discord picture, shown until the live one loads from the avatar api
   - id: swofty
     name: Swofty
     discordId: '873815509097918504'
+    avatar: /assets/images/friends/swofty.webp
     link: https://www.swofty.net/
   - id: tyzren
     name: Tans
     discordId: '782492200587362315'
+    avatar: /assets/images/friends/tyzren.webp
     link: https://www.tyzren.com/
   - id: bobbedbob
     name: BobbedBob
     discordId: '411004916430143508'
+    avatar: /assets/images/friends/bobbedbob.webp
     link: https://bobbedbob.io/
   - id: andrewlliu
     name: Andrew Liu
     discordId: '295039335345160203'
+    avatar: /assets/images/friends/andrewlliu.webp
     link: https://www.andrewlliu.com/
   - id: minip8
     name: Matthew Yang
     discordId: '798017522074910731'
+    avatar: /assets/images/friends/minip8.webp
     link: https://minip8.com/
   - id: sexnine
     name: sexnine
     discordId: '807958370887270400'
+    avatar: /assets/images/friends/sexnine.webp
     link: https://sexnine.xyz/

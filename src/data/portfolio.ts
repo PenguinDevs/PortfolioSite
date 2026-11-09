@@ -90,6 +90,8 @@ export interface FriendData {
   name: string;
   // fetched at runtime so it always shows their current discord avatar
   avatarUrl: string;
+  // saved copy shown until the live avatar loads, and kept if it never does
+  fallbackAvatarUrl?: string;
   link: string;
 }
 
@@ -168,6 +170,7 @@ interface FriendYaml {
   id: string;
   name: string;
   discordId: string;
+  avatar?: string;
   link: string;
 }
 
@@ -338,6 +341,7 @@ export function getFriends(): FriendData[] {
       id: f.id,
       name: f.name,
       avatarUrl: `${DISCORD_AVATAR_API}${f.discordId}`,
+      fallbackAvatarUrl: f.avatar,
       link: f.link,
     };
   });

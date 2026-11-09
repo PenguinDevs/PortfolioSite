@@ -15,19 +15,20 @@ const iconStyle: CSSProperties = {
   objectFit: 'cover',
 };
 
-// a friend's avatar shown straight in their slot. the slot stays empty until it has loaded
+// a friend's avatar shown straight in their slot. the saved copy fills the slot until the
+// live avatar has loaded, and without one the slot stays empty until then
 export function FriendIcon({ friend }: { friend: FriendData }) {
-  const [loaded, setLoaded] = useState(() => isAvatarLoaded(friend.avatarUrl));
+  const [liveLoaded, setLiveLoaded] = useState(() => isAvatarLoaded(friend.avatarUrl));
 
   useEffect(() => {
-    if (loaded) return;
+    if (liveLoaded) return;
     let cancelled = false;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
     const attempt = () => {
       loadAvatar(friend.avatarUrl).then(
         () => {
-          if (!cancelled) setLoaded(true);
+          if (!cancelled) setLiveLoaded(true);
         },
         () => {
           if (!cancelled) retryTimer = setTimeout(attempt, RETRY_DELAY_MS);
@@ -40,10 +41,11 @@ export function FriendIcon({ friend }: { friend: FriendData }) {
       cancelled = true;
       clearTimeout(retryTimer);
     };
-  }, [friend.avatarUrl, loaded]);
+  }, [friend.avatarUrl, liveLoaded]);
 
-  if (!loaded) return null;
+  const src = liveLoaded ? friend.avatarUrl : friend.fallbackAvatarUrl;
+  if (!src) return null;
   // the slot button already carries the friend's name for screen readers
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={friend.avatarUrl} alt="" draggable={false} style={iconStyle} />;
+  return <img src={src} alt="" draggable={false} style={iconStyle} />;
 }
