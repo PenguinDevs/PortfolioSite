@@ -13,13 +13,6 @@ const ROW_FONT_SIZE = 17;
 const LOGO_HEIGHT = 17;
 const LOGO_CORNER_RADIUS_RATIO = 0.22;
 
-// a strip of marker blacking out the name of a company under NDA, with a small label after it
-const REDACTION_WIDTH = 64;
-const REDACTION_HEIGHT_EM = 0.85;
-const REDACTION_TILT_DEG = -1.5;
-const REDACTION_LABEL = 'NDA';
-const REDACTION_DESCRIPTION = 'company name under NDA';
-
 export interface OffersNoteProps {
   offers: InternshipOffer[];
   width: number;
@@ -74,25 +67,7 @@ export function OffersNote({ offers, width, height, fontScale = 1 }: OffersNoteP
                 }}
               />
             )}
-            {offer.redacted ? (
-              <>
-                <span
-                  role="img"
-                  aria-label={REDACTION_DESCRIPTION}
-                  style={{
-                    display: 'inline-block',
-                    width: REDACTION_WIDTH * fontScale,
-                    height: `${REDACTION_HEIGHT_EM}em`,
-                    background: ink,
-                    borderRadius: 2 * fontScale,
-                    transform: `rotate(${REDACTION_TILT_DEG}deg)`,
-                  }}
-                />
-                <span style={{ fontSize: '0.75em', opacity: 0.7 }}>{REDACTION_LABEL}</span>
-              </>
-            ) : (
-              <span>{offer.company}</span>
-            )}
+            <span>{offer.company}</span>
           </div>
         ))}
       </div>

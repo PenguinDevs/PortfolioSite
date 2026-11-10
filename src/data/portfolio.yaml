@@ -358,11 +358,6 @@ internshipOffers:
   - company: Lyra
     logo: /assets/images/experience/lyra.webp
     accepted: true
-  # under NDA, so the note blacks the name out. keep the real name out of this file,
-  # it ships with the public site
-  - company: Undisclosed
-    redacted: true
-    accepted: true
 
 awards:
   - id: macathon-2025
