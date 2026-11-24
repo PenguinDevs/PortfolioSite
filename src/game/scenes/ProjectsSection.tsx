@@ -26,6 +26,7 @@ interface ProjectSlotOverrides {
 const PROJECT_SLOTS: (string | { id: string } & ProjectSlotOverrides)[] = [
   'valotracker',
   'penguinengine',
+  'k8-cluster',
   'roblox-games',
   'catch-n-go',
   'valorpc',
