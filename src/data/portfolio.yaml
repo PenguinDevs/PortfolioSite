@@ -718,6 +718,37 @@ projects:
       type: external
       value: https://github.com/PenguinDevs/PenguinEngine/tree/users/penguindevs/land-vehicles
 
+  - id: k8-cluster
+    title: K8 Cluster
+    media:
+      - type: image
+        src: /assets/images/projects/k8cluster_preview1.webp
+        width: 811
+        height: 1440
+      - type: image
+        src: /assets/images/projects/k8cluster_preview2.webp
+        width: 1440
+        height: 811
+      - type: image
+        src: /assets/images/projects/k8cluster_preview3.webp
+        width: 811
+        height: 1440
+    description: Painstakingly 3D printed a PETG Lab Rax server rack using my Ender 3, for my 6 mini Dell OptiPlexes. Using Talos Linux to experiment with K8 for my pet project ValoTracker.
+    year: '2026'
+    tags:
+      - Homelab
+      - 3D Printing
+    techStack:
+      - Kubernetes
+      - Talos Linux
+    buttons:
+      - label: Visit ValoTracker
+        href: https://valotracker.com
+        type: external
+    link:
+      type: external
+      value: https://valotracker.com
+
   - id: allocateus
     title: AllocateUs
     media:
