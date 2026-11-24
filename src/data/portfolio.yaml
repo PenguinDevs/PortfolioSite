@@ -733,7 +733,7 @@ projects:
         src: /assets/images/projects/k8cluster_preview3.webp
         width: 811
         height: 1440
-    description: Painstakingly 3D printed a PETG Lab Rax server rack using my Ender 3, for my 6 mini Dell OptiPlexes. Using Talos Linux to experiment with K8 for my pet project ValoTracker.
+    description: Painstakingly 3D printed a PETG Lab Rax server rack using my Ender 3, for my 6 mini Dell OptiPlexes. Using Talos Linux to experiment with K8 for my pet project ValoTracker. Now embedded into my homelab that all started with a rpi, into a NAS, into this.
     year: '2026'
     tags:
       - Homelab
